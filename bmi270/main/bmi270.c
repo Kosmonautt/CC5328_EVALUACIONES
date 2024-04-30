@@ -670,10 +670,10 @@ void internal_status(void)
     printf("Internal Status: %2X\n\n", tmp);
 }
 
-void cinco_peaks(int16_t* data_array)
-{
-    return data_arrayp[0];
-}
+// void cinco_peaks(int16_t* data_array)
+// {
+//     return data_arrayp[0];
+// }
 
 void lectura(void)
 {

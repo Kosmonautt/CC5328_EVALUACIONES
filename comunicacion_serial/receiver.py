@@ -2,7 +2,7 @@ import serial
 from struct import pack, unpack
 
 # Se configura el puerto y el BAUD_Rate
-PORT = 'COM3'  # Esto depende del sistema operativo
+PORT = '/dev/ttyUSB0'  # Esto depende del sistema operativo
 BAUD_RATE = 115200  # Debe coincidir con la configuracion de la ESP32
 
 # Se abre la conexion serial
