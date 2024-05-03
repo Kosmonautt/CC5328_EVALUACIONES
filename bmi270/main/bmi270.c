@@ -640,7 +640,7 @@ void check_initialization(void)
     }
 }
 
-void lowpowermode(void)
+void low_power_mode(void)
 {
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x04;
     uint8_t reg_acc_conf = 0x40, val_acc_conf = 0x17;
@@ -653,7 +653,7 @@ void lowpowermode(void)
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
 
-void normalpowermode(void)
+void normal_power_mode(void)
 {
     // PWR_CTRL: disable auxiliary sensor, gryo acc temp on
     // 200Hz en datos acc, filter: performance optimized, acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
@@ -673,7 +673,7 @@ void normalpowermode(void)
     // printf("Normal power mode: activated. \n\n");
 }
 
-void performancemode(void)
+void performance_mode(void)
 {
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x0E;
     uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA8;
@@ -755,7 +755,7 @@ void app_main(void)
     chipid();
     initialization();
     check_initialization();
-    normalpowermode();
+    normal_power_mode();
     internal_status();
     printf("Comienza lectura\n\n");
     lectura();

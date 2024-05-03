@@ -11,7 +11,7 @@ ser = serial.Serial(PORT, BAUD_RATE, timeout = 1)
 # Funciones
 def send_message(message):
     """ Funcion para enviar un mensaje a la ESP32 """
-    ser.write(message)
+    ser.write(message())
 
 def receive_response():
     """ Funcion para recibir un mensaje de la ESP32 """
@@ -38,6 +38,7 @@ while True:
     if ser.in_waiting > 0:
         try:
             response = ser.readline()
+            print(f'Response: {response}')
         except KeyboardInterrupt:
             print('Finalizando comunicacion')
             break
