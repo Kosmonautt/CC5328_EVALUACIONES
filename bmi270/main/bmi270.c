@@ -640,6 +640,19 @@ void check_initialization(void)
     }
 }
 
+void lowpowermode(void)
+{
+    uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x04;
+    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0x17;
+    uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x03;
+
+    bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
+    bmi_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
+    bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+}
+
 void normalpowermode(void)
 {
     // PWR_CTRL: disable auxiliary sensor, gryo acc temp on
@@ -658,6 +671,23 @@ void normalpowermode(void)
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     // printf("Normal power mode: activated. \n\n");
+}
+
+void performancemode(void)
+{
+    uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x0E;
+    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA8;
+    uint8_t reg_gyr_conf = 0x42, val_gyr_conf = 0xE9;
+    uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x02;
+
+    bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
+    bmi_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
+    bmi_write(I2C_NUM_0, &reg_gyr_conf, &val_gyr_conf, 1);
+    bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    // printf("Performance mode: activated. \n\n");
 }
 
 void internal_status(void)
