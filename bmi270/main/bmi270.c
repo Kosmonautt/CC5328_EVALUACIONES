@@ -715,17 +715,10 @@ void internal_status(void)
 //     while (1)
 //     {
 //         bmi_read(I2C_NUM_0, &reg_intstatus, &tmp, 1);
-//         // printf("Init_status.0: %x - mask: %x \n", tmp, (tmp & 0b10000000));
-//         // ESP_LOGI("leturabmi", "acc_data_ready: %x - mask(80): %x \n", tmp, (tmp & 0b10000000));
 
 //         if ((tmp & 0b10000000) == 0x80)
 //         {
 //             ret = bmi_read(I2C_NUM_0, &reg_data, (uint8_t *)data_data8, bytes_data8);
-
-//             // for (i=0; i<bytes_data8; i++)
-//             // {
-//             //     printf("Lectura RAW: %2X \n",data_data8[i]);
-//             // }
 
 //             acc_x = ((uint16_t)data_data8[1] << 8) | (uint16_t)data_data8[0];
 //             acc_y = ((uint16_t)data_data8[3] << 8) | (uint16_t)data_data8[2];
@@ -735,10 +728,10 @@ void internal_status(void)
 //             gyr_y = ((uint16_t)data_data8[9] << 8) | (uint16_t)data_data8[8];
 //             gyr_z = ((uint16_t)data_data8[11] << 8) | (uint16_t)data_data8[10];
 
-//             // printf("acc_x: %f m/s2     acc_y: %f m/s2     acc_z: %f m/s2\n", (int16_t)acc_x * (78.4532 / 32768), (int16_t)acc_y * (78.4532 / 32768), (int16_t)acc_z * (78.4532 / 32768));
-//             // printf("acc_x: %f g     acc_y: %f g     acc_z: %f g     gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", (int16_t)acc_x * (8.000 / 32768), (int16_t)acc_y * (8.000 / 32768), (int16_t)acc_z * (8.000 / 32768), (int16_t)gyr_x * (34.90659 / 32768), (int16_t)gyr_y * (34.90659 / 32768), (int16_t)gyr_z * (34.90659 / 32768));
+//             printf("acc_x: %f m/s2     acc_y: %f m/s2     acc_z: %f m/s2\n", (int16_t)acc_x * (78.4532 / 32768), (int16_t)acc_y * (78.4532 / 32768), (int16_t)acc_z * (78.4532 / 32768));
+//             printf("acc_x: %f g     acc_y: %f g     acc_z: %f g     gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", (int16_t)acc_x * (8.000 / 32768), (int16_t)acc_y * (8.000 / 32768), (int16_t)acc_z * (8.000 / 32768), (int16_t)gyr_x * (34.90659 / 32768), (int16_t)gyr_y * (34.90659 / 32768), (int16_t)gyr_z * (34.90659 / 32768));
 //             printf("acc_x: %f g     acc_y: %f g     acc_z: %f g  \n", (int16_t)acc_x * (8.000 / 32768), (int16_t)acc_y * (8.000 / 32768), (int16_t)acc_z * (8.000 / 32768));
-//             // printf("gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", (int16_t)gyr_x * (34.90659 / 32768), (int16_t)gyr_y * (34.90659 / 32768), (int16_t)gyr_z * (34.90659 / 32768));
+//             printf("gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", (int16_t)gyr_x * (34.90659 / 32768), (int16_t)gyr_y * (34.90659 / 32768), (int16_t)gyr_z * (34.90659 / 32768));
 
 //             if (ret != ESP_OK)
 //             {
@@ -775,6 +768,112 @@ void internal_status(void)
 //     }
 // }
 
+void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size)
+{
+    printf("Datos de aceleración en m/s2\n\n");
+
+    // se crean arrays con malloc para almacenar los datos en m/s2
+    float *acc_x_m_s2 = (float *)malloc(window_size * sizeof(float));
+    float *acc_y_m_s2 = (float *)malloc(window_size * sizeof(float));
+    float *acc_z_m_s2 = (float *)malloc(window_size * sizeof(float));
+
+    // multiplicador para pasar de g a m/s2
+    float g_to_m_s2 = (78.4532 / 32768);
+
+    // se añaden los datos a los arrays en m/s2
+    for (int i = 0; i < window_size; i++)
+    {
+        acc_x_m_s2[i] = (int16_t)acc_x_array[i] * g_to_m_s2;
+        acc_y_m_s2[i] = (int16_t)acc_y_array[i] * g_to_m_s2;
+        acc_z_m_s2[i] = (int16_t)acc_z_array[i] * g_to_m_s2;
+    }
+
+    // se imprimen los datos del array acc_x en m/s2
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: acc_x: %f m/s2\n", i+1 , acc_x_m_s2[i]);
+    }
+
+    // se imprimen los datos del array acc_y en m/s2
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: acc_y: %f m/s2\n", i+1 , acc_y_m_s2[i]);
+    }
+
+    // se imprimen los datos del array acc_z en m/s2
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: acc_z: %f m/s2\n", i+1 , acc_z_m_s2[i]);
+    }
+
+
+    // float que almacena la RMSx hasta el i-esimo dato
+    float RMSx = 0;
+    // float que almacena la RMSy hasta el i-esimo dato
+    float RMSy = 0;
+    // float que almacena la RMSz hasta el i-esimo dato
+    float RMSz = 0;
+    // se crean arrays con malloc para almacenar los datos de la RMS
+    float *RMSx_array = (float *)malloc(window_size * sizeof(float));
+    float *RMSy_array = (float *)malloc(window_size * sizeof(float));
+    float *RMSz_array = (float *)malloc(window_size * sizeof(float));
+
+    // se calcula la RMSx hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSx += pow(acc_x_m_s2[i], 2);
+        RMSx_array[i] = sqrt(RMSx/(i+1));
+    }
+    
+    // se calcula la RMSy hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSy += pow(acc_y_m_s2[i], 2);
+        RMSy_array[i] = sqrt(RMSy/(i+1));
+    }
+
+    // se calcula la RMSz hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSz += pow(acc_z_m_s2[i], 2);
+        RMSz_array[i] = sqrt(RMSz/(i+1));
+    }
+
+    // se imprimen los datos de la RMSx
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSx: %f m/s2\n", i+1 , RMSx_array[i]);
+    }
+
+    // se libera el array
+    free(RMSx_array);
+
+    // se imprimen los datos de la RMSy
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSy: %f m/s2\n", i+1 , RMSy_array[i]);
+    }
+
+    // se libera el array
+    free(RMSy_array);
+
+    // se imprimen los datos de la RMSz
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSz: %f m/s2\n", i+1 , RMSz_array[i]);
+    }
+
+    // se libera el array
+    free(RMSz_array);
+
+    // se liberan los arrays
+    free(acc_x_m_s2);
+    free(acc_y_m_s2);
+    free(acc_z_m_s2);
+
+    printf("Fin\n\n");
+}
+
 void lectura_normal_power_mode(void)
 {
     int window_size = 500;
@@ -783,84 +882,72 @@ void lectura_normal_power_mode(void)
     uint8_t reg_data = 0x0C, data_data8[bytes_data8];
     uint16_t acc_x, acc_y, acc_z, gyr_x, gyr_y, gyr_z;
 
-    while (1)
+    // se crean arrays con malloc para almacenar los window_size datos de aceleracion y giroscopio
+    uint16_t *acc_x_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
+    uint16_t *acc_y_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
+    uint16_t *acc_z_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
+    uint16_t *gyr_x_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
+    uint16_t *gyr_y_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
+    uint16_t *gyr_z_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
+    
+    int i = 0;
+
+    printf("Comienza lectura\n\n");
+
+    while (i < window_size)        
     {
-        // se crean arrays con malloc para almacenar los window_size datos de aceleracion y giroscopio
-        uint16_t *acc_x_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
-        uint16_t *acc_y_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
-        uint16_t *acc_z_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
-        uint16_t *gyr_x_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
-        uint16_t *gyr_y_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
-        uint16_t *gyr_z_array = (uint16_t *)malloc(window_size * sizeof(uint16_t));
-        
-        int i = 0;
 
-        printf("Comienza lectura\n\n");
+        bmi_read(I2C_NUM_0, &reg_intstatus, &tmp, 1);
 
-        while (i < window_size)        
+        if ((tmp & 0b10000000) == 0x80)
         {
+            ret = bmi_read(I2C_NUM_0, &reg_data, (uint8_t *)data_data8, bytes_data8);
 
-            bmi_read(I2C_NUM_0, &reg_intstatus, &tmp, 1);
+            acc_x = ((uint16_t)data_data8[1] << 8) | (uint16_t)data_data8[0];
+            acc_y = ((uint16_t)data_data8[3] << 8) | (uint16_t)data_data8[2];
+            acc_z = ((uint16_t)data_data8[5] << 8) | (uint16_t)data_data8[4];
 
-            if ((tmp & 0b10000000) == 0x80)
+            gyr_x = ((uint16_t)data_data8[7] << 8) | (uint16_t)data_data8[6];
+            gyr_y = ((uint16_t)data_data8[9] << 8) | (uint16_t)data_data8[8];
+            gyr_z = ((uint16_t)data_data8[11] << 8) | (uint16_t)data_data8[10];
+
+            if (ret != ESP_OK)
             {
-                ret = bmi_read(I2C_NUM_0, &reg_data, (uint8_t *)data_data8, bytes_data8);
+                printf("Error lectura: %s \n", esp_err_to_name(ret));
+            }
+            // si la lectura fue exitosa
+            else {
+                // se almacenan los datos en los arrays
+                acc_x_array[i] = acc_x;
+                acc_y_array[i] = acc_y;
+                acc_z_array[i] = acc_z;
+                gyr_x_array[i] = gyr_x;
+                gyr_y_array[i] = gyr_y;
+                gyr_z_array[i] = gyr_z;
 
-                acc_x = ((uint16_t)data_data8[1] << 8) | (uint16_t)data_data8[0];
-                acc_y = ((uint16_t)data_data8[3] << 8) | (uint16_t)data_data8[2];
-                acc_z = ((uint16_t)data_data8[5] << 8) | (uint16_t)data_data8[4];
+                // se imprimen los datos
+                printf("Lectura %d: acc_x: %f g     acc_y: %f g     acc_z: %f g     gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", i+1 , (int16_t)acc_x * (8.000 / 32768), (int16_t)acc_y * (8.000 / 32768), (int16_t)acc_z * (8.000 / 32768), (int16_t)gyr_x * (34.90659 / 32768), (int16_t)gyr_y * (34.90659 / 32768), (int16_t)gyr_z * (34.90659 / 32768));
 
-                gyr_x = ((uint16_t)data_data8[7] << 8) | (uint16_t)data_data8[6];
-                gyr_y = ((uint16_t)data_data8[9] << 8) | (uint16_t)data_data8[8];
-                gyr_z = ((uint16_t)data_data8[11] << 8) | (uint16_t)data_data8[10];
-
-                if (ret != ESP_OK)
-                {
-                    printf("Error lectura: %s \n", esp_err_to_name(ret));
-                }
-                // si la lectura fue exitosa
-                else {
-                    // se almacenan los datos en los arrays
-                    acc_x_array[i] = acc_x;
-                    acc_y_array[i] = acc_y;
-                    acc_z_array[i] = acc_z;
-                    gyr_x_array[i] = gyr_x;
-                    gyr_y_array[i] = gyr_y;
-                    gyr_z_array[i] = gyr_z;
-
-                    // se imprimen los datos
-                    // printf("Lectura %d: acc_x: %f g     acc_y: %f g     acc_z: %f g  \n", i+1 , (int16_t)acc_x_array[i] * (8.000 / 32768), (int16_t)acc_y_array[i] * (8.000 / 32768), (int16_t)acc_z_array[i] * (8.000 / 32768));
-
-                    // se aumenta el contador de lecturas si la lectura fue exitosa
-                    i += 1;
-                }
+                // se aumenta el contador de lecturas si la lectura fue exitosa
+                i += 1;
             }
         }
-
-        printf("Fin de la lectura\n\n");
-
-        // un delay de 2 segundos
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-
-        // // se imprimen los datos de los arrays
-        // for (int i = 0; i < window_size; i++)
-        // {
-        //     printf("Lectura %d: acc_x: %f g     acc_y: %f g     acc_z: %f g  \n", i+1 , (int16_t)acc_x_array[i] * (8.000 / 32768), (int16_t)acc_y_array[i] * (8.000 / 32768), (int16_t)acc_z_array[i] * (8.000 / 32768));
-        // }
-
-        // se liberan los arrays
-        free(acc_x_array);
-        free(acc_y_array);
-        free(acc_z_array);
-        free(gyr_x_array);
-        free(gyr_y_array);
-        free(gyr_z_array);
-
-        printf("Procesamiento finalizado, comenzando nuevo muestreo\n\n");
-
-        // un delay de 2 segundos
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
+
+    printf("Fin de la lectura\n\n");
+
+    // se llama a la funcion que procesa los datos de aceleracion en m/s2
+    accel_m_s2_data(acc_x_array, acc_y_array, acc_z_array, window_size);
+    
+    // se liberan los arrays
+    free(acc_x_array);
+    free(acc_y_array);
+    free(acc_z_array);
+    free(gyr_x_array);
+    free(gyr_y_array);
+    free(gyr_z_array);
+
+    printf("Procesamiento finalizado\n\n");
 }
 
 void app_main(void)
