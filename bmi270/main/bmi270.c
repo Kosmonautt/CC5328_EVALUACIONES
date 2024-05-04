@@ -978,6 +978,111 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     printf("Fin de los datos de aceleración en g\n\n");
 }
 
+void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *gyr_z_array, int window_size)
+{
+    printf("Datos de velocidad angular en rad/s\n\n");
+
+    // se crean arrays con malloc para almacenar los datos en rad/s
+    float *gyr_x_rad_s = (float *)malloc(window_size * sizeof(float));
+    float *gyr_y_rad_s = (float *)malloc(window_size * sizeof(float));
+    float *gyr_z_rad_s = (float *)malloc(window_size * sizeof(float));
+
+    // multiplicador para pasar de dps a rad/s
+    float dps_to_rad_s = (34.90659 / 32768);
+
+    // se añaden los datos a los arrays en rad/s
+    for (int i = 0; i < window_size; i++)
+    {
+        gyr_x_rad_s[i] = (int16_t)gyr_x_array[i] * dps_to_rad_s;
+        gyr_y_rad_s[i] = (int16_t)gyr_y_array[i] * dps_to_rad_s;
+        gyr_z_rad_s[i] = (int16_t)gyr_z_array[i] * dps_to_rad_s;
+    }
+
+    // se imprimen los datos del array gyr_x en rad/s
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: gyr_x: %f rad/s\n", i+1 , gyr_x_rad_s[i]);
+    }
+
+    // se imprimen los datos del array gyr_y en rad/s
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: gyr_y: %f rad/s\n", i+1 , gyr_y_rad_s[i]);
+    }
+
+    // se imprimen los datos del array gyr_z en rad/s
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: gyr_z: %f rad/s\n", i+1 , gyr_z_rad_s[i]);
+    }
+
+    // float que almacena la RMSx hasta el i-esimo dato
+    float RMSx = 0;
+    // float que almacena la RMSy hasta el i-esimo dato
+    float RMSy = 0;
+    // float que almacena la RMSz hasta el i-esimo dato
+    float RMSz = 0;
+    // se crean arrays con malloc para almacenar los datos de la RMS
+    float *RMSx_array = (float *)malloc(window_size * sizeof(float));
+    float *RMSy_array = (float *)malloc(window_size * sizeof(float));
+    float *RMSz_array = (float *)malloc(window_size * sizeof(float));
+
+    // se calcula la RMSx hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSx += pow(gyr_x_rad_s[i], 2);
+        RMSx_array[i] = sqrt(RMSx/(i+1));
+    }
+
+    // se calcula la RMSy hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSy += pow(gyr_y_rad_s[i], 2);
+        RMSy_array[i] = sqrt(RMSy/(i+1));
+    }
+
+    // se calcula la RMSz hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSz += pow(gyr_z_rad_s[i], 2);
+        RMSz_array[i] = sqrt(RMSz/(i+1));
+    }
+
+    // se imprimen los datos de la RMSx
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSx: %f rad/s\n", i+1 , RMSx_array[i]);
+    }
+
+    // se libera el array
+    free(RMSx_array);
+
+    // se imprimen los datos de la RMSy
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSy: %f rad/s\n", i+1 , RMSy_array[i]);
+    }
+
+    // se libera el array
+    free(RMSy_array);
+
+    // se imprimen los datos de la RMSz
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSz: %f rad/s\n", i+1 , RMSz_array[i]);
+    }
+
+    // se libera el array
+    free(RMSz_array);
+
+    // se liberan los arrays
+    free(gyr_x_rad_s);
+    free(gyr_y_rad_s);
+    free(gyr_z_rad_s);
+
+    printf("Fin de los datos de velocidad angular en rad/s\n\n");
+}
+
 void lectura_normal_power_mode(void)
 {
     int window_size = 500;
@@ -1046,6 +1151,9 @@ void lectura_normal_power_mode(void)
     // se llama a la funcion que procesa los datos de aceleracion en g
     accel_g_data(acc_x_array, acc_y_array, acc_z_array, window_size);
     
+    // se llama a la funcion que procesa los datos de velocidad angular en rad/s
+    ang_vel_rad_s_data(gyr_x_array, gyr_y_array, gyr_z_array, window_size);
+
     // se liberan los arrays
     free(acc_x_array);
     free(acc_y_array);
