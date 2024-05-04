@@ -806,7 +806,6 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
         printf("Lectura %d: acc_z: %f m/s2\n", i+1 , acc_z_m_s2[i]);
     }
 
-
     // float que almacena la RMSx hasta el i-esimo dato
     float RMSx = 0;
     // float que almacena la RMSy hasta el i-esimo dato
@@ -871,7 +870,112 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     free(acc_y_m_s2);
     free(acc_z_m_s2);
 
-    printf("Fin\n\n");
+    printf("Fin de los datos de aceleración en m/s2\n\n");
+}
+
+void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size)
+{
+    printf("Datos de aceleración en g\n\n");
+
+    // se crean arrays con malloc para almacenar los datos en g
+    float *acc_x_g = (float *)malloc(window_size * sizeof(float));
+    float *acc_y_g = (float *)malloc(window_size * sizeof(float));
+    float *acc_z_g = (float *)malloc(window_size * sizeof(float));
+
+    // multiplicador para pasar de g a m/s2
+    float g = (8.000 / 32768);
+
+    // se añaden los datos a los arrays en g
+    for (int i = 0; i < window_size; i++)
+    {
+        acc_x_g[i] = (int16_t)acc_x_array[i] * g;
+        acc_y_g[i] = (int16_t)acc_y_array[i] * g;
+        acc_z_g[i] = (int16_t)acc_z_array[i] * g;
+    }
+
+    // se imprimen los datos del array acc_x en g
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: acc_x: %f g\n", i+1 , acc_x_g[i]);
+    }
+
+    // se imprimen los datos del array acc_y en g
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: acc_y: %f g\n", i+1 , acc_y_g[i]);
+    }
+
+    // se imprimen los datos del array acc_z en g
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: acc_z: %f g\n", i+1 , acc_z_g[i]);
+    }
+
+    // float que almacena la RMSx hasta el i-esimo dato
+    float RMSx = 0;
+    // float que almacena la RMSy hasta el i-esimo dato
+    float RMSy = 0;
+    // float que almacena la RMSz hasta el i-esimo dato
+    float RMSz = 0;
+    // se crean arrays con malloc para almacenar los datos de la RMS
+    float *RMSx_array = (float *)malloc(window_size * sizeof(float));
+    float *RMSy_array = (float *)malloc(window_size * sizeof(float));
+    float *RMSz_array = (float *)malloc(window_size * sizeof(float));
+
+    // se calcula la RMSx hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSx += pow(acc_x_g[i], 2);
+        RMSx_array[i] = sqrt(RMSx/(i+1));
+    }
+
+    // se calcula la RMSy hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSy += pow(acc_y_g[i], 2);
+        RMSy_array[i] = sqrt(RMSy/(i+1));
+    }
+
+    // se calcula la RMSz hasta el i-esimo dato
+    for (int i = 0; i < window_size; i++)
+    {
+        RMSz += pow(acc_z_g[i], 2);
+        RMSz_array[i] = sqrt(RMSz/(i+1));
+    }
+
+    // se imprimen los datos de la RMSx
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSx: %f m/s2\n", i+1 , RMSx_array[i]);
+    }
+
+    // se libera el array
+    free(RMSx_array);
+
+    // se imprimen los datos de la RMSy
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSy: %f m/s2\n", i+1 , RMSy_array[i]);
+    }
+
+    // se libera el array
+    free(RMSy_array);
+
+    // se imprimen los datos de la RMSz
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Lectura %d: RMSz: %f m/s2\n", i+1 , RMSz_array[i]);
+    }
+
+    // se libera el array
+    free(RMSz_array);
+
+    // se liberan los arrays
+    free(acc_x_g);
+    free(acc_y_g);
+    free(acc_z_g);
+
+    printf("Fin de los datos de aceleración en g\n\n");
 }
 
 void lectura_normal_power_mode(void)
@@ -938,6 +1042,9 @@ void lectura_normal_power_mode(void)
 
     // se llama a la funcion que procesa los datos de aceleracion en m/s2
     accel_m_s2_data(acc_x_array, acc_y_array, acc_z_array, window_size);
+
+    // se llama a la funcion que procesa los datos de aceleracion en g
+    accel_g_data(acc_x_array, acc_y_array, acc_z_array, window_size);
     
     // se liberan los arrays
     free(acc_x_array);
