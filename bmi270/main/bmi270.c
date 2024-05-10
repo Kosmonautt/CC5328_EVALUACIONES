@@ -700,47 +700,6 @@ void internal_status(void)
     printf("Internal Status: %2X\n\n", tmp);
 }
 
-// void cinco_peaks(int16_t* data_array)
-// {
-//     return data_arrayp[0];
-// }
-
-// void lectura(void)
-// {
-//     uint8_t reg_intstatus = 0x03, tmp;
-//     int bytes_data8 = 12;
-//     uint8_t reg_data = 0x0C, data_data8[bytes_data8];
-//     uint16_t acc_x, acc_y, acc_z, gyr_x, gyr_y, gyr_z;
-
-//     while (1)
-//     {
-//         bmi_read(I2C_NUM_0, &reg_intstatus, &tmp, 1);
-
-//         if ((tmp & 0b10000000) == 0x80)
-//         {
-//             ret = bmi_read(I2C_NUM_0, &reg_data, (uint8_t *)data_data8, bytes_data8);
-
-//             acc_x = ((uint16_t)data_data8[1] << 8) | (uint16_t)data_data8[0];
-//             acc_y = ((uint16_t)data_data8[3] << 8) | (uint16_t)data_data8[2];
-//             acc_z = ((uint16_t)data_data8[5] << 8) | (uint16_t)data_data8[4];
-
-//             gyr_x = ((uint16_t)data_data8[7] << 8) | (uint16_t)data_data8[6];
-//             gyr_y = ((uint16_t)data_data8[9] << 8) | (uint16_t)data_data8[8];
-//             gyr_z = ((uint16_t)data_data8[11] << 8) | (uint16_t)data_data8[10];
-
-//             printf("acc_x: %f m/s2     acc_y: %f m/s2     acc_z: %f m/s2\n", (int16_t)acc_x * (78.4532 / 32768), (int16_t)acc_y * (78.4532 / 32768), (int16_t)acc_z * (78.4532 / 32768));
-//             printf("acc_x: %f g     acc_y: %f g     acc_z: %f g     gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", (int16_t)acc_x * (8.000 / 32768), (int16_t)acc_y * (8.000 / 32768), (int16_t)acc_z * (8.000 / 32768), (int16_t)gyr_x * (34.90659 / 32768), (int16_t)gyr_y * (34.90659 / 32768), (int16_t)gyr_z * (34.90659 / 32768));
-//             printf("acc_x: %f g     acc_y: %f g     acc_z: %f g  \n", (int16_t)acc_x * (8.000 / 32768), (int16_t)acc_y * (8.000 / 32768), (int16_t)acc_z * (8.000 / 32768));
-//             printf("gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", (int16_t)gyr_x * (34.90659 / 32768), (int16_t)gyr_y * (34.90659 / 32768), (int16_t)gyr_z * (34.90659 / 32768));
-
-//             if (ret != ESP_OK)
-//             {
-//                 printf("Error lectura: %s \n", esp_err_to_name(ret));
-//             }
-//         }
-//     }
-// }
-
 // void alternancia()
 // {
 //     uint32_t command;
