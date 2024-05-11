@@ -1372,6 +1372,17 @@ void lectura(void)
     printf("Procesamiento finalizado\n\n");
 }
 
+// function that sets and executes the lectura
+void loop_lectura()
+{
+    while (true)
+    {
+        normal_power_mode();
+        internal_status();
+        lectura();
+    }
+}
+
 void app_main(void)
 {
     ESP_ERROR_CHECK(bmi_init());
@@ -1379,8 +1390,6 @@ void app_main(void)
     chipid();
     initialization();
     check_initialization();
-    normal_power_mode();
-    internal_status();
     // UART_initialization();
-    lectura();
+    loop_lectura();
 }
