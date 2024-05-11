@@ -642,7 +642,18 @@ void check_initialization(void)
 
 void supend_mode(void)
 {
-    
+    // PWR_CTRL: disable auxiliary sensor, gyro, acc and temp
+    // PWR_CONF: disable fup_en and fifo_self_wake_up, enable adv_power_save
+
+    uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x00;
+    uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x01;
+
+    bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
+    bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    printf("Suspend mode: activated. \n\n");
 }
 
 void low_power_mode(void)
