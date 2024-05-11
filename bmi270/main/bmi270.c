@@ -642,38 +642,56 @@ void check_initialization(void)
 
 void low_power_mode(void)
 {
+    // PWR_CTRL: disable auxiliary sensor, gyro and temp, enable acc 
+    // ACC_CONF: 50Hz en datos acc, filter: power optimized, acc_bwp: osr2_avg2
+    // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
+    // PWR_CONF: disable fup_en, enable adv_power_save, fifo_self_wake_up
+
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x04;
     uint8_t reg_acc_conf = 0x40, val_acc_conf = 0x17;
+    uint8_t reg_acc_range = 0x41, val_acc_range = 0x02;
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x03;
 
     bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
     bmi_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
+    bmi_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
     bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    printf("Low power mode: activated. \n\n");
 }
 
 void normal_power_mode(void)
 {
-    // PWR_CTRL: disable auxiliary sensor, gryo acc temp on
-    // 200Hz en datos acc, filter: performance optimized, acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
-    // 200Hz en datos gyro, noise filter: performance optimized, filter: performance opt., gyr_range +/-2000dps, 16.4LSB/dps (1 bit= 2000/32768 dps, 34.90659/32768 rad/s)
+    // range and ODR should be able to be changed
+
+    // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc 
+    // ACC_CONF: 100Hz en datos acc, filter: performance optimized, acc_bwp: norm_avg4
+    // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
+    // GYR_CONF: 200Hz en datos gyro, noise filter: power optimized, filter: performance optimized, gyr_bwp: norm
+    // GYR_RANGE: +/-2000dps, 16.4LSB/dps (1 bit= 2000/32768 dps, 34.90659/32768 rad/s)
+    
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x0E;
-    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA9;
+    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA8;
+    // uint8_t reg_acc_range = 0x41, val_acc_range = 0x02;
     uint8_t reg_gyr_conf = 0x42, val_gyr_conf = 0xA9;
+    // uint8_t reg_gyr_range = 0x43, val_gyr_range = 0x00;
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x02;
 
     bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
     bmi_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
+    // bmi_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
     bmi_write(I2C_NUM_0, &reg_gyr_conf, &val_gyr_conf, 1);
+    // bmi_write(I2C_NUM_0, &reg_gyr_range, &val_gyr_range, 1);
     bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    // printf("Normal power mode: activated. \n\n");
+    printf("Normal power mode: activated. \n\n");
 }
 
-void performance_mode(void)
+void performance_power_mode(void)
 {
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x0E;
     uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA8;
@@ -687,7 +705,7 @@ void performance_mode(void)
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    // printf("Performance mode: activated. \n\n");
+    printf("Performance power mode: activated. \n\n");
 }
 
 void internal_status(void)
