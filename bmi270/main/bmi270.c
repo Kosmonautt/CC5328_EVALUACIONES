@@ -672,6 +672,15 @@ uint8_t acc_range_values[4] =
     0x03  // +/- 16g
 };
 
+// these are the numbers for converting the accelerometer data to m/s^2
+float acc_range_values_m_s2[4] = 
+{
+    19.6133, // +/- 2g, 1g = 9.80665 m/s^2, alcance max: 19.6133 m/s^2
+    39.2266, // +/- 4g, 1g = 9.80665 m/s^2, alcance max: 39.2266 m/s^2
+    78.4532, // +/- 8g, 1g = 9.80665 m/s^2, alcance max: 78.4532 m/s^2
+    156.9064 // +/- 16g, 1g = 9.80665 m/s^2, alcance max: 156.9064 m/s^2
+};
+
 // these are the available values for the ODR of the gyroscope
 // this represents the 4 least significant bits of the GYR_CONF register
 uint8_t gyr_odr_values[16] = 
@@ -706,6 +715,19 @@ uint8_t gyr_range_values[8] =
     0x05, // Reserved
     0x06, // Reserved
     0x07  // Reserved
+};
+
+// these are the numbers for converting the gyroscope data to rad/ss
+float gyr_range_values_rad_s[8] = 
+{
+    34.90659, // +/- 2000 dps, 1 dps = 0.0174533 rad/s, alcance max: 34.90659 rad/s
+    17.4533, // +/- 1000 dps, 1 dps = 0.0174533 rad/s, alcance max: 17.4533 rad/s
+    8.72665, // +/- 500 dps, 1 dps = 0.0174533 rad/s, alcance max: 8.72665 rad/s
+    4.36332, // +/- 250 dps, 1 dps = 0.0174533 rad/s, alcance max: 4.36332 rad/s
+    2.18166, // +/- 125 dps, 1 dps = 0.0174533 rad/s, alcance max: 2.18166 rad/s
+    0, // Reserved
+    0, // Reserved
+    0  // Reserved
 };
 
 void supend_mode(void)
