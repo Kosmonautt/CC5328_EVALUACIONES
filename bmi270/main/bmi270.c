@@ -845,7 +845,7 @@ void supend_mode(void)
 void low_power_mode(uint8_t acc_odr, uint8_t acc_range)
 {
     // PWR_CTRL: disable auxiliary sensor, gyro and temp, enable acc 
-    // ACC_CONF: 50Hz en datos acc, filter: power optimized, acc_bwp: osr2_avg2
+    // ACC_CONF: _Hz en datos acc, filter: power optimized, acc_bwp: osr2_avg2
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
     // PWR_CONF: disable fup_en, enable adv_power_save, fifo_self_wake_up
 
@@ -864,20 +864,20 @@ void low_power_mode(uint8_t acc_odr, uint8_t acc_range)
     printf("Low power mode: activated. \n\n");
 }
 
-void normal_power_mode(void)
+void normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range)
 {
     // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc 
-    // ACC_CONF: 100Hz en datos acc, filter: performance optimized, acc_bwp: norm_avg4
+    // ACC_CONF: _Hz en datos acc, filter: performance optimized, acc_bwp: norm_avg4
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
-    // GYR_CONF: 200Hz en datos gyro, noise filter: power optimized, filter: performance optimized, gyr_bwp: norm
+    // GYR_CONF: _Hz en datos gyro, noise filter: power optimized, filter: performance optimized, gyr_bwp: norm
     // GYR_RANGE: +/-2000dps, 16.4LSB/dps (1 bit= 2000/32768 dps, 34.90659/32768 rad/s)
     // PWR_CONF: disable fup_en, adv_power_save, enable fifo_self_wake_up
 
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x0E;
-    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA8;
-    uint8_t reg_acc_range = 0x41, val_acc_range = 0x02;
-    uint8_t reg_gyr_conf = 0x42, val_gyr_conf = 0xA9;
-    uint8_t reg_gyr_range = 0x43, val_gyr_range = 0x08;
+    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA0| acc_odr; // val_acc_conf = 0b10100000 | 0b0000____
+    uint8_t reg_acc_range = 0x41, val_acc_range = 0x00 | acc_range; // val_acc_range = 0b000000000 | 0b000000__
+    uint8_t reg_gyr_conf = 0x42, val_gyr_conf = 0xA0 | gyr_odr; // val_gyr_conf = 0b10100000 | 0b0000____
+    uint8_t reg_gyr_range = 0x43, val_gyr_range = 0x00 | gyr_range; // val_gyr_range = 0b00000000 | 0b00000___
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x02;
 
     bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
@@ -892,20 +892,20 @@ void normal_power_mode(void)
     printf("Normal power mode: activated. \n\n");
 }
 
-void performance_power_mode(void)
+void performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range)
 {
     // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc
-    // ACC_CONF: 100Hz en datos acc, filter: performance optimized, acc_bwp: osr4_avg4
+    // ACC_CONF: _Hz en datos acc, filter: performance optimized, acc_bwp: osr4_avg4
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
-    // GYR_CONF: 200Hz en datos gyro, noise filter: performance optimized, filter: performance optimized, gyr_bwp: norm
+    // GYR_CONF: _Hz en datos gyro, noise filter: performance optimized, filter: performance optimized, gyr_bwp: norm
     // GYR_RANGE: +/-2000dps, 16.4LSB/dps (1 bit= 2000/32768 dps, 34.90659/32768 rad/s)
     // PWR_CONF: disable fup_en, adv_power_save, enable fifo_self_wake_up
 
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x0E;
-    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA8;
-    uint8_t reg_acc_range = 0x41, val_acc_range = 0x02;
-    uint8_t reg_gyr_conf = 0x42, val_gyr_conf = 0xE9;
-    uint8_t reg_gyr_range = 0x43, val_gyr_range = 0x08;
+    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA0| acc_odr; // val_acc_conf = 0b10100000 | 0b0000____
+    uint8_t reg_acc_range = 0x41, val_acc_range = 0x00 | acc_range; // val_acc_range = 0b000000000 | 0b000000__
+    uint8_t reg_gyr_conf = 0x42, val_gyr_conf = 0xE0 | gyr_odr; // val_gyr_conf = 0b11100000 | 0b0000____
+    uint8_t reg_gyr_range = 0x43, val_gyr_range = 0x00 | gyr_range; // val_gyr_range = 0b00000000 | 0b00000___
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x02;
 
     bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
@@ -929,33 +929,6 @@ void internal_status(void)
     // printf("Initial status: %x \n",(tmp & 0b00001111));
     printf("Internal Status: %2X\n\n", tmp);
 }
-
-// void alternancia()
-// {
-//     uint32_t command;
-//     int length;
-
-//     switch (command)
-//     {
-//     case 'L':
-//         low_power_mode();
-//         printf("Modo de consumo bajo activado.\n");
-//         break;
-    
-//     case 'N':
-//         normal_power_mode();
-//         printf("Modo de consumo normal activado.\n");
-//         break;
-
-//     case 'P':
-//         performance_mode();
-//         printf("Modo de performance activado.\n");
-//         break;
-
-//     default:
-//         break;
-//     }
-// }
 
 void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size)
 {
@@ -1384,6 +1357,10 @@ void loop_lectura()
         int acc_odr_index = 7; // 50 HZ in this example
         // this is the index of the range for the accelerometer that the user wants to use
         int acc_range_index = 2; // +/- 8g in this example
+        // this is the index of the odr for the gyroscope that the user wants to use
+        int gyr_odr_index = 9; // 200 HZ in this example
+        // this is the index of the range for the gyroscope that the user wants to use
+        int gyr_range_index = 0; // +/- 2000 dps in this example
 
 
         if (powermode == 'S')
@@ -1398,12 +1375,12 @@ void loop_lectura()
         }
         else if (powermode == 'N')
         {
-            normal_power_mode();
+            normal_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             internal_status();
             lectura(window_size);        }
         else if (powermode == 'P')
         {
-            performance_power_mode();
+            performance_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             internal_status();
             lectura(window_size);        }
         else
