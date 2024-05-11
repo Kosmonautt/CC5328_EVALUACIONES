@@ -640,6 +640,11 @@ void check_initialization(void)
     }
 }
 
+void supend_mode(void)
+{
+    
+}
+
 void low_power_mode(void)
 {
     // PWR_CTRL: disable auxiliary sensor, gyro and temp, enable acc 
