@@ -934,106 +934,106 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
 {
     printf("Datos de aceleración en m/s2\n\n");
 
-    // se crean arrays con malloc para almacenar los datos en m/s2
+    // arrays are created with malloc to store the data in m/s2
     float *acc_x_m_s2 = (float *)malloc(window_size * sizeof(float));
     float *acc_y_m_s2 = (float *)malloc(window_size * sizeof(float));
     float *acc_z_m_s2 = (float *)malloc(window_size * sizeof(float));
 
-    // multiplicador para pasar de g a m/s2
-    float g_to_m_s2 = (78.4532 / 32768);
+    // multiplier to convert the data to m/s2
+    float to_m_s2_multiplier = (78.4532 / 32768);
 
-    // se añaden los datos a los arrays en m/s2
+    // the data is added to the arrays in m/s2
     for (int i = 0; i < window_size; i++)
     {
-        acc_x_m_s2[i] = (int16_t)acc_x_array[i] * g_to_m_s2;
-        acc_y_m_s2[i] = (int16_t)acc_y_array[i] * g_to_m_s2;
-        acc_z_m_s2[i] = (int16_t)acc_z_array[i] * g_to_m_s2;
+        acc_x_m_s2[i] = (int16_t)acc_x_array[i] * to_m_s2_multiplier;
+        acc_y_m_s2[i] = (int16_t)acc_y_array[i] * to_m_s2_multiplier;
+        acc_z_m_s2[i] = (int16_t)acc_z_array[i] * to_m_s2_multiplier;
     }
 
-    // se imprimen los datos del array acc_x en m/s2
+    // the data of the acc_x array is printed in m/s2
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: acc_x: %f m/s2\n", i+1 , acc_x_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se imprimen los datos del array acc_y en m/s2
+    // the data of the acc_y array is printed in m/s2
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: acc_y: %f m/s2\n", i+1 , acc_y_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se imprimen los datos del array acc_z en m/s2
+    // the data of the acc_z array is printed in m/s2
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: acc_z: %f m/s2\n", i+1 , acc_z_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // float que almacena la RMSx hasta el i-esimo dato
+    // float that stores the RMSx up to the i-th data
     float RMSx = 0;
-    // float que almacena la RMSy hasta el i-esimo dato
+    // float that stores the RMSy up to the i-th data
     float RMSy = 0;
-    // float que almacena la RMSz hasta el i-esimo dato
+    // float that stores the RMSz up to the i-th data
     float RMSz = 0;
-    // se crean arrays con malloc para almacenar los datos de la RMS
+    // arrays are created with malloc to store the RMS data
     float *RMSx_array = (float *)malloc(window_size * sizeof(float));
     float *RMSy_array = (float *)malloc(window_size * sizeof(float));
     float *RMSz_array = (float *)malloc(window_size * sizeof(float));
 
-    // se calcula la RMSx hasta el i-esimo dato
+    // the RMSx is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSx += pow(acc_x_m_s2[i], 2);
         RMSx_array[i] = sqrt(RMSx/(i+1));
     }
     
-    // se calcula la RMSy hasta el i-esimo dato
+    // the RMSy is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSy += pow(acc_y_m_s2[i], 2);
         RMSy_array[i] = sqrt(RMSy/(i+1));
     }
 
-    // se calcula la RMSz hasta el i-esimo dato
+    // the RMSz is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSz += pow(acc_z_m_s2[i], 2);
         RMSz_array[i] = sqrt(RMSz/(i+1));
     }
 
-    // se imprimen los datos de la RMSx
+    // the RMSx data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSx: %f m/s2\n", i+1 , RMSx_array[i]);
+        printf("Lectura %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    // the array is freed
     free(RMSx_array);
 
-    // se imprimen los datos de la RMSy
+    // the RMSy data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSy: %f m/s2\n", i+1 , RMSy_array[i]);
+        printf("Lectura %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    // the array is freed
     free(RMSy_array);
 
-    // se imprimen los datos de la RMSz
+    // the RMSz data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSz: %f m/s2\n", i+1 , RMSz_array[i]);
+        printf("Lectura %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    // the array is freed
     free(RMSz_array);
 
-    // se liberan los arrays
+    // the arrays are freed
     free(acc_x_m_s2);
     free(acc_y_m_s2);
     free(acc_z_m_s2);
@@ -1045,99 +1045,99 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
 {
     printf("Datos de aceleración en g\n\n");
 
-    // se crean arrays con malloc para almacenar los datos en g
+    // arrays are created with malloc to store the data in g
     float *acc_x_g = (float *)malloc(window_size * sizeof(float));
     float *acc_y_g = (float *)malloc(window_size * sizeof(float));
     float *acc_z_g = (float *)malloc(window_size * sizeof(float));
 
-    // multiplicador para pasar de g a m/s2
-    float g = (8.000 / 32768);
+    // multiplier to convert the data to g
+    float to_g_multiplier = (8.000 / 32768);
 
-    // se añaden los datos a los arrays en g
+    // the data is added to the arrays in g
     for (int i = 0; i < window_size; i++)
     {
-        acc_x_g[i] = (int16_t)acc_x_array[i] * g;
-        acc_y_g[i] = (int16_t)acc_y_array[i] * g;
-        acc_z_g[i] = (int16_t)acc_z_array[i] * g;
+        acc_x_g[i] = (int16_t)acc_x_array[i] * to_g_multiplier;
+        acc_y_g[i] = (int16_t)acc_y_array[i] * to_g_multiplier;
+        acc_z_g[i] = (int16_t)acc_z_array[i] * to_g_multiplier;
     }
 
-    // se imprimen los datos del array acc_x en g
+    // the data of the acc_x array is printed in g
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: acc_x: %f g\n", i+1 , acc_x_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se imprimen los datos del array acc_y en g
+    // the data of the acc_y array is printed in g
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: acc_y: %f g\n", i+1 , acc_y_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se imprimen los datos del array acc_z en g
+    // the data of the acc_z array is printed in g
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: acc_z: %f g\n", i+1 , acc_z_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // float que almacena la RMSx hasta el i-esimo dato
+    // float that stores the RMSx up to the i-th data
     float RMSx = 0;
-    // float que almacena la RMSy hasta el i-esimo dato
+    // float that stores the RMSy up to the i-th data
     float RMSy = 0;
-    // float que almacena la RMSz hasta el i-esimo dato
+    // float that stores the RMSz up to the i-th data
     float RMSz = 0;
-    // se crean arrays con malloc para almacenar los datos de la RMS
+    // arrays are created with malloc to store the RMS data
     float *RMSx_array = (float *)malloc(window_size * sizeof(float));
     float *RMSy_array = (float *)malloc(window_size * sizeof(float));
     float *RMSz_array = (float *)malloc(window_size * sizeof(float));
 
-    // se calcula la RMSx hasta el i-esimo dato
+    // the RMSx is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSx += pow(acc_x_g[i], 2);
         RMSx_array[i] = sqrt(RMSx/(i+1));
     }
 
-    // se calcula la RMSy hasta el i-esimo dato
+    // the RMSy is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSy += pow(acc_y_g[i], 2);
         RMSy_array[i] = sqrt(RMSy/(i+1));
     }
 
-    // se calcula la RMSz hasta el i-esimo dato
+    // the RMSz is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSz += pow(acc_z_g[i], 2);
         RMSz_array[i] = sqrt(RMSz/(i+1));
     }
 
-    // se imprimen los datos de la RMSx
+    // the RMSx data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSx: %f m/s2\n", i+1 , RMSx_array[i]);
+        printf("Lectura %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    // the array is freed
     free(RMSx_array);
 
-    // se imprimen los datos de la RMSy
+    // the RMSy data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSy: %f m/s2\n", i+1 , RMSy_array[i]);
+        printf("Lectura %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    // the array is freed
     free(RMSy_array);
 
-    // se imprimen los datos de la RMSz
+    // the RMSz data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSz: %f m/s2\n", i+1 , RMSz_array[i]);
+        printf("Lectura %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1156,106 +1156,106 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
 {
     printf("Datos de velocidad angular en rad/s\n\n");
 
-    // se crean arrays con malloc para almacenar los datos en rad/s
+    // arrays are created with malloc to store the data in rad/s
     float *gyr_x_rad_s = (float *)malloc(window_size * sizeof(float));
     float *gyr_y_rad_s = (float *)malloc(window_size * sizeof(float));
     float *gyr_z_rad_s = (float *)malloc(window_size * sizeof(float));
 
-    // multiplicador para pasar de dps a rad/s
-    float dps_to_rad_s = (34.90659 / 32768);
+    // multiplier to convert the data to rad/s
+    float to_rad_s_multiplier = (34.90659 / 32768);
 
-    // se añaden los datos a los arrays en rad/s
+    // the data is added to the arrays in rad/s
     for (int i = 0; i < window_size; i++)
     {
-        gyr_x_rad_s[i] = (int16_t)gyr_x_array[i] * dps_to_rad_s;
-        gyr_y_rad_s[i] = (int16_t)gyr_y_array[i] * dps_to_rad_s;
-        gyr_z_rad_s[i] = (int16_t)gyr_z_array[i] * dps_to_rad_s;
+        gyr_x_rad_s[i] = (int16_t)gyr_x_array[i] * to_rad_s_multiplier;
+        gyr_y_rad_s[i] = (int16_t)gyr_y_array[i] * to_rad_s_multiplier;
+        gyr_z_rad_s[i] = (int16_t)gyr_z_array[i] * to_rad_s_multiplier;
     }
 
-    // se imprimen los datos del array gyr_x en rad/s
+    // the data of the gyr_x array is printed in rad/s
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: gyr_x: %f rad/s\n", i+1 , gyr_x_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se imprimen los datos del array gyr_y en rad/s
+    // the data of the gyr_y array is printed in rad/s
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: gyr_y: %f rad/s\n", i+1 , gyr_y_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se imprimen los datos del array gyr_z en rad/s
+    // the data of the gyr_z array is printed in rad/s
     for (int i = 0; i < window_size; i++)
     {
         printf("Lectura %d: gyr_z: %f rad/s\n", i+1 , gyr_z_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);    
     }
 
-    // float que almacena la RMSx hasta el i-esimo dato
+    // float that stores the RMSx up to the i-th data
     float RMSx = 0;
-    // float que almacena la RMSy hasta el i-esimo dato
+    // float that stores the RMSy up to the i-th data
     float RMSy = 0;
-    // float que almacena la RMSz hasta el i-esimo dato
+    // float that stores the RMSz up to the i-th data
     float RMSz = 0;
-    // se crean arrays con malloc para almacenar los datos de la RMS
+    // arrays are created with malloc to store the RMS data
     float *RMSx_array = (float *)malloc(window_size * sizeof(float));
     float *RMSy_array = (float *)malloc(window_size * sizeof(float));
     float *RMSz_array = (float *)malloc(window_size * sizeof(float));
 
-    // se calcula la RMSx hasta el i-esimo dato
+    // the RMSx is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSx += pow(gyr_x_rad_s[i], 2);
         RMSx_array[i] = sqrt(RMSx/(i+1));
     }
 
-    // se calcula la RMSy hasta el i-esimo dato
+    // the RMSy is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSy += pow(gyr_y_rad_s[i], 2);
         RMSy_array[i] = sqrt(RMSy/(i+1));
     }
 
-    // se calcula la RMSz hasta el i-esimo dato
+    // the RMSz is calculated up to the i-th data and stored in the array
     for (int i = 0; i < window_size; i++)
     {
         RMSz += pow(gyr_z_rad_s[i], 2);
         RMSz_array[i] = sqrt(RMSz/(i+1));
     }
 
-    // se imprimen los datos de la RMSx
+    // the RMSx data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSx: %f rad/s\n", i+1 , RMSx_array[i]);
+        printf("Lectura %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    // the array is freed
     free(RMSx_array);
 
-    // se imprimen los datos de la RMSy
+    // the RMSy data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSy: %f rad/s\n", i+1 , RMSy_array[i]);
+        printf("Lectura %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    // the array is freed
     free(RMSy_array);
 
-    // se imprimen los datos de la RMSz
+    // the RMSz data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSz: %f rad/s\n", i+1 , RMSz_array[i]);
+        printf("Lectura %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    // the array is freed
     free(RMSz_array);
 
-    // se liberan los arrays
+    // the arrays are freed
     free(gyr_x_rad_s);
     free(gyr_y_rad_s);
     free(gyr_z_rad_s);
