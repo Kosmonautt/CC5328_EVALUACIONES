@@ -747,6 +747,15 @@ float acc_range_values_m_s2[4] =
     156.9064 // +/- 16g, 1g = 9.80665 m/s^2, alcance max: 156.9064 m/s^2
 };
 
+// these are the numbers for converting the accelerometer data to g
+uint8_t acc_range_values_g[4] = 
+{
+    2, // +/- 2g, 1g = 1g, alcance max: 2g
+    4, // +/- 4g, 1g = 1g, alcance max: 4g
+    8, // +/- 8g, 1g = 1g, alcance max: 8g
+    16 // +/- 16g, 1g = 1g, alcance max: 16g
+};
+
 // these are the available values for the ODR of the gyroscope
 // this represents the 4 least significant bits of the GYR_CONF register
 uint8_t gyr_odr_values[16] = 
