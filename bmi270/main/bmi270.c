@@ -703,6 +703,27 @@ void send_data_array(float *arr, int size) {
 
 }
 
+void UART_initialization(void) {
+    uart_setup();
+
+    // Waiting for an BEGIN to initialize data sending
+    char dataResponse1[6];
+    printf("Beginning initialization... \n");
+    while (1)
+    {
+        int rLen = serial_read(dataResponse1, 6);
+        if (rLen > 0)
+        {
+            if (strcmp(dataResponse1, "BEGIN") == 0)
+            {
+                // If BEGIN received, send OK
+                uart_write_bytes(UART_NUM,"OK\0",3);
+                break;
+            }
+        }
+    }
+}
+
 
 
 
@@ -1342,5 +1363,6 @@ void app_main(void)
     check_initialization();
     normal_power_mode();
     internal_status();
+    UART_initialization();
     lectura_normal_power_mode();
 }
