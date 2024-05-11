@@ -640,6 +640,74 @@ void check_initialization(void)
     }
 }
 
+// these are the available values for the ODR of the accelerometer
+// this represents the 4 least significant bits of the ACC_CONF register
+uint8_t acc_odr_values[16] = 
+{
+    0x00, // Reserved 
+    0x01, // 0.78125 Hz
+    0x02, // 1.5625 Hz
+    0x03, // 3.125 Hz
+    0x04, // 6.25 Hz
+    0x05, // 12.5 Hz
+    0x06, // 25 Hz
+    0x07, // 50 Hz
+    0x08, // 100 Hz
+    0x09, // 200 Hz
+    0x0A, // 400 Hz
+    0x0B, // 800 Hz
+    0x0C, // 1600 Hz
+    0x0D, // Reserved
+    0x0E, // Reserved
+    0x0F  // Reserved
+};
+
+// these are the available values for the range of the accelerometer
+// this represents the 2 least significant bits of the ACC_RANGE register
+uint8_t acc_range_values[4] = 
+{
+    0x00, // +/- 2g
+    0x01, // +/- 4g
+    0x02, // +/- 8g
+    0x03  // +/- 16g
+};
+
+// these are the available values for the ODR of the gyroscope
+// this represents the 4 least significant bits of the GYR_CONF register
+uint8_t gyr_odr_values[16] = 
+{
+    0x00, // Reserved
+    0x01, // Reserved
+    0x02, // Reserved
+    0x03, // Reserved
+    0x04, // Reserved
+    0x05, // Reserved
+    0x06, // 25 Hz
+    0x07, // 50 Hz
+    0x08, // 100 Hz
+    0x09, // 200 Hz
+    0x0A, // 400 Hz
+    0x0B, // 800 Hz
+    0x0C, // 1600 Hz
+    0x0D, // 3200 Hz
+    0x0E, // Reserved
+    0x0F  // Reserved
+};
+
+// these are the available values for the range of the gyroscope
+// this represents the 3 least significant bits of the GYR_RANGE register
+uint8_t gyr_range_values[8] = 
+{
+    0x00, // +/- 2000 dps, 16.4LSB/dps
+    0x01, // +/- 1000 dps, 32.8LSB/dps
+    0x02, // +/- 500 dps, 65.6LSB/dps
+    0x03, // +/- 250 dps, 131.2LSB/dps
+    0x04, // +/- 125 dps, 262.4LSB/dps
+    0x05, // Reserved
+    0x06, // Reserved
+    0x07  // Reserved
+};
+
 void supend_mode(void)
 {
     // PWR_CTRL: disable auxiliary sensor, gyro, acc and temp
