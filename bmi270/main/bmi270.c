@@ -842,7 +842,7 @@ void supend_mode(void)
     printf("Suspend mode: activated. \n\n");
 }
 
-void low_power_mode(void)
+void low_power_mode(uint8_t acc_odr, uint8_t acc_range)
 {
     // PWR_CTRL: disable auxiliary sensor, gyro and temp, enable acc 
     // ACC_CONF: 50Hz en datos acc, filter: power optimized, acc_bwp: osr2_avg2
@@ -850,8 +850,8 @@ void low_power_mode(void)
     // PWR_CONF: disable fup_en, enable adv_power_save, fifo_self_wake_up
 
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x04;
-    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0x17;
-    uint8_t reg_acc_range = 0x41, val_acc_range = 0x02;
+    uint8_t reg_acc_conf = 0x40, val_acc_conf = 0x10 | acc_odr ; // val_acc_conf = 0b00010000 | 0b0000____
+    uint8_t reg_acc_range = 0x41, val_acc_range = 0x00 | acc_range; // val_acc_range = 0b00000000 | 0b000000__
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x03;
 
     bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
@@ -1290,9 +1290,8 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     printf("Fin de los datos de velocidad angular en rad/s\n\n");
 }
 
-void lectura(void)
+void lectura(int window_size)
 {
-    int window_size = 500;
     uint8_t reg_intstatus = 0x03, tmp;
     int bytes_data8 = 12;
     uint8_t reg_data = 0x0C, data_data8[bytes_data8];
@@ -1376,10 +1375,41 @@ void lectura(void)
 void loop_lectura()
 {
     while (true)
-    {
-        normal_power_mode();
-        internal_status();
-        lectura();
+    {   
+        // this is the number of readings that the user wants to take
+        int window_size = 500;
+        // this is the power mode that the user wants to use
+        char powermode = 'L';
+        // this is the index of the odr for the accelerometer that the user wants to use
+        int acc_odr_index = 7; // 50 HZ in this example
+        // this is the index of the range for the accelerometer that the user wants to use
+        int acc_range_index = 2; // +/- 8g in this example
+
+
+        if (powermode == 'S')
+        {
+            supend_mode();
+        }
+        else if (powermode == 'L')
+        {
+            low_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index]);
+            internal_status();
+            lectura(window_size);
+        }
+        else if (powermode == 'N')
+        {
+            normal_power_mode();
+            internal_status();
+            lectura(window_size);        }
+        else if (powermode == 'P')
+        {
+            performance_power_mode();
+            internal_status();
+            lectura(window_size);        }
+        else
+        {
+            printf("Modo de consumo no válido\n");
+        }
     }
 }
 
