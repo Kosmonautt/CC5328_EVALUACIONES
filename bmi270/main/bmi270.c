@@ -669,8 +669,6 @@ void low_power_mode(void)
 
 void normal_power_mode(void)
 {
-    // range and ODR should be able to be changed
-
     // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc 
     // ACC_CONF: 100Hz en datos acc, filter: performance optimized, acc_bwp: norm_avg4
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
@@ -699,14 +697,25 @@ void normal_power_mode(void)
 
 void performance_power_mode(void)
 {
+    // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc
+    // ACC_CONF: 100Hz en datos acc, filter: performance optimized, acc_bwp: osr4_avg4
+    // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
+    // GYR_CONF: 200Hz en datos gyro, noise filter: performance optimized, filter: performance optimized, gyr_bwp: norm
+    // GYR_RANGE: +/-2000dps, 16.4LSB/dps (1 bit= 2000/32768 dps, 34.90659/32768 rad/s)
+    // PWR_CONF: disable fup_en, adv_power_save, enable fifo_self_wake_up
+
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x0E;
     uint8_t reg_acc_conf = 0x40, val_acc_conf = 0xA8;
+    uint8_t reg_acc_range = 0x41, val_acc_range = 0x02;
     uint8_t reg_gyr_conf = 0x42, val_gyr_conf = 0xE9;
+    uint8_t reg_gyr_range = 0x43, val_gyr_range = 0x08;
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x02;
 
     bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
     bmi_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
+    bmi_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
     bmi_write(I2C_NUM_0, &reg_gyr_conf, &val_gyr_conf, 1);
+    bmi_write(I2C_NUM_0, &reg_gyr_range, &val_gyr_range, 1);
     bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
