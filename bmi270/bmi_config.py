@@ -113,8 +113,8 @@ class BMI_CONFIG:
     def get_user_input(self):
         return {
             "mode": self.chosen_mode,
-            "odr_accel": self.odr_accel[self.chosen_odr_accel],
-            "range_accel": self.range_accel[self.chosen_range_accel],
+            "odr_accel": self.odr_accel[self.chosen_odr_accel] if self.chosen_odr_accel else None,
+            "range_accel": self.range_accel[self.chosen_range_accel] if self.chosen_range_accel else None,
             "odr_gyro": self.odr_gyro[self.chosen_odr_gyro] if self.chosen_odr_gyro else None,
             "range_gyro": self.range_gyro[self.chosen_range_gyro] if self.chosen_range_gyro else None,
             "sample_size": self.sample_size
