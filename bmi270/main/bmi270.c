@@ -1277,7 +1277,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
 
 void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size, float to_g_multiplier)
 {
-    printf("Datos de aceleración en g\n\n");
+    printf("Datos de aceleración en g\n");
 
     // arrays are created with malloc to store the data in g
     float *acc_x_g = (float *)malloc(window_size * sizeof(float));
@@ -1313,6 +1313,93 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
+    printf("Fin de los datos de aceleración en g\n");
+
+    printf("Datos de la FFT\n");
+
+    // arrays are created with malloc to store the FFTx data, real and imaginary
+    float *FFTx_re = (float *)malloc(window_size * sizeof(float));
+    float *FFTx_im = (float *)malloc(window_size * sizeof(float));
+
+    printf("Calculando FFTx...\n");
+
+    // the FFTx is calculated and stored in the array
+    calcularFFT(acc_x_g, window_size, FFTx_re, FFTx_im);
+    
+    // the data of the FFTx_re array is printed
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the data of the FFTx_im array is printed
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(FFTx_re);
+    free(FFTx_im);
+
+    // arrays are created with malloc to store the FFTy data, real and imaginary
+    float *FFTy_re = (float *)malloc(window_size * sizeof(float));
+    float *FFTy_im = (float *)malloc(window_size * sizeof(float));
+
+    printf("Calculando FFTy...\n");
+
+    // the FFTy is calculated and stored in the array
+    calcularFFT(acc_y_g, window_size, FFTy_re, FFTy_im);
+
+    // the data of the FFTy_re array is printed
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the data of the FFTy_im array is printed
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(FFTy_re);
+    free(FFTy_im);
+
+    // arrays are created with malloc to store the FFTz data, real and imaginary
+    float *FFTz_re = (float *)malloc(window_size * sizeof(float));
+    float *FFTz_im = (float *)malloc(window_size * sizeof(float));
+
+    printf("Calculando FFTz...\n");
+
+    // the FFTz is calculated and stored in the array
+    calcularFFT(acc_z_g, window_size, FFTz_re, FFTz_im);
+
+    // the data of the FFTz_re array is printed
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the data of the FFTz_im array is printed
+    for (int i = 0; i < window_size; i++)
+    {
+        printf("Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(FFTz_re);
+    free(FFTz_im);
+
+    printf("Fin de los datos de la FFT\n");
+
     // float that stores the RMSx up to the i-th data
     float RMSx = 0;
     // float that stores the RMSy up to the i-th data
@@ -1345,40 +1432,144 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
         RMSz_array[i] = sqrt(RMSz/(i+1));
     }
 
+    printf("Datos de RMS\n");
+
     // the RMSx data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSx: %f\n", i+1 , RMSx_array[i]);
+        printf("Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
-
-    // the array is freed
-    free(RMSx_array);
 
     // the RMSy data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSy: %f\n", i+1 , RMSy_array[i]);
+        printf("Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
-
-    // the array is freed
-    free(RMSy_array);
 
     // the RMSz data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: RMSz: %f\n", i+1 , RMSz_array[i]);
+        printf("Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
-    // se libera el array
+    printf("Fin de los datos de RMS\n");
+
+    printf("Datos de los 5 valores más altos de RMS\n");
+
+    // arrays are created with malloc to store the top 5 RMS data
+    float *top_5_RMSx = (float *)malloc(5 * sizeof(float));
+    float *top_5_RMSy = (float *)malloc(5 * sizeof(float));
+    float *top_5_RMSz = (float *)malloc(5 * sizeof(float));
+
+    printf("Calculando los 5 valores más altos de RMSx...\n");
+
+    // the top 5 RMSx values are stored in the array
+    save_top_5(RMSx_array, window_size, top_5_RMSx);
+
+    // the data of the top_5_RMSx array is printed
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(top_5_RMSx);
+    free(RMSx_array);
+
+    printf("Calculando los 5 valores más altos de RMSy...\n");
+
+    // the top 5 RMSy values are stored in the array
+    save_top_5(RMSy_array, window_size, top_5_RMSy);
+
+    // the data of the top_5_RMSy array is printed
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(top_5_RMSy);
+    free(RMSy_array);
+
+    printf("Calculando los 5 valores más altos de RMSz...\n");
+
+    // the top 5 RMSz values are stored in the array
+    save_top_5(RMSz_array, window_size, top_5_RMSz);
+
+    // the data of the top_5_RMSz array is printed
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(top_5_RMSz);
     free(RMSz_array);
 
-    // se liberan los arrays
+    printf("Fin de los datos de los 5 valores más altos de RMS\n");
+
+    printf("Datos de los 5 valores más altos de aceleración en g\n");
+
+    // arrays are created with malloc to store the top 5 acc_x data
+    float *top_5_acc_x = (float *)malloc(5 * sizeof(float));
+    float *top_5_acc_y = (float *)malloc(5 * sizeof(float));
+    float *top_5_acc_z = (float *)malloc(5 * sizeof(float));
+
+    printf("Calculando los 5 valores más altos de acc_x...\n");
+
+    // the top 5 acc_x values are stored in the array
+    save_top_5(acc_x_g, window_size, top_5_acc_x);
+
+    // the data of the top_5_acc_x array is printed
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Top %d: acc_x: %f g\n", i+1 , top_5_acc_x[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(top_5_acc_x);
     free(acc_x_g);
+
+    printf("Calculando los 5 valores más altos de acc_y...\n");
+
+    // the top 5 acc_y values are stored in the array
+    save_top_5(acc_y_g, window_size, top_5_acc_y);
+
+    // the data of the top_5_acc_y array is printed
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Top %d: acc_y: %f g\n", i+1 , top_5_acc_y[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(top_5_acc_y);
     free(acc_y_g);
+
+    printf("Calculando los 5 valores más altos de acc_z...\n");
+
+    // the top 5 acc_z values are stored in the array
+    save_top_5(acc_z_g, window_size, top_5_acc_z);
+
+    // the data of the top_5_acc_z array is printed
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Top %d: acc_z: %f g\n", i+1 , top_5_acc_z[i]);
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+
+    // the arrays are freed
+    free(top_5_acc_z);
     free(acc_z_g);
+
+    printf("Fin de los datos de los 5 valores más altos de aceleración en g\n");
 
     printf("Fin de los datos de aceleración en g\n\n");
 }
@@ -1582,7 +1773,7 @@ void loop_lectura()
     while (true)
     {   
         // this is the number of readings that the user wants to take
-        int window_size = 500;
+        int window_size = 100;
         // this is the power mode that the user wants to use
         char powermode = 'P';
         // this is the index of the odr for the accelerometer that the user wants to use
