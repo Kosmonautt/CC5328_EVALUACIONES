@@ -1,6 +1,6 @@
 class BMI_CONFIG:
     def __init__(self):
-        self.power_modes = ["suspension", "bajo", "normal", "performance"]
+        self.power_modes = ["S", "L", "N", "P"]
         self.odr_accel = {
             "0.78125 Hz": 0x01,
             "1.5625 Hz": 0x02,
@@ -86,7 +86,7 @@ class BMI_CONFIG:
         print(f"Modo de potencia seleccionado: {mode}")
         self.chosen_mode = mode
 
-        if mode == "suspension":
+        if mode == "S":
             return
 
         # ODR Acelerómetro
@@ -98,7 +98,7 @@ class BMI_CONFIG:
         print(f"Rango del acelerómetro seleccionado: {range_accel}")
         self.chosen_range_accel = range_accel
 
-        if mode in ["normal", "performance"]:
+        if mode in ["N", "P"]:
             # ODR Giroscopio
             odr_gyro = choose_option(list(self.odr_gyro.keys()), "Selecciona el ODR del giroscopio: ")
             print(f"ODR del giroscopio seleccionado: {odr_gyro}")

@@ -1935,14 +1935,19 @@ void loop_lectura()
     while (1)
     {   
 
-        // waiting for a BEGIN to initiate the reading
-        char begin[6];
+        // waiting for a BEGIN to initiate the reading, this begin includes the configuration of the reading
+        char begin_with_config[22];
         printf("Esperando inicio de lectura\n");
         while (1)
         {
-            int rLen = serial_read(begin, 6);
+            int rLen = serial_read(begin_with_config, 6);
             if (rLen > 0)
-            {
+            {   
+                // copy of the begin_with_config array only with the first 5 characters
+                char begin[6];
+                strncpy(begin, begin_with_config, 5);
+                begin[5] = '\0';
+
                 if (strcmp(begin, "BEGIN") == 0)
                 {
                     printf("Inicio de lectura\n");
@@ -1951,11 +1956,14 @@ void loop_lectura()
             }
         }
         
+        // this is the power mode that the user wants to use
+        // the power mode comes from the 5th char in begin_with_config
+        char powermode = begin_with_config[5];
+        printf("Modo de consumo: %c\n", powermode);
+        
 
         // this is the number of readings that the user wants to take
         int window_size = 100;
-        // this is the power mode that the user wants to use
-        char powermode = 'L';
         // this is the index of the odr for the accelerometer that the user wants to use
         int acc_odr_index = 7; // 50 HZ in this example
         // this is the index of the range for the accelerometer that the user wants to use
