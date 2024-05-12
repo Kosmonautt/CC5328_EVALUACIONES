@@ -769,12 +769,12 @@ float acc_range_values_m_s2[4] =
 };
 
 // these are the numbers for converting the accelerometer data to g
-uint8_t acc_range_values_g[4] = 
+float acc_range_values_g[4] = 
 {
-    2, // +/- 2g, 1g = 1g, alcance max: 2g
-    4, // +/- 4g, 1g = 1g, alcance max: 4g
-    8, // +/- 8g, 1g = 1g, alcance max: 8g
-    16 // +/- 16g, 1g = 1g, alcance max: 16g
+    2.000, // +/- 2g, 1g = 1g, alcance max: 2g
+    4.000, // +/- 4g, 1g = 1g, alcance max: 4g
+    8.000, // +/- 8g, 1g = 1g, alcance max: 8g
+    16.000 // +/- 16g, 1g = 1g, alcance max: 16g
 };
 
 // these are the available values for the ODR of the gyroscope
@@ -930,7 +930,7 @@ void internal_status(void)
     printf("Internal Status: %2X\n\n", tmp);
 }
 
-void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size)
+void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size, float to_m_s2_multiplier)
 {
     printf("Datos de aceleración en m/s2\n\n");
 
@@ -938,9 +938,6 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     float *acc_x_m_s2 = (float *)malloc(window_size * sizeof(float));
     float *acc_y_m_s2 = (float *)malloc(window_size * sizeof(float));
     float *acc_z_m_s2 = (float *)malloc(window_size * sizeof(float));
-
-    // multiplier to convert the data to m/s2
-    float to_m_s2_multiplier = (78.4532 / 32768);
 
     // the data is added to the arrays in m/s2
     for (int i = 0; i < window_size; i++)
@@ -1041,7 +1038,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     printf("Fin de los datos de aceleración en m/s2\n\n");
 }
 
-void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size)
+void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size, float to_g_multiplier)
 {
     printf("Datos de aceleración en g\n\n");
 
@@ -1049,9 +1046,6 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     float *acc_x_g = (float *)malloc(window_size * sizeof(float));
     float *acc_y_g = (float *)malloc(window_size * sizeof(float));
     float *acc_z_g = (float *)malloc(window_size * sizeof(float));
-
-    // multiplier to convert the data to g
-    float to_g_multiplier = (8.000 / 32768);
 
     // the data is added to the arrays in g
     for (int i = 0; i < window_size; i++)
@@ -1152,7 +1146,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     printf("Fin de los datos de aceleración en g\n\n");
 }
 
-void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *gyr_z_array, int window_size)
+void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *gyr_z_array, int window_size, float to_rad_s_multiplier)
 {
     printf("Datos de velocidad angular en rad/s\n\n");
 
@@ -1160,9 +1154,6 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     float *gyr_x_rad_s = (float *)malloc(window_size * sizeof(float));
     float *gyr_y_rad_s = (float *)malloc(window_size * sizeof(float));
     float *gyr_z_rad_s = (float *)malloc(window_size * sizeof(float));
-
-    // multiplier to convert the data to rad/s
-    float to_rad_s_multiplier = (34.90659 / 32768);
 
     // the data is added to the arrays in rad/s
     for (int i = 0; i < window_size; i++)
@@ -1263,7 +1254,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     printf("Fin de los datos de velocidad angular en rad/s\n\n");
 }
 
-void lectura(int window_size)
+void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, float to_rad_s_multiplier)
 {
     uint8_t reg_intstatus = 0x03, tmp;
     int bytes_data8 = 12;
@@ -1314,7 +1305,7 @@ void lectura(int window_size)
                 gyr_z_array[i] = gyr_z;
 
                 // se imprimen los datos
-                printf("Lectura %d: acc_x: %f g     acc_y: %f g     acc_z: %f g     gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", i+1 , (int16_t)acc_x * (8.000 / 32768), (int16_t)acc_y * (8.000 / 32768), (int16_t)acc_z * (8.000 / 32768), (int16_t)gyr_x * (34.90659 / 32768), (int16_t)gyr_y * (34.90659 / 32768), (int16_t)gyr_z * (34.90659 / 32768));
+                printf("Lectura %d: acc_x: %f g     acc_y: %f g     acc_z: %f g     gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", i+1 , (int16_t)acc_x * to_g_multiplier, (int16_t)acc_y * to_g_multiplier, (int16_t)acc_z * to_g_multiplier, (int16_t)gyr_x * to_rad_s_multiplier, (int16_t)gyr_y * to_rad_s_multiplier, (int16_t)gyr_z * to_rad_s_multiplier);
 
                 // se aumenta el contador de lecturas si la lectura fue exitosa
                 i += 1;
@@ -1325,13 +1316,13 @@ void lectura(int window_size)
     printf("Fin de la lectura\n\n");
 
     // se llama a la funcion que procesa los datos de aceleracion en m/s2
-    accel_m_s2_data(acc_x_array, acc_y_array, acc_z_array, window_size);
+    accel_m_s2_data(acc_x_array, acc_y_array, acc_z_array, window_size, to_m_s2_multiplier);
 
     // se llama a la funcion que procesa los datos de aceleracion en g
-    accel_g_data(acc_x_array, acc_y_array, acc_z_array, window_size);
+    accel_g_data(acc_x_array, acc_y_array, acc_z_array, window_size, to_g_multiplier);
     
     // se llama a la funcion que procesa los datos de velocidad angular en rad/s
-    ang_vel_rad_s_data(gyr_x_array, gyr_y_array, gyr_z_array, window_size);
+    ang_vel_rad_s_data(gyr_x_array, gyr_y_array, gyr_z_array, window_size, to_rad_s_multiplier);
 
     // se liberan los arrays
     free(acc_x_array);
@@ -1344,6 +1335,10 @@ void lectura(int window_size)
     printf("Procesamiento finalizado\n\n");
 }
 
+// this number is the denominator to get the multiplier for converting the data to m/s2, g and rad/s
+// it's half of 2 to the power of 16 (because the data is 16 bits)
+int denominator = 32768;
+
 // function that sets and executes the lectura
 void loop_lectura()
 {
@@ -1352,7 +1347,7 @@ void loop_lectura()
         // this is the number of readings that the user wants to take
         int window_size = 500;
         // this is the power mode that the user wants to use
-        char powermode = 'L';
+        char powermode = 'P';
         // this is the index of the odr for the accelerometer that the user wants to use
         int acc_odr_index = 7; // 50 HZ in this example
         // this is the index of the range for the accelerometer that the user wants to use
@@ -1361,6 +1356,12 @@ void loop_lectura()
         int gyr_odr_index = 9; // 200 HZ in this example
         // this is the index of the range for the gyroscope that the user wants to use
         int gyr_range_index = 0; // +/- 2000 dps in this example
+        // this is the multiplier for converting the data to m/s2
+        float to_m_s2_multiplier = (acc_range_values_m_s2[acc_range_index] / denominator);
+        // this is the multiplier for converting the data to g
+        float to_g_multiplier = (acc_range_values_g[acc_range_index] / denominator);
+        // this is the multiplier for converting the data to rad/s
+        float to_rad_s_multiplier = (gyr_range_values_rad_s[gyr_range_index] / denominator);
 
 
         if (powermode == 'S')
@@ -1371,18 +1372,20 @@ void loop_lectura()
         {
             low_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index]);
             internal_status();
-            lectura(window_size);
+            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier);
         }
         else if (powermode == 'N')
         {
             normal_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             internal_status();
-            lectura(window_size);        }
+            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier);
+        }
         else if (powermode == 'P')
         {
             performance_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             internal_status();
-            lectura(window_size);        }
+            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier);
+        }
         else
         {
             printf("Modo de consumo no válido\n");
