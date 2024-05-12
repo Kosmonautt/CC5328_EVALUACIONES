@@ -120,6 +120,3 @@ class BMI_CONFIG:
             "sample_size": self.sample_size
         }
 
-bmi_config = BMI_CONFIG()
-bmi_config.user_input()
-print(bmi_config.get_user_input())
