@@ -65,6 +65,40 @@ def initialize_data(window_size):
 
     print('Arreglos de datos inicializados!')
 
+# diccionario con los índices de los arreglos de datos, para acc en m/s^2, g y rad/s, con el identificador de la medida
+# como llave y el índice del arreglo como valor, para los arreglos de window_size
+window_size_index= {
+    'acc_x': 0,
+    'acc_y': 1,
+    'acc_z': 2,
+    'gyr_x': 0,
+    'gyr_y': 1,
+    'gyr_z': 2,
+    'FFTx_RE': 3,
+    'FFTx_IM': 4,
+    'FFTy_RE': 5,
+    'FFTy_IM': 6,
+    'FFTz_RE': 7,
+    'FFTz_IM': 8,
+    'RMSx': 9,
+    'RMSy': 10,
+    'RMSz': 11
+}
+
+# diccionario con los índices de los arreglos de datos, para acc en m/s^2, g y rad/s, con el identificador de la medida
+# como llave y el índice del arreglo como valor, para los arreglos de 5
+five_peaks_index= {
+    'RMSx': 12,
+    'RMSy': 13,
+    'RMSz': 14,
+    'acc_x': 15,
+    'acc_y': 16,
+    'acc_y': 17,
+    'gyr_x': 15,
+    'gyr_y': 16,
+    'gyr_z': 17
+}
+
 # función para parsear una linea de datos
 def parse_line(line):
     # se saca \r\n del final
@@ -74,19 +108,39 @@ def parse_line(line):
     
     # si existe '[Acc m/s2]' en la linea
     if '[Acc m/s2]' in line:
-        # se divide la linea en los datos por un espacio en blanco ([Acc m/s2] Lectura 1: acc_x: -0.215478 m/s2)
+        # se divide la linea en los datos por un espacio en blanco
         line = line.split(' ')
+        # se consigue si es 'Lectura', 'Dato' o 'Top'
+        data_type = line[2]
         # se consigue el número de muestra
         sample_number = int(line[3][:-1])
         # se consigue el identificador de la medida
         measure = line[4].split(':')[0]
         # se consigue el valor de la medida
         value = float(line[5])
+
+        if data_type == 'Lectura' or data_type == 'Dato':
+            # se consigue el índice del arreglo de datos
+            index_array = window_size_index[measure]
+            # se consigue el arreglo de datos
+            array = acc_data_m_s2[index_array]
+            # se añade el valor al arreglo de datos
+            array[sample_number - 1] = value
+
+        elif data_type == 'Top':
+            # se consigue el índice del arreglo de datos
+            index_array = five_peaks_index[measure]
+            # se consigue el arreglo de datos
+            array = acc_data_m_s2[index_array]
+            # se añade el valor al arreglo de datos
+            array[sample_number - 1] = value
 
     # si existe '[Acc g]' en la linea
     elif '[Acc g]' in line:
-        # se divide la linea en los datos por un espacio en blanco ([Acc m/s2] Lectura 1: acc_x: -0.215478 m/s2)
+        # se divide la linea en los datos por un espacio en blanco
         line = line.split(' ')
+        # se consigue si es 'Lectura', 'Dato' o 'Top'
+        data_type = line[2]
         # se consigue el número de muestra
         sample_number = int(line[3][:-1])
         # se consigue el identificador de la medida
@@ -94,16 +148,50 @@ def parse_line(line):
         # se consigue el valor de la medida
         value = float(line[5])
 
+        if data_type == 'Lectura' or data_type == 'Dato':
+            # se consigue el índice del arreglo de datos
+            index_array = window_size_index[measure]
+            # se consigue el arreglo de datos
+            array = acc_data_m_s2[index_array]
+            # se añade el valor al arreglo de datos
+            array[sample_number - 1] = value
+
+        elif data_type == 'Top':
+            # se consigue el índice del arreglo de datos
+            index_array = five_peaks_index[measure]
+            # se consigue el arreglo de datos
+            array = acc_data_m_s2[index_array]
+            # se añade el valor al arreglo de datos
+            array[sample_number - 1] = value
+
     # si existe '[Ang_Vel rad/s]' en la linea
     elif '[Ang_Vel rad/s]' in line:
-        # se divide la linea en los datos por un espacio en blanco ([Acc m/s2] Lectura 1: acc_x: -0.215478 m/s2)
+        # se divide la linea en los datos por un espacio en blanco
         line = line.split(' ')
+        # se consigue si es 'Lectura', 'Dato' o 'Top'
+        data_type = line[2]
         # se consigue el número de muestra
         sample_number = int(line[3][:-1])
         # se consigue el identificador de la medida
         measure = line[4].split(':')[0]
         # se consigue el valor de la medida
         value = float(line[5])
+
+        if data_type == 'Lectura' or data_type == 'Dato':
+            # se consigue el índice del arreglo de datos
+            index_array = window_size_index[measure]
+            # se consigue el arreglo de datos
+            array = acc_data_m_s2[index_array]
+            # se añade el valor al arreglo de datos
+            array[sample_number - 1] = value
+
+        elif data_type == 'Top':
+            # se consigue el índice del arreglo de datos
+            index_array = five_peaks_index[measure]
+            # se consigue el arreglo de datos
+            array = acc_data_m_s2[index_array]
+            # se añade el valor al arreglo de datos
+            array[sample_number - 1] = value
 
 # objeto de configuracion de la BMI270
 bmi_config = BMI_CONFIG()
@@ -151,7 +239,9 @@ def loop():
 
                 ## si el mensaje es b'Procesamiento finalizado\n\n'
                 elif response == b'Procesamiento finalizado\r\n':
-                    # se imprimen los gráficos
+                    # # se imprimen los gráficos
+                    # se imprimen los datos de acc en m/s^2, en el eje z
+                    # print(acc_data_m_s2[2])
                     pass
 
                 else:
