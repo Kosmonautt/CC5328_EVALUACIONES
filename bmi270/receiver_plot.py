@@ -468,6 +468,142 @@ def plot_data_acc_g(window_size):
     plt.ylabel('Aceleración [g]')
     plt.show()
 
+# función para graficar los datos de gyr en rad/s
+def plot_data_gyr_rad_s(window_size):
+    # color de los puntos/lineas de los gráficos
+    line_color = 'navy'
+
+    # se crea un arreglo de 1 a window_size
+    x = [i for i in range(1, window_size + 1)]
+
+    # se crea un arreglo de 1 a 5
+    x_5 = [i for i in range(1, 6)]
+
+    # se grafican los datos de gyr_x en rad/s
+    plt.plot(x, gyro_data_rad_s[0], color=line_color)
+    plt.title('Velocidad angular en eje x [rad/s]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Velocidad angular [rad/s]')
+    plt.show()
+    
+    # se grafican los datos de gyr_y en rad/s
+    plt.plot(x, gyro_data_rad_s[1], color=line_color)
+    plt.title('Velocidad angular en eje y [rad/s]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Velocidad angular [rad/s]')
+    plt.show()
+
+    # se grafican los datos de gyr_z en rad/s
+    plt.plot(x, gyro_data_rad_s[2], color=line_color)
+    plt.title('Velocidad angular en eje z [rad/s]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Velocidad angular [rad/s]')
+    plt.show()
+
+    # se grafican los datos de FFTxRE en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[3], color=line_color)
+    plt.title('FFT en eje x Real [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTxIM en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[4], color=line_color)
+    plt.title('FFT en eje x Imaginario [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTyRE en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[5], color=line_color)
+    plt.title('FFT en eje y Real [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTyIM en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[6], color=line_color)
+    plt.title('FFT en eje y Imaginario [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTzRE en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[7], color=line_color)
+    plt.title('FFT en eje z Real [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTzIM en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[8], color=line_color)
+    plt.title('FFT en eje z Imaginario [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSx en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[9], color=line_color)
+    plt.title('RMS en eje x [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSy en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[10], color=line_color)
+    plt.title('RMS en eje y [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSz en unidades arbitrarias
+    plt.plot(x, gyro_data_rad_s[11], color=line_color)
+    plt.title('RMS en eje z [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSx_5_peaks en unidades arbitrarias
+    plt.scatter(x_5, gyro_data_rad_s[12], color=line_color)
+    plt.title('5 Peaks de RMS en eje x [U.A.]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSy_5_peaks en unidades arbitrarias
+    plt.scatter(x_5, gyro_data_rad_s[13], color=line_color)
+    plt.title('5 Peaks de RMS en eje y [U.A.]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSz_5_peaks en unidades arbitrarias
+    plt.scatter(x_5, gyro_data_rad_s[14], color=line_color)
+    plt.title('5 Peaks de RMS en eje z [U.A.]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de gyr_x_5_peaks en rad/s
+    plt.scatter(x_5, gyro_data_rad_s[15], color=line_color)
+    plt.title('5 Peaks de Velocidad angular en eje x [rad/s]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('Velocidad angular [rad/s]')
+    plt.show()
+
+    # se grafican los datos de gyr_y_5_peaks en rad/s
+    plt.scatter(x_5, gyro_data_rad_s[16], color=line_color)
+    plt.title('5 Peaks de Velocidad angular en eje y [rad/s]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('Velocidad angular [rad/s]')
+    plt.show()
+
+    # se grafican los datos de gyr_z_5_peaks en rad/s
+    plt.scatter(x_5, gyro_data_rad_s[17], color=line_color)
+    plt.title('5 Peaks de Velocidad angular en eje z [rad/s]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('Velocidad angular [rad/s]')
+    plt.show()
 
 # objeto de configuracion de la BMI270
 bmi_config = BMI_CONFIG()
@@ -518,6 +654,9 @@ def loop():
                     # se imprimen los gráficos
                     plot_data_acc_m_s2(bmi_params['sample_size'])
                     plot_data_acc_g(bmi_params['sample_size'])
+                    # si es el modo es normal o performance
+                    if bmi_params['mode'] == 'N' or bmi_params['mode'] == 'P':
+                        plot_data_gyr_rad_s(bmi_params['sample_size'])
                     
                 else:
                     # se parsea la linea para ver si se debe guardar en los arreglos de datos
