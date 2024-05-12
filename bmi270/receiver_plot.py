@@ -197,7 +197,7 @@ def parse_line(line):
 # función para graficar los datos de acc en m/s^2
 def plot_data_acc_m_s2(window_size):
     # color de los puntos/lineas de los gráficos
-    line_color = 'navy'
+    line_color = 'orange'
 
     # se crea un arreglo de 1 a window_size
     x = [i for i in range(1, window_size + 1)]
@@ -331,6 +331,143 @@ def plot_data_acc_m_s2(window_size):
     plt.ylabel('Aceleración [m/s^2]')
     plt.show()
 
+# función para graficar los datos de acc en g
+def plot_data_acc_g(window_size):
+    # color de los puntos/lineas de los gráficos
+    line_color = 'red'
+
+    # se crea un arreglo de 1 a window_size
+    x = [i for i in range(1, window_size + 1)]
+
+    # se crea un arreglo de 1 a 5
+    x_5 = [i for i in range(1, 6)]
+
+    # se grafican los datos de acc_x en g
+    plt.plot(x, acc_data_g[0], color=line_color)
+    plt.title('Aceleración en eje x [g]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Aceleración [g]')
+    plt.show()
+    
+    # se grafican los datos de acc_y en g
+    plt.plot(x, acc_data_g[1], color=line_color)
+    plt.title('Aceleración en eje y [g]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Aceleración [g]')
+    plt.show()
+
+    # se grafican los datos de acc_z en g
+    plt.plot(x, acc_data_g[2], color=line_color)
+    plt.title('Aceleración en eje z [g]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Aceleración [g]')
+    plt.show()
+
+    # se grafican los datos de FFTxRE en unidades arbitrarias
+    plt.plot(x, acc_data_g[3], color=line_color)
+    plt.title('FFT en eje x Real [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTxIM en unidades arbitrarias
+    plt.plot(x, acc_data_g[4], color=line_color)
+    plt.title('FFT en eje x Imaginario [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTyRE en unidades arbitrarias
+    plt.plot(x, acc_data_g[5], color=line_color)
+    plt.title('FFT en eje y Real [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTyIM en unidades arbitrarias
+    plt.plot(x, acc_data_g[6], color=line_color)
+    plt.title('FFT en eje y Imaginario [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTzRE en unidades arbitrarias
+    plt.plot(x, acc_data_g[7], color=line_color)
+    plt.title('FFT en eje z Real [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de FFTzIM en unidades arbitrarias
+    plt.plot(x, acc_data_g[8], color=line_color)
+    plt.title('FFT en eje z Imaginario [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('FFT [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSx en unidades arbitrarias
+    plt.plot(x, acc_data_g[9], color=line_color)
+    plt.title('RMS en eje x [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSy en unidades arbitrarias
+    plt.plot(x, acc_data_g[10], color=line_color)
+    plt.title('RMS en eje y [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSz en unidades arbitrarias
+    plt.plot(x, acc_data_g[11], color=line_color)
+    plt.title('RMS en eje z [U.A.]')
+    plt.xlabel('Muestra')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSx_5_peaks en unidades arbitrarias
+    plt.scatter(x_5, acc_data_g[12], color=line_color)
+    plt.title('5 Peaks de RMS en eje x [U.A.]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSy_5_peaks en unidades arbitrarias
+    plt.scatter(x_5, acc_data_g[13], color=line_color)
+    plt.title('5 Peaks de RMS en eje y [U.A.]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de RMSz_5_peaks en unidades arbitrarias
+    plt.scatter(x_5, acc_data_g[14], color=line_color)
+    plt.title('5 Peaks de RMS en eje z [U.A.]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('RMS [U.A.]')
+    plt.show()
+
+    # se grafican los datos de acc_x_5_peaks en g
+    plt.scatter(x_5, acc_data_g[15], color=line_color)
+    plt.title('5 Peaks de Aceleración en eje x [g]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('Aceleración [g]')
+    plt.show()
+
+    # se grafican los datos de acc_y_5_peaks en g
+    plt.scatter(x_5, acc_data_g[16], color=line_color)
+    plt.title('5 Peaks de Aceleración en eje y [g]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('Aceleración [g]')
+    plt.show()
+
+    # se grafican los datos de acc_z_5_peaks en g
+    plt.scatter(x_5, acc_data_g[17], color=line_color)
+    plt.title('5 Peaks de Aceleración en eje z [g]')
+    plt.xlabel('5 Peaks')
+    plt.ylabel('Aceleración [g]')
+    plt.show()
+
 
 # objeto de configuracion de la BMI270
 bmi_config = BMI_CONFIG()
@@ -380,6 +517,7 @@ def loop():
                 elif response == b'Procesamiento finalizado\r\n':
                     # se imprimen los gráficos
                     plot_data_acc_m_s2(bmi_params['sample_size'])
+                    plot_data_acc_g(bmi_params['sample_size'])
                     
                 else:
                     # se parsea la linea para ver si se debe guardar en los arreglos de datos
