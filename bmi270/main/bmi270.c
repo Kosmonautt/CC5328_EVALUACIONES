@@ -806,7 +806,7 @@ void supend_mode(void)
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    printf("Suspend mode: activated. \n\n");
+    printf("Modo de suspension: activado. \n\n");
 }
 
 void low_power_mode(uint8_t acc_odr, uint8_t acc_range)
@@ -828,7 +828,7 @@ void low_power_mode(uint8_t acc_odr, uint8_t acc_range)
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    printf("Low power mode: activated. \n\n");
+    printf("Modo de bajo consumo: activado. \n\n");
 }
 
 void normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range)
@@ -856,7 +856,7 @@ void normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    printf("Normal power mode: activated. \n\n");
+    printf("Modo de potencia normal: activado. \n\n");
 }
 
 void performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range)
@@ -884,7 +884,7 @@ void performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr,
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    printf("Performance power mode: activated. \n\n");
+    printf("Modo de potencia de rendimiento: activado. \n\n");
 }
 
 void internal_status(void)
