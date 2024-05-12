@@ -1873,7 +1873,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     printf("Fin de los datos de velocidad angular en rad/s\n\n");
 }
 
-void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, float to_rad_s_multiplier)
+void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, float to_rad_s_multiplier, char powermode)
 {
     uint8_t reg_intstatus = 0x03, tmp;
     int bytes_data8 = 12;
@@ -1913,9 +1913,9 @@ void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, f
             {
                 printf("Error lectura: %s \n", esp_err_to_name(ret));
             }
-            // si la lectura fue exitosa
+            // if the read was successful
             else {
-                // se almacenan los datos en los arrays
+                // the data is stored in the arrays
                 acc_x_array[i] = acc_x;
                 acc_y_array[i] = acc_y;
                 acc_z_array[i] = acc_z;
@@ -1923,10 +1923,10 @@ void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, f
                 gyr_y_array[i] = gyr_y;
                 gyr_z_array[i] = gyr_z;
 
-                // se imprimen los datos
+                // the data is printed
                 printf("Lectura %d: acc_x: %f g     acc_y: %f g     acc_z: %f g     gyr_x: %f rad/s     gyr_y: %f rad/s      gyr_z: %f rad/s\n", i+1 , (int16_t)acc_x * to_g_multiplier, (int16_t)acc_y * to_g_multiplier, (int16_t)acc_z * to_g_multiplier, (int16_t)gyr_x * to_rad_s_multiplier, (int16_t)gyr_y * to_rad_s_multiplier, (int16_t)gyr_z * to_rad_s_multiplier);
 
-                // se aumenta el contador de lecturas si la lectura fue exitosa
+                // the index is increased
                 i += 1;
             }
         }
@@ -1934,15 +1934,19 @@ void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, f
 
     printf("Fin de la lectura\n\n");
 
-    // se llama a la funcion que procesa los datos de aceleracion en m/s2
+    // the function that processes the acceleration data in m/s2 is called
     accel_m_s2_data(acc_x_array, acc_y_array, acc_z_array, window_size, to_m_s2_multiplier);
 
-    // se llama a la funcion que procesa los datos de aceleracion en g
+    // the function that processes the acceleration data in g is called
     accel_g_data(acc_x_array, acc_y_array, acc_z_array, window_size, to_g_multiplier);
-    
-    // se llama a la funcion que procesa los datos de velocidad angular en rad/s
-    ang_vel_rad_s_data(gyr_x_array, gyr_y_array, gyr_z_array, window_size, to_rad_s_multiplier);
 
+    // if it's not in low power mode
+    if (powermode != 'L')
+    {
+        // the function that processes the gyroscope data in rad/s is called
+        ang_vel_rad_s_data(gyr_x_array, gyr_y_array, gyr_z_array, window_size, to_rad_s_multiplier);
+    }
+    
     // se liberan los arrays
     free(acc_x_array);
     free(acc_y_array);
@@ -1966,7 +1970,7 @@ void loop_lectura()
         // this is the number of readings that the user wants to take
         int window_size = 100;
         // this is the power mode that the user wants to use
-        char powermode = 'P';
+        char powermode = 'L';
         // this is the index of the odr for the accelerometer that the user wants to use
         int acc_odr_index = 7; // 50 HZ in this example
         // this is the index of the range for the accelerometer that the user wants to use
@@ -1991,19 +1995,19 @@ void loop_lectura()
         {
             low_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index]);
             internal_status();
-            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier);
+            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         }
         else if (powermode == 'N')
         {
             normal_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             internal_status();
-            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier);
+            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         }
         else if (powermode == 'P')
         {
             performance_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             internal_status();
-            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier);
+            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         }
         else
         {
