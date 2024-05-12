@@ -21,27 +21,9 @@ def receive_response():
     print(response)
     return response
 
-# def receive_data():
-#     """ Funcion que recibe tres floats (fff) de la ESP32 
-#     y los imprime en consola """
-#     data = receive_response()
-#     print(f"Data = {data}")
-#     data = unpack("fff", data)
-#     print(f'Received: {data}')
-#     return data
-
-# def send_end_message():
-#     """ Funcion para enviar un mensaje de finalizacion a la ESP32 """
-#     end_message = pack('4s', 'END\0'.encode())
-#     ser.write(end_message)
-
 # Función que transforma un entero en un string de 3 caracteres
 def int_to_str(num):
     return str(num).zfill(3)
-
-# # Se envia el mensaje de inicio de comunicacion
-# begin_message = pack('6s','BEGIN\0'.encode())
-# send_message(begin_message)
 
 # Función para el loop principal
 def loop():

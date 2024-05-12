@@ -685,21 +685,6 @@ static void uart_setup() {
     }
 }
 
-// // Write message through UART_num with an \0 at the end
-// // int serial_write(const char *msg, int len){
-
-// //     char *send_with_end = (char *)malloc(sizeof(char) * (len + 1));
-// //     memcpy(send_with_end, msg, len);
-// //     send_with_end[len] = '\0';
-
-// //     int result = uart_write_bytes(UART_NUM, send_with_end, len+1);
-
-// //     free(send_with_end);
-
-// //     vTaskDelay(pdMS_TO_TICKS(1000));  // Delay for 1 second
-// //     return result;
-// // }
-
 // Read UART_num for input with timeout of 1 sec
 int serial_read(char *buffer, int size){
     int len = uart_read_bytes(UART_NUM, (uint8_t*)buffer, size, pdMS_TO_TICKS(1000));
