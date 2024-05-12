@@ -153,7 +153,7 @@ def parse_line(line):
             # se consigue el índice del arreglo de datos
             index_array = window_size_index[measure]
             # se consigue el arreglo de datos
-            array = acc_data_m_s2[index_array]
+            array = acc_data_g[index_array]
             # se añade el valor al arreglo de datos
             array[sample_number - 1] = value
 
@@ -161,7 +161,7 @@ def parse_line(line):
             # se consigue el índice del arreglo de datos
             index_array = five_peaks_index[measure]
             # se consigue el arreglo de datos
-            array = acc_data_m_s2[index_array]
+            array = acc_data_g[index_array]
             # se añade el valor al arreglo de datos
             array[sample_number - 1] = value
 
@@ -182,7 +182,7 @@ def parse_line(line):
             # se consigue el índice del arreglo de datos
             index_array = window_size_index[measure]
             # se consigue el arreglo de datos
-            array = acc_data_m_s2[index_array]
+            array = gyro_data_rad_s[index_array]
             # se añade el valor al arreglo de datos
             array[sample_number - 1] = value
 
@@ -190,7 +190,7 @@ def parse_line(line):
             # se consigue el índice del arreglo de datos
             index_array = five_peaks_index[measure]
             # se consigue el arreglo de datos
-            array = acc_data_m_s2[index_array]
+            array = gyro_data_rad_s[index_array]
             # se añade el valor al arreglo de datos
             array[sample_number - 1] = value
 
@@ -199,17 +199,26 @@ def plot_data_acc_m_s2(window_size):
     # se crea un arreglo de 1 a window_size
     x = [i for i in range(1, window_size + 1)]
 
-    # se recorren los arreglos de datos de largo window_size de acc en m/s^2
-    # osea del 0 al 11
-    for i in range(12):
-        # se crea una nueva figura
-        plt.figure()
-        # se grafica el arreglo de datos
-        plt.plot(x, acc_data_m_s2[i])
-        # se añade el título
-        plt.title('Acc m/s2 ' + str(i))
-        # se muestra la figura
-        plt.show()
+    # se grafican los datos de acc_x en m/s^2
+    plt.plot(x, acc_data_m_s2[0], color='navy')
+    plt.title('Aceleración en x [m/s^2]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Aceleración [m/s^2]')
+    plt.show()
+    
+    # se grafican los datos de acc_y en m/s^2
+    plt.plot(x, acc_data_m_s2[1], color='navy')
+    plt.title('Aceleración en y [m/s^2]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Aceleración [m/s^2]')
+    plt.show()
+
+    # se grafican los datos de acc_z en m/s^2
+    plt.plot(x, acc_data_m_s2[2], color='navy')
+    plt.title('Aceleración en z [m/s^2]')
+    plt.xlabel('Muestra')
+    plt.ylabel('Aceleración [m/s^2]')
+    plt.show()
 
 
 

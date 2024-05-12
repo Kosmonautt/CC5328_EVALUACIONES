@@ -152,7 +152,7 @@ def parse_line(line):
             # se consigue el índice del arreglo de datos
             index_array = window_size_index[measure]
             # se consigue el arreglo de datos
-            array = acc_data_m_s2[index_array]
+            array = acc_data_g[index_array]
             # se añade el valor al arreglo de datos
             array[sample_number - 1] = value
 
@@ -160,7 +160,7 @@ def parse_line(line):
             # se consigue el índice del arreglo de datos
             index_array = five_peaks_index[measure]
             # se consigue el arreglo de datos
-            array = acc_data_m_s2[index_array]
+            array = acc_data_g[index_array]
             # se añade el valor al arreglo de datos
             array[sample_number - 1] = value
 
@@ -181,7 +181,7 @@ def parse_line(line):
             # se consigue el índice del arreglo de datos
             index_array = window_size_index[measure]
             # se consigue el arreglo de datos
-            array = acc_data_m_s2[index_array]
+            array = gyro_data_rad_s[index_array]
             # se añade el valor al arreglo de datos
             array[sample_number - 1] = value
 
@@ -189,7 +189,7 @@ def parse_line(line):
             # se consigue el índice del arreglo de datos
             index_array = five_peaks_index[measure]
             # se consigue el arreglo de datos
-            array = acc_data_m_s2[index_array]
+            array = gyro_data_rad_s[index_array]
             # se añade el valor al arreglo de datos
             array[sample_number - 1] = value
 
