@@ -74,15 +74,36 @@ def parse_line(line):
     
     # si existe '[Acc m/s2]' en la linea
     if '[Acc m/s2]' in line:
-        pass
+        # se divide la linea en los datos por un espacio en blanco ([Acc m/s2] Lectura 1: acc_x: -0.215478 m/s2)
+        line = line.split(' ')
+        # se consigue el número de muestra
+        sample_number = int(line[3][:-1])
+        # se consigue el identificador de la medida
+        measure = line[4].split(':')[0]
+        # se consigue el valor de la medida
+        value = float(line[5])
 
     # si existe '[Acc g]' en la linea
     elif '[Acc g]' in line:
-        pass
+        # se divide la linea en los datos por un espacio en blanco ([Acc m/s2] Lectura 1: acc_x: -0.215478 m/s2)
+        line = line.split(' ')
+        # se consigue el número de muestra
+        sample_number = int(line[3][:-1])
+        # se consigue el identificador de la medida
+        measure = line[4].split(':')[0]
+        # se consigue el valor de la medida
+        value = float(line[5])
 
     # si existe '[Ang_Vel rad/s]' en la linea
     elif '[Ang_Vel rad/s]' in line:
-        pass
+        # se divide la linea en los datos por un espacio en blanco ([Acc m/s2] Lectura 1: acc_x: -0.215478 m/s2)
+        line = line.split(' ')
+        # se consigue el número de muestra
+        sample_number = int(line[3][:-1])
+        # se consigue el identificador de la medida
+        measure = line[4].split(':')[0]
+        # se consigue el valor de la medida
+        value = float(line[5])
 
 # objeto de configuracion de la BMI270
 bmi_config = BMI_CONFIG()
