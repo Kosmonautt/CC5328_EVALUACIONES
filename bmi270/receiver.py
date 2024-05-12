@@ -37,7 +37,7 @@ acc_data_g = []
 # arreglo para guardar los arreglos de datos de gyro en rad/s
 gyro_data_rad_s = []
 
-# Función para inicializar los arreglos de datos
+# función para inicializar los arreglos de datos
 def initialize_data(window_size):
     # se borran los datos anteriores
     acc_data_m_s2.clear()
@@ -65,12 +65,31 @@ def initialize_data(window_size):
 
     print('Arreglos de datos inicializados!')
 
+# función para parsear una linea de datos
+def parse_line(line):
+    # se saca \r\n del final
+    line = line[:-2]
+    # se convierte a string
+    line = line.decode('utf-8')
+    
+    # si existe '[Acc m/s2]' en la linea
+    if '[Acc m/s2]' in line:
+        pass
+
+    # si existe '[Acc g]' en la linea
+    elif '[Acc g]' in line:
+        pass
+
+    # si existe '[Ang_Vel rad/s]' en la linea
+    elif '[Ang_Vel rad/s]' in line:
+        pass
+
 # objeto de configuracion de la BMI270
 bmi_config = BMI_CONFIG()
 
-# Función para el loop principal
+# función para el loop principal
 def loop():
-    # Se lee data por la conexion serial
+    # se lee data por la conexion serial
     while True:
         if ser.in_waiting > 0:
             try:
@@ -115,8 +134,8 @@ def loop():
                     pass
 
                 else:
-                    # se parsea el mensaje
-                    pass
+                    # se parsea la linea para ver si se debe guardar en los arreglos de datos
+                    parse_line(response)
 
             except KeyboardInterrupt:
                 print('Finalizando comunicacion')
@@ -125,5 +144,5 @@ def loop():
                 print('Error en leer mensaje')
                 continue
 
-# Se ejecuta el loop principal
+# se ejecuta el loop principal
 loop()
