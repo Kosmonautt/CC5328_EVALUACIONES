@@ -1940,7 +1940,7 @@ void loop_lectura()
         printf("Esperando inicio de lectura\n");
         while (1)
         {
-            int rLen = serial_read(begin_with_config, 6);
+            int rLen = serial_read(begin_with_config, 22);
             if (rLen > 0)
             {   
                 // copy of the begin_with_config array only with the first 5 characters
@@ -1955,23 +1955,55 @@ void loop_lectura()
                 }
             }
         }
+
+        // this array will hold the 3 chars that represent the numerical values given by the user
+        char number_from_config[4];
+        number_from_config[3] = '\0';
         
         // this is the power mode that the user wants to use
         // the power mode comes from the 5th char in begin_with_config
         char powermode = begin_with_config[5];
-        printf("Modo de consumo: %c\n", powermode);
         
+        // this is the index of the odr for the accelerometer that the user wants to use
+        // the odr comes from the 6th to the 8th char in begin_with_config array
+        for (int i = 0; i < 3; i++)
+        {
+            number_from_config[i] = begin_with_config[i + 6];
+        }
+        int acc_odr_index = atoi(number_from_config);
+
+        // this is the index of the range for the accelerometer that the user wants to use
+        // the range comes from the 9th to the 11th char in begin_with_config array
+        for (int i = 0; i < 3; i++)
+        {
+            number_from_config[i] = begin_with_config[i + 9];
+        }
+        int acc_range_index = atoi(number_from_config);
+
+        // this is the index of the odr for the gyroscope that the user wants to use
+        // the odr comes from the 12th to the 14th char in begin_with_config array
+        for (int i = 0; i < 3; i++)
+        {
+            number_from_config[i] = begin_with_config[i + 12];
+        }
+        int gyr_odr_index = atoi(number_from_config);
+
+        // this is the index of the range for the gyroscope that the user wants to use
+        // the range comes from the 15th to the 17th char in begin_with_config array
+        for (int i = 0; i < 3; i++)
+        {
+            number_from_config[i] = begin_with_config[i + 15];
+        }
+        int gyr_range_index = atoi(number_from_config);
 
         // this is the number of readings that the user wants to take
-        int window_size = 100;
-        // this is the index of the odr for the accelerometer that the user wants to use
-        int acc_odr_index = 7; // 50 HZ in this example
-        // this is the index of the range for the accelerometer that the user wants to use
-        int acc_range_index = 2; // +/- 8g in this example
-        // this is the index of the odr for the gyroscope that the user wants to use
-        int gyr_odr_index = 9; // 200 HZ in this example
-        // this is the index of the range for the gyroscope that the user wants to use
-        int gyr_range_index = 0; // +/- 2000 dps in this example
+        // the number comes from the 18th to the 20st char in begin_with_config array
+        for (int i = 0; i < 3; i++)
+        {
+            number_from_config[i] = begin_with_config[i + 18];
+        }
+        int window_size = atoi(number_from_config);
+
         // this is the multiplier for converting the data to m/s2
         float to_m_s2_multiplier = (acc_range_values_m_s2[acc_range_index] / denominator);
         // this is the multiplier for converting the data to g
