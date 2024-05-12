@@ -93,7 +93,7 @@ five_peaks_index= {
     'RMSz': 14,
     'acc_x': 15,
     'acc_y': 16,
-    'acc_y': 17,
+    'acc_z': 17,
     'gyr_x': 15,
     'gyr_y': 16,
     'gyr_z': 17
