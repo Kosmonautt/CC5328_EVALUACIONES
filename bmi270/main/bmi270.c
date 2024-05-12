@@ -963,21 +963,21 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the acc_x array is printed in m/s2
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: acc_x: %f m/s2\n", i+1 , acc_x_m_s2[i]);
+        printf("[Acc m/s2] Lectura %d: acc_x: %f m/s2\n", i+1 , acc_x_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the acc_y array is printed in m/s2
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: acc_y: %f m/s2\n", i+1 , acc_y_m_s2[i]);
+        printf("[Acc m/s2] Lectura %d: acc_y: %f m/s2\n", i+1 , acc_y_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the acc_z array is printed in m/s2
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: acc_z: %f m/s2\n", i+1 , acc_z_m_s2[i]);
+        printf("[Acc m/s2] Lectura %d: acc_z: %f m/s2\n", i+1 , acc_z_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -997,14 +997,14 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the FFTx_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
+        printf("[Acc m/s2] Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTx_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
+        printf("[Acc m/s2] Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1024,14 +1024,14 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the FFTy_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
+        printf("[Acc m/s2] Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTy_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
+        printf("[Acc m/s2] Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1051,14 +1051,14 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the FFTz_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
+        printf("[Acc m/s2] Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTz_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
+        printf("[Acc m/s2] Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1105,21 +1105,21 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the RMSx data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
+        printf("[Acc m/s2] Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSy data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
+        printf("[Acc m/s2] Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSz data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
+        printf("[Acc m/s2] Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1140,7 +1140,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the top_5_RMSx array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
+        printf("[Acc m/s2] Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1156,7 +1156,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the top_5_RMSy array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
+        printf("[Acc m/s2] Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1172,7 +1172,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the top_5_RMSz array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
+        printf("[Acc m/s2] Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1197,7 +1197,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the top_5_acc_x array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: acc_x: %f m/s2\n", i+1 , top_5_acc_x[i]);
+        printf("[Acc m/s2] Top %d: acc_x: %f m/s2\n", i+1 , top_5_acc_x[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1213,7 +1213,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the top_5_acc_y array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: acc_y: %f m/s2\n", i+1 , top_5_acc_y[i]);
+        printf("[Acc m/s2] Top %d: acc_y: %f m/s2\n", i+1 , top_5_acc_y[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1229,7 +1229,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     // the data of the top_5_acc_z array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: acc_z: %f m/s2\n", i+1 , top_5_acc_z[i]);
+        printf("[Acc m/s2] Top %d: acc_z: %f m/s2\n", i+1 , top_5_acc_z[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1262,21 +1262,21 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the acc_x array is printed in g
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: acc_x: %f g\n", i+1 , acc_x_g[i]);
+        printf("[Acc g] Lectura %d: acc_x: %f g\n", i+1 , acc_x_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the acc_y array is printed in g
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: acc_y: %f g\n", i+1 , acc_y_g[i]);
+        printf("[Acc g] Lectura %d: acc_y: %f g\n", i+1 , acc_y_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the acc_z array is printed in g
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: acc_z: %f g\n", i+1 , acc_z_g[i]);
+        printf("[Acc g] Lectura %d: acc_z: %f g\n", i+1 , acc_z_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1296,14 +1296,14 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the FFTx_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
+        printf("[Acc g] Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTx_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
+        printf("[Acc g] Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1323,14 +1323,14 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the FFTy_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
+        printf("[Acc g] Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTy_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
+        printf("[Acc g] Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1350,14 +1350,14 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the FFTz_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
+        printf("[Acc g] Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTz_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
+        printf("[Acc g] Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1404,21 +1404,21 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the RMSx data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
+        printf("[Acc g] Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSy data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
+        printf("[Acc g] Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSz data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
+        printf("[Acc g] Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1439,7 +1439,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the top_5_RMSx array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
+        printf("[Acc g] Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1455,7 +1455,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the top_5_RMSy array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
+        printf("[Acc g] Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1471,7 +1471,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the top_5_RMSz array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
+        printf("[Acc g] Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1496,7 +1496,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the top_5_acc_x array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: acc_x: %f g\n", i+1 , top_5_acc_x[i]);
+        printf("[Acc g] Top %d: acc_x: %f g\n", i+1 , top_5_acc_x[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1512,7 +1512,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the top_5_acc_y array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: acc_y: %f g\n", i+1 , top_5_acc_y[i]);
+        printf("[Acc g] Top %d: acc_y: %f g\n", i+1 , top_5_acc_y[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1528,7 +1528,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     // the data of the top_5_acc_z array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: acc_z: %f g\n", i+1 , top_5_acc_z[i]);
+        printf("[Acc g] Top %d: acc_z: %f g\n", i+1 , top_5_acc_z[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1561,21 +1561,21 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the gyr_x array is printed in rad/s
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: gyr_x: %f rad/s\n", i+1 , gyr_x_rad_s[i]);
+        printf("[Ang_Vel rad/s] Lectura %d: gyr_x: %f rad/s\n", i+1 , gyr_x_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the gyr_y array is printed in rad/s
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: gyr_y: %f rad/s\n", i+1 , gyr_y_rad_s[i]);
+        printf("[Ang_Vel rad/s] Lectura %d: gyr_y: %f rad/s\n", i+1 , gyr_y_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the gyr_z array is printed in rad/s
     for (int i = 0; i < window_size; i++)
     {
-        printf("Lectura %d: gyr_z: %f rad/s\n", i+1 , gyr_z_rad_s[i]);
+        printf("[Ang_Vel rad/s] Lectura %d: gyr_z: %f rad/s\n", i+1 , gyr_z_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);    
     }
 
@@ -1595,14 +1595,14 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the FFTx_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
+        printf("[Ang_Vel rad/s] Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTx_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
+        printf("[Ang_Vel rad/s] Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1622,14 +1622,14 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the FFTy_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
+        printf("[Ang_Vel rad/s] Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTy_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
+        printf("[Ang_Vel rad/s] Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1649,14 +1649,14 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the FFTz_re array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
+        printf("[Ang_Vel rad/s] Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTz_im array is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
+        printf("[Ang_Vel rad/s] Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1703,21 +1703,21 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the RMSx data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
+        printf("[Ang_Vel rad/s] Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSy data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
+        printf("[Ang_Vel rad/s] Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSz data is printed
     for (int i = 0; i < window_size; i++)
     {
-        printf("Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
+        printf("[Ang_Vel rad/s] Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1738,7 +1738,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the top_5_RMSx array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
+        printf("[Ang_Vel rad/s] Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1754,7 +1754,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the top_5_RMSy array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
+        printf("[Ang_Vel rad/s] Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1770,7 +1770,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the top_5_RMSz array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
+        printf("[Ang_Vel rad/s] Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1795,7 +1795,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the top_5_gyr_x array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: gyr_x: %f rad/s\n", i+1 , top_5_gyr_x[i]);
+        printf("[Ang_Vel rad/s] Top %d: gyr_x: %f rad/s\n", i+1 , top_5_gyr_x[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1811,7 +1811,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the top_5_gyr_y array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: gyr_y: %f rad/s\n", i+1 , top_5_gyr_y[i]);
+        printf("[Ang_Vel rad/s] Top %d: gyr_y: %f rad/s\n", i+1 , top_5_gyr_y[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
@@ -1827,7 +1827,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     // the data of the top_5_gyr_z array is printed
     for (int i = 0; i < 5; i++)
     {
-        printf("Top %d: gyr_z: %f rad/s\n", i+1 , top_5_gyr_z[i]);
+        printf("[Ang_Vel rad/s] Top %d: gyr_z: %f rad/s\n", i+1 , top_5_gyr_z[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
