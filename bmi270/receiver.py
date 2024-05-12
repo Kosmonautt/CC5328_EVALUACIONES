@@ -28,6 +28,43 @@ def int_to_str(num):
         return '000'
     return str(num).zfill(3)
 
+# arreglo para guardar los arreglos de datos de acc en m/s^2
+acc_data_m_s2 = []
+
+# arreglo para guardar los arreglos de datos de acc en g
+acc_data_g = []
+
+# arreglo para guardar los arreglos de datos de gyro en rad/s
+gyro_data_rad_s = []
+
+# Función para inicializar los arreglos de datos
+def initialize_data(window_size):
+    # se borran los datos anteriores
+    acc_data_m_s2.clear()
+    acc_data_g.clear()
+    gyro_data_rad_s.clear()
+    
+    # se añaden los arreglos de datos
+    # se añaden arreglos que guardaran la informacion de las medidas
+    # 0 -> x, 1 -> y, 2 -> z
+    # 3 -> FFTxReal, 4 -> FFTxImag, 5 -> FFTyReal, 6 -> FFTyImag, 7 -> FFTzReal, 8 -> FFTzImag
+    # 9 -> RMSx, 10 -> RMSy, 11 -> RMSz
+    # 12 -> RMSx_5_peaks, 13 -> RMSy_5_peaks, 14 -> RMSz_5_peaks
+    # 15 -> x_5_peaks, 16 -> y_5_peaks, 17 -> z_5_peaks
+    # los arreglos del 0 al 11 son de window_size elementos
+    # del 12 al 17 son de 5 elementos
+    for i in range(18):
+        if i < 12:
+            acc_data_m_s2.append([0]*window_size)
+            acc_data_g.append([0]*window_size)
+            gyro_data_rad_s.append([0]*window_size)
+        else:
+            acc_data_m_s2.append([0]*5)
+            acc_data_g.append([0]*5)
+            gyro_data_rad_s.append([0]*5)
+
+    print('Arreglos de datos inicializados!')
+
 # objeto de configuracion de la BMI270
 bmi_config = BMI_CONFIG()
 
@@ -62,11 +99,24 @@ def loop():
                     begin_with_config += int_to_str(bmi_params['sample_size'])
                     # se agrega el 0 final
                     begin_with_config += '\0'
+                    
+                    # si el mode no es '0' (modo de potencia suspendido)
+                    if bmi_params['mode'] != 'S':
+                        # se inicializan los arreglos de datos
+                        initialize_data(bmi_params['sample_size'])
 
                     # se envia el mensaje de inicio de lectura, este también contiene la configuración de la BMI270
                     begin_message = pack('{}s'.format(len(begin_with_config)),begin_with_config.encode())
                     send_message(begin_message)
 
+                ## si el mensaje es b'Procesamiento finalizado\n\n'
+                elif response == b'Procesamiento finalizado\r\n':
+                    # se imprimen los gráficos
+                    pass
+
+                else:
+                    # se parsea el mensaje
+                    pass
 
             except KeyboardInterrupt:
                 print('Finalizando comunicacion')
