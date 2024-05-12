@@ -3,12 +3,18 @@
 #include "driver/i2c.h"
 #include "sdkconfig.h"
 #include "math.h"
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/uart.h"
+#include <time.h>
 // #include "bmi270.h"
 // #include "bmi2.h"
 // #include "common.h"
 // #include "freertos/FreeRTOS.h"
 // #include"struct.h"
 
+// for I2C with BMI270
 #define I2C_MASTER_SCL_IO         GPIO_NUM_22 // GPIO pin
 #define I2C_MASTER_SDA_IO         GPIO_NUM_21 // GPIO pin
 #define I2C_MASTER_FREQ_HZ        10000
@@ -19,6 +25,15 @@
 #define EXAMPLE_I2C_ACK_CHECK_DIS 0x0
 #define ACK_VAL                   0x0
 #define NACK_VAL                  0x1
+
+// for UART with python
+#define BUF_SIZE (128) // buffer size
+#define TXD_PIN 1  // UART TX pin
+#define RXD_PIN 3  // UART RX pin
+#define UART_NUM UART_NUM_0   // UART port number
+#define BAUD_RATE 115200   // Baud rate
+
+#define REDIRECT_LOGS 1 // if redirect ESP log to another UART
 
 esp_err_t ret  = ESP_OK;
 esp_err_t ret2 = ESP_OK;
@@ -640,37 +655,35 @@ void check_initialization(void)
     }
 }
 
-// // -------- Functions for UART --------------
+// Function for sending things to UART1
+static int uart1_printf(const char *str, va_list ap) {
+    char *buf;
+    vasprintf(&buf, str, ap);
+    uart_write_bytes(UART_NUM_1, buf, strlen(buf));
+    free(buf);
+    return 0;
+}
 
-// // Function for sending things to UART1
-// static int uart1_printf(const char *str, va_list ap) {
-//     char *buf;
-//     vasprintf(&buf, str, ap);
-//     uart_write_bytes(UART_NUM_1, buf, strlen(buf));
-//     free(buf);
-//     return 0;
-// }
+// Setup of UART connections 0 and 1, and try to redirect logs to UART1 if asked
+static void uart_setup() {
+    uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    };
 
-// // Setup of UART connections 0 and 1, and try to redirect logs to UART1 if asked
-// static void uart_setup() {
-//     uart_config_t uart_config = {
-//         .baud_rate = 115200,
-//         .data_bits = UART_DATA_8_BITS,
-//         .parity = UART_PARITY_DISABLE,
-//         .stop_bits = UART_STOP_BITS_1,
-//         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-//     };
+    uart_param_config(UART_NUM_0, &uart_config);
+    uart_param_config(UART_NUM_1, &uart_config);
+    uart_driver_install(UART_NUM_0, BUF_SIZE * 2, 0, 0, NULL, 0);
+    uart_driver_install(UART_NUM_1, BUF_SIZE * 2, 0, 0, NULL, 0);
 
-//     uart_param_config(UART_NUM_0, &uart_config);
-//     uart_param_config(UART_NUM_1, &uart_config);
-//     uart_driver_install(UART_NUM_0, BUF_SIZE * 2, 0, 0, NULL, 0);
-//     uart_driver_install(UART_NUM_1, BUF_SIZE * 2, 0, 0, NULL, 0);
-
-//     // Redirect ESP log to UART1
-//     if (REDIRECT_LOGS) {
-//         esp_log_set_vprintf(uart1_printf);
-//     }
-// }
+    // Redirect ESP log to UART1
+    if (REDIRECT_LOGS) {
+        esp_log_set_vprintf(uart1_printf);
+    }
+}
 
 // // Write message through UART_num with an \0 at the end
 // // int serial_write(const char *msg, int len){
@@ -687,42 +700,11 @@ void check_initialization(void)
 // //     return result;
 // // }
 
-// // Read UART_num for input with timeout of 1 sec
-// int serial_read(char *buffer, int size){
-//     int len = uart_read_bytes(UART_NUM, (uint8_t*)buffer, size, pdMS_TO_TICKS(1000));
-//     return len;
-// }
-
-
-// // Send an array of floats to the computer
-// void send_data_array(float *arr, int size) {
-//     const char* dataToSend = (const char*)arr;
-
-//     int len = sizeof(float)*size;
-//     uart_write_bytes(UART_NUM, dataToSend, len);
-
-// }
-
-// void UART_initialization(void) {
-//     uart_setup();
-
-//     // Waiting for an BEGIN to initialize data sending
-//     char dataResponse1[6];
-//     printf("Beginning initialization... \n");
-//     while (1)
-//     {
-//         int rLen = serial_read(dataResponse1, 6);
-//         if (rLen > 0)
-//         {
-//             if (strcmp(dataResponse1, "BEGIN") == 0)
-//             {
-//                 // If BEGIN received, send OK
-//                 uart_write_bytes(UART_NUM,"OK\0",3);
-//                 break;
-//             }
-//         }
-//     }
-// }
+// Read UART_num for input with timeout of 1 sec
+int serial_read(char *buffer, int size){
+    int len = uart_read_bytes(UART_NUM, (uint8_t*)buffer, size, pdMS_TO_TICKS(1000));
+    return len;
+}
 
 // this number helps to avoid triggering the watchdog in for/while loops
 int delay_for_watchdog = 10;
@@ -1965,8 +1947,26 @@ int denominator = 32768;
 // function that sets and executes the lectura
 void loop_lectura()
 {
-    while (true)
+    while (1)
     {   
+
+        // waiting for a BEGIN to initiate the reading
+        char begin[6];
+        printf("Esperando inicio de lectura\n");
+        while (1)
+        {
+            int rLen = serial_read(begin, 6);
+            if (rLen > 0)
+            {
+                if (strcmp(begin, "BEGIN") == 0)
+                {
+                    printf("Inicio de lectura\n");
+                    break;
+                }
+            }
+        }
+        
+
         // this is the number of readings that the user wants to take
         int window_size = 100;
         // this is the power mode that the user wants to use
@@ -2023,6 +2023,8 @@ void app_main(void)
     chipid();
     initialization();
     check_initialization();
-    // UART_initialization();
+    uart_setup();
+    printf("\n");
+    srand(time(0));
     loop_lectura();
 }
