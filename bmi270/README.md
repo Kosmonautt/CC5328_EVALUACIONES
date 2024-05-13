@@ -1,35 +1,12 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- |
+# Tarea 1
 
-# _Sample project_
+**Grupo**:
+- Benjamín Contreras S.
+- Emile Pirali
+- José Miguel Zapata
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Observaciones
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+- Es necesario hacer flash a la ESP32 con el programa dentro de la carpeta "bmi270", una vez hecho, para controlarla desde python, es necesario correr el programa "receiver_plot.py" en una ambiente virtual con las librerías de "requirements.txt". Para correr el programa, es necesario correr una vez el programa de python, cancelarlo con CTR+X, y correr inmediatamente de nuevo el programa, si se logra ver strings en formato de bytes impresos en la consola, el programa está funcionando correctamente. 
 
-
-
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
-
-## Example folder contents
-
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
-
-Below is short explanation of remaining files in the project folder.
-
-```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+- Para controlar el programa, hay que elegir un número de los que se indican y presionar enter, cualquier otro input bota el programa y es necesario iniciar el programa nuevamente (iniciando, cancelando e iniciando de nuevo). En la consola se irá presentando lo que se va leyendo, y al final del proceso se mostrarán gráficos con las medidas tomadas y procesadas.
