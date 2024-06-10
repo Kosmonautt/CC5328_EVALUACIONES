@@ -1,5 +1,3 @@
-Tarea_1/bmi270/build/
-Tarea_2/bmi270/build/
+**/build/
 .vscode/
 *.pyc
-plantillas/

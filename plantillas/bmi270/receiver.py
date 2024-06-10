@@ -22,6 +22,7 @@ def receive_data():
     """ Funcion que recibe tres floats (fff) de la ESP32 
     y los imprime en consola """
     data = receive_response()
+    print(f"Data = {data}")
     data = unpack("fff", data)
     print(f'Received: {data}')
     return data
@@ -31,29 +32,15 @@ def send_end_message():
     end_message = pack('4s', 'END\0'.encode())
     ser.write(end_message)
 
-# Se envia el mensaje de inicio de comunicacion
-message = pack('6s','BEGIN\0'.encode())
-send_message(message)
-
-# Se lee data por la conexion serial
-counter = 0
+# # Se lee data por la conexion serial
+# counter = 0
 while True:
     if ser.in_waiting > 0:
         try:
-            message = receive_data()
+            response = ser.readline()
+        except KeyboardInterrupt:
+            print('Finalizando comunicacion')
+            break
         except:
             print('Error en leer mensaje')
             continue
-        else: 
-            counter += 1
-            print(counter)
-        finally:
-            if counter == 10:
-                print('Lecturas listas!')
-                break
-
-
-# Se envia el mensaje de termino de comunicacion
-send_end_message()
-
-ser.close()
