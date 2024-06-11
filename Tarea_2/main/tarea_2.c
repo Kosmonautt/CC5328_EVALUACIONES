@@ -1,24 +1,24 @@
+#include <float.h>
+#include <stdint.h>
 #include <stdio.h>
-#include "esp_log.h"
-#include "driver/i2c.h"
-#include "sdkconfig.h"
-#include "math.h"
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
+#include "driver/i2c.h"
+#include "driver/uart.h"
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver/uart.h"
-#include <time.h>
-// #include "bmi270.h"
-// #include "bmi2.h"
-// #include "common.h"
-// #include "freertos/FreeRTOS.h"
-// #include"struct.h"
+#include "math.h"
+#include "sdkconfig.h"
 
 // for I2C with BMI270
 #define I2C_MASTER_SCL_IO         GPIO_NUM_22 // GPIO pin
 #define I2C_MASTER_SDA_IO         GPIO_NUM_21 // GPIO pin
 #define I2C_MASTER_FREQ_HZ        10000
-#define ESP_SLAVE_ADDR            0x68
+#define BMI_ESP_SLAVE_ADDR        0x68
+#define BME_ESP_SLAVE_ADDR        0x76
 #define WRITE_BIT                 0x0
 #define READ_BIT                  0x1
 #define ACK_CHECK_EN              0x0
@@ -40,7 +40,24 @@ esp_err_t ret2 = ESP_OK;
 
 uint16_t val0[6];
 
-/*! @name  Global array that stores the configuration file of BMI270 */
+// to avoid watchdog
+float task_delay_ms = 1000;
+
+esp_err_t sensor_init(void) {
+    int i2c_master_port = I2C_NUM_0;
+    i2c_config_t conf;
+    conf.mode = I2C_MODE_MASTER;
+    conf.sda_io_num = I2C_MASTER_SDA_IO;
+    conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
+    conf.scl_io_num = I2C_MASTER_SCL_IO;
+    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
+    conf.master.clk_speed = I2C_MASTER_FREQ_HZ;
+    conf.clk_flags = I2C_SCLK_SRC_FLAG_FOR_NOMAL;  // 0
+    i2c_param_config(i2c_master_port, &conf);
+    return i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0);
+}
+
+// ----------- BMI 270 ------------- //
 const uint8_t bmi270_config_file[] = {
     0xc8, 0x2e, 0x00, 0x2e, 0x80, 0x2e, 0x3d, 0xb1, 0xc8, 0x2e, 0x00, 0x2e, 0x80, 0x2e, 0x91, 0x03, 0x80, 0x2e, 0xbc,
     0xb0, 0x80, 0x2e, 0xa3, 0x03, 0xc8, 0x2e, 0x00, 0x2e, 0x80, 0x2e, 0x00, 0xb0, 0x50, 0x30, 0x21, 0x2e, 0x59, 0xf5,
@@ -473,7 +490,8 @@ const uint8_t bmi270_config_file[] = {
     0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00,
     0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e,
     0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80, 0x2e, 0x00, 0xc1, 0x80,
-    0x2e, 0x00, 0xc1};
+    0x2e, 0x00, 0xc1
+};
 
 esp_err_t bmi_read(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_rd, size_t size)
 {
@@ -483,10 +501,10 @@ esp_err_t bmi_read(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_rd, s
     }
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
     i2c_master_write(cmd, data_addres, size, ACK_CHECK_EN);
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (ESP_SLAVE_ADDR << 1) | READ_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | READ_BIT, ACK_CHECK_EN);
     if (size > 1)
     {
         i2c_master_read(cmd, data_rd, size - 1, ACK_VAL);
@@ -503,7 +521,7 @@ esp_err_t bmi_write(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_wr, 
     uint8_t size1 = 1;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
     i2c_master_write(cmd, data_addres, size1, ACK_CHECK_EN);
     i2c_master_write(cmd, data_wr, size, ACK_CHECK_EN);
     i2c_master_stop(cmd);
@@ -558,26 +576,6 @@ void softreset(void)
     else
     {
         printf("\nSoftreset: OK\n\n");
-    }
-}
-
-void powermode(void)
-{
-    uint8_t reg_pwr_conf = 0x7C, reg_pwr_ctrl = 0x7D;
-    uint8_t tmp, tmp2;
-
-    ret = bmi_read(I2C_NUM_0, &reg_pwr_conf, &tmp, 1);
-    printf("valor de PWR_CONF: %2X \n", tmp);
-    if (ret != ESP_OK)
-    {
-        printf("Error en PWR_CONF: %s \n", esp_err_to_name(ret));
-    }
-
-    ret2 = bmi_read(I2C_NUM_0, &reg_pwr_ctrl, &tmp2, 1);
-    printf("valor de PWR_CTRL: %2X \n", tmp2);
-    if (ret2 != ESP_OK)
-    {
-        printf("Error en PWR_CTRL: %s \n", esp_err_to_name(ret2));
     }
 }
 
