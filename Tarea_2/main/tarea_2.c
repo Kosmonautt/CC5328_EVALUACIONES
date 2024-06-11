@@ -40,9 +40,6 @@ esp_err_t ret2 = ESP_OK;
 
 uint16_t val0[6];
 
-// to avoid watchdog
-float task_delay_ms = 1000;
-
 esp_err_t sensor_init(void) {
     int i2c_master_port = I2C_NUM_0;
     i2c_config_t conf;
@@ -55,6 +52,73 @@ esp_err_t sensor_init(void) {
     conf.clk_flags = I2C_SCLK_SRC_FLAG_FOR_NOMAL;  // 0
     i2c_param_config(i2c_master_port, &conf);
     return i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0);
+}
+
+// ------------ Funciones de lecutra/escritura por I2C -------------- //
+esp_err_t bmi_i2c_read(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_rd, size_t size) {
+    if (size == 0) {
+        return ESP_OK;
+    }
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write(cmd, data_addres, size, ACK_CHECK_EN);
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | READ_BIT, ACK_CHECK_EN);
+    if (size > 1) {
+        i2c_master_read(cmd, data_rd, size - 1, ACK_VAL);
+    }
+    i2c_master_read_byte(cmd, data_rd + size - 1, NACK_VAL);
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+
+esp_err_t bmi_i2c_write(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_wr, size_t size) {
+    uint8_t size1 = 1;
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write(cmd, data_addres, size1, ACK_CHECK_EN);
+    i2c_master_write(cmd, data_wr, size, ACK_CHECK_EN);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+
+esp_err_t bme_i2c_read(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_rd, size_t size) {
+    if (size == 0) {
+        return ESP_OK;
+    }
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (BME_ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write(cmd, data_addres, size, ACK_CHECK_EN);
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (BME_ESP_SLAVE_ADDR << 1) | READ_BIT, ACK_CHECK_EN);
+    if (size > 1) {
+        i2c_master_read(cmd, data_rd, size - 1, ACK_VAL);
+    }
+    i2c_master_read_byte(cmd, data_rd + size - 1, NACK_VAL);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+
+esp_err_t bme_i2c_write(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_wr, size_t size) {
+    uint8_t size1 = 1;
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (BME_ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write(cmd, data_addres, size1, ACK_CHECK_EN);
+    i2c_master_write(cmd, data_wr, size, ACK_CHECK_EN);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
 }
 
 // ----------- BMI 270 ------------- //
@@ -493,45 +557,8 @@ const uint8_t bmi270_config_file[] = {
     0x2e, 0x00, 0xc1
 };
 
-esp_err_t bmi_read(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_rd, size_t size)
-{
-    if (size == 0)
-    {
-        return ESP_OK;
-    }
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
-    i2c_master_write(cmd, data_addres, size, ACK_CHECK_EN);
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | READ_BIT, ACK_CHECK_EN);
-    if (size > 1)
-    {
-        i2c_master_read(cmd, data_rd, size - 1, ACK_VAL);
-    }
-    i2c_master_read_byte(cmd, data_rd + size - 1, NACK_VAL);
-    i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_PERIOD_MS);
-    i2c_cmd_link_delete(cmd);
-    return ret;
-}
 
-esp_err_t bmi_write(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_wr, size_t size)
-{
-    uint8_t size1 = 1;
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (BMI_ESP_SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
-    i2c_master_write(cmd, data_addres, size1, ACK_CHECK_EN);
-    i2c_master_write(cmd, data_wr, size, ACK_CHECK_EN);
-    i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_PERIOD_MS);
-    i2c_cmd_link_delete(cmd);
-    return ret;
-}
-
-esp_err_t bmi_init(void)
-{
+esp_err_t bmi_init(void) {
     int i2c_master_port = I2C_NUM_0;
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
@@ -545,109 +572,72 @@ esp_err_t bmi_init(void)
     return i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0);
 }
 
-void chipid(void)
-{
+void bmi_get_chipid(void) {
     uint8_t reg_id = 0x00;
     uint8_t tmp;
 
-    bmi_read(I2C_NUM_0, &reg_id, &tmp, 1);
+    bmi_i2c_read(I2C_NUM_0, &reg_id, &tmp, 1);
     printf("valor de CHIPID: %2X \n\n", tmp);
-    if (tmp == 0x24)
-    {
+    if (tmp == 0x24) {
         printf("Chip reconocido.\n\n");
     }
-    if (tmp != 0x24)
-    {
+    if (tmp != 0x24) {
         printf("Chip no reconocido. \nCHIP ID: %2x\n\n", tmp); // %2X
         exit(EXIT_SUCCESS);
     }
 }
 
-void softreset(void)
-{
+void bmi_softreset(void) {
     uint8_t reg_softreset = 0x7E, val_softreset = 0xB6;
 
-    ret = bmi_write(I2C_NUM_0, &reg_softreset, &val_softreset, 1);
+    ret = bmi_i2c_write(I2C_NUM_0, &reg_softreset, &val_softreset, 1);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    if (ret != ESP_OK)
-    {
+    if (ret != ESP_OK) {
         printf("\nError en softreset: %s \n", esp_err_to_name(ret));
-    }
-    else
-    {
+    } else {
         printf("\nSoftreset: OK\n\n");
     }
 }
 
-void initialization(void)
-{
-
+void bmi_initialization(void) {
     uint8_t reg_pwr_conf_advpowersave = 0x7C, val_pwr_conf_advpowersave = 0x00;
     uint8_t reg_init_ctrl = 0x59, val_init_ctrl = 0x00, val_init_ctrl2 = 0x01;
     uint8_t reg_init_data = 0x5E; //, tmp;
 
     printf("Inicializando ...\n");
 
-    bmi_write(I2C_NUM_0, &reg_pwr_conf_advpowersave, &val_pwr_conf_advpowersave, 1);
-    // ret= bmi_read(I2C_NUM_0, &reg_pwr_conf_advpowersave, &tmp,1);
-    //  if(ret != ESP_OK){
-    //      printf("Error en PWR_CONF: %s \n",esp_err_to_name(ret));
-    //  }
-    //  printf("valor de PWR_CONF: %2X \n",tmp);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_conf_advpowersave, &val_pwr_conf_advpowersave, 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    ret = bmi_write(I2C_NUM_0, &reg_init_ctrl, &val_init_ctrl, 1);
-    // if(ret != ESP_OK){
-    //     printf("Error en write2: %s \n",esp_err_to_name(ret));
-    // }
-    // else {
-    //      printf("Init_ctrl = 0\n");
-    // }
-
+    ret = bmi_i2c_write(I2C_NUM_0, &reg_init_ctrl, &val_init_ctrl, 1);
     int config_size = sizeof(bmi270_config_file);
-    // printf("Tamano config_file: %d\n\n",config_size);
 
-    ret = bmi_write(I2C_NUM_0, &reg_init_data, (uint8_t *)bmi270_config_file, config_size);
-    if (ret != ESP_OK)
-    {
+    ret = bmi_i2c_write(I2C_NUM_0, &reg_init_data, (uint8_t *)bmi270_config_file, config_size);
+    if (ret != ESP_OK) {
         printf("\nError cargando config_file\n");
-    }
-    else
-    {
+    } else {
         printf("\nConfig_file cargado.\n");
     }
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    ret = bmi_write(I2C_NUM_0, &reg_init_ctrl, &val_init_ctrl2, 1);
-    // if(ret != ESP_OK){
-    //     printf("Error en write4: %s \n",esp_err_to_name(ret));
-    // }
-    // else {
-    //      printf("Init_ctrl = 1\n");
-    // }
+    ret = bmi_i2c_write(I2C_NUM_0, &reg_init_ctrl, &val_init_ctrl2, 1);
 
     printf("\nAlgoritmo de inicializacion finalizado.\n\n");
-
-    // vTaskDelay(1000 /portTICK_PERIOD_MS);
 }
 
-void check_initialization(void)
-{
+void bmi_check_initialization(void) {
     uint8_t reg_internalstatus = 0x21;
     uint8_t tmp;
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    bmi_read(I2C_NUM_0, &reg_internalstatus, &tmp, 1);
+    bmi_i2c_read(I2C_NUM_0, &reg_internalstatus, &tmp, 1);
     printf("Init_status.0: %x \n", (tmp & 0b00001111));
-    if ((tmp & 0b00001111) == 1)
-    {
+    if ((tmp & 0b00001111) == 1) {
         printf("Comprobacion Inicializacion: OK\n\n");
-    }
-    else
-    {
+    } else {
         printf("Inicializacion fallida\n\n");
         exit(EXIT_SUCCESS);
     }
@@ -684,7 +674,7 @@ static void uart_setup() {
 }
 
 // Read UART_num for input with timeout of 1 sec
-int serial_read(char *buffer, int size){
+int serial_read(char *buffer, int size) {
     int len = uart_read_bytes(UART_NUM, (uint8_t*)buffer, size, pdMS_TO_TICKS(1000));
     return len;
 }
@@ -694,8 +684,7 @@ int delay_for_watchdog = 10;
 
 // these are the available values for the ODR of the accelerometer
 // this represents the 4 least significant bits of the ACC_CONF register
-uint8_t acc_odr_values[16] = 
-{
+uint8_t acc_odr_values[16] = {
     0x00, // Reserved 
     0x01, // 0.78125 Hz
     0x02, // 1.5625 Hz
@@ -716,8 +705,7 @@ uint8_t acc_odr_values[16] =
 
 // these are the available values for the range of the accelerometer
 // this represents the 2 least significant bits of the ACC_RANGE register
-uint8_t acc_range_values[4] = 
-{
+uint8_t acc_range_values[4] = {
     0x00, // +/- 2g
     0x01, // +/- 4g
     0x02, // +/- 8g
@@ -725,8 +713,7 @@ uint8_t acc_range_values[4] =
 };
 
 // these are the numbers for converting the accelerometer data to m/s^2
-float acc_range_values_m_s2[4] = 
-{
+float acc_range_values_m_s2[4] = {
     19.6133, // +/- 2g, 1g = 9.80665 m/s^2, alcance max: 19.6133 m/s^2
     39.2266, // +/- 4g, 1g = 9.80665 m/s^2, alcance max: 39.2266 m/s^2
     78.4532, // +/- 8g, 1g = 9.80665 m/s^2, alcance max: 78.4532 m/s^2
@@ -734,8 +721,7 @@ float acc_range_values_m_s2[4] =
 };
 
 // these are the numbers for converting the accelerometer data to g
-float acc_range_values_g[4] = 
-{
+float acc_range_values_g[4] = {
     2.000, // +/- 2g, 1g = 1g, alcance max: 2g
     4.000, // +/- 4g, 1g = 1g, alcance max: 4g
     8.000, // +/- 8g, 1g = 1g, alcance max: 8g
@@ -744,8 +730,7 @@ float acc_range_values_g[4] =
 
 // these are the available values for the ODR of the gyroscope
 // this represents the 4 least significant bits of the GYR_CONF register
-uint8_t gyr_odr_values[16] = 
-{
+uint8_t gyr_odr_values[16] = {
     0x00, // Reserved
     0x01, // Reserved
     0x02, // Reserved
@@ -766,8 +751,7 @@ uint8_t gyr_odr_values[16] =
 
 // these are the available values for the range of the gyroscope
 // this represents the 3 least significant bits of the GYR_RANGE register
-uint8_t gyr_range_values[8] = 
-{
+uint8_t gyr_range_values[8] = {
     0x00, // +/- 2000 dps, 16.4LSB/dps
     0x01, // +/- 1000 dps, 32.8LSB/dps
     0x02, // +/- 500 dps, 65.6LSB/dps
@@ -779,8 +763,7 @@ uint8_t gyr_range_values[8] =
 };
 
 // these are the numbers for converting the gyroscope data to rad/ss
-float gyr_range_values_rad_s[8] = 
-{
+float gyr_range_values_rad_s[8] = {
     34.90659, // +/- 2000 dps, 1 dps = 0.0174533 rad/s, alcance max: 34.90659 rad/s
     17.4533, // +/- 1000 dps, 1 dps = 0.0174533 rad/s, alcance max: 17.4533 rad/s
     8.72665, // +/- 500 dps, 1 dps = 0.0174533 rad/s, alcance max: 8.72665 rad/s
@@ -791,24 +774,22 @@ float gyr_range_values_rad_s[8] =
     0  // Reserved
 };
 
-void supend_mode(void)
-{
+void supend_mode(void) {
     // PWR_CTRL: disable auxiliary sensor, gyro, acc and temp
     // PWR_CONF: disable fup_en and fifo_self_wake_up, enable adv_power_save
 
     uint8_t reg_pwr_ctrl = 0x7D, val_pwr_ctrl = 0x00;
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x01;
 
-    bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
-    bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     printf("Modo de suspension: activado. \n\n");
 }
 
-void low_power_mode(uint8_t acc_odr, uint8_t acc_range)
-{
+void low_power_mode(uint8_t acc_odr, uint8_t acc_range) {
     // PWR_CTRL: disable auxiliary sensor, gyro and temp, enable acc 
     // ACC_CONF: _Hz en datos acc, filter: power optimized, acc_bwp: osr2_avg2
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
@@ -819,18 +800,17 @@ void low_power_mode(uint8_t acc_odr, uint8_t acc_range)
     uint8_t reg_acc_range = 0x41, val_acc_range = 0x00 | acc_range; // val_acc_range = 0b00000000 | 0b000000__
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x03;
 
-    bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
-    bmi_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
-    bmi_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
-    bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     printf("Modo de bajo consumo: activado. \n\n");
 }
 
-void normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range)
-{
+void normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range) {
     // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc 
     // ACC_CONF: _Hz en datos acc, filter: performance optimized, acc_bwp: norm_avg4
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
@@ -845,20 +825,19 @@ void normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint
     uint8_t reg_gyr_range = 0x43, val_gyr_range = 0x00 | gyr_range; // val_gyr_range = 0b00000000 | 0b00000___
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x02;
 
-    bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
-    bmi_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
-    bmi_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
-    bmi_write(I2C_NUM_0, &reg_gyr_conf, &val_gyr_conf, 1);
-    bmi_write(I2C_NUM_0, &reg_gyr_range, &val_gyr_range, 1);
-    bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_gyr_conf, &val_gyr_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_gyr_range, &val_gyr_range, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     printf("Modo de potencia normal: activado. \n\n");
 }
 
-void performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range)
-{
+void performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range) {
     // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc
     // ACC_CONF: _Hz en datos acc, filter: performance optimized, acc_bwp: osr4_avg4
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
@@ -873,25 +852,23 @@ void performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr,
     uint8_t reg_gyr_range = 0x43, val_gyr_range = 0x00 | gyr_range; // val_gyr_range = 0b00000000 | 0b00000___
     uint8_t reg_pwr_conf = 0x7C, val_pwr_conf = 0x02;
 
-    bmi_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
-    bmi_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
-    bmi_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
-    bmi_write(I2C_NUM_0, &reg_gyr_conf, &val_gyr_conf, 1);
-    bmi_write(I2C_NUM_0, &reg_gyr_range, &val_gyr_range, 1);
-    bmi_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_ctrl, &val_pwr_ctrl, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_acc_conf, &val_acc_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_acc_range, &val_acc_range, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_gyr_conf, &val_gyr_conf, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_gyr_range, &val_gyr_range, 1);
+    bmi_i2c_write(I2C_NUM_0, &reg_pwr_conf, &val_pwr_conf, 1);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     printf("Modo de potencia de rendimiento: activado. \n\n");
 }
 
-void internal_status(void)
-{
+void internal_status(void) {
     uint8_t reg_internalstatus = 0x21;
     uint8_t tmp;
 
-    bmi_read(I2C_NUM_0, &reg_internalstatus, &tmp, 1);
-    // printf("Initial status: %x \n",(tmp & 0b00001111));
+    bmi_i2c_read(I2C_NUM_0, &reg_internalstatus, &tmp, 1);
     printf("Internal Status: %2X\n\n", tmp);
 }
 
@@ -941,8 +918,7 @@ void save_top_5(float *array, int size, float *top_5) {
     }
 }
 
-void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size, float to_m_s2_multiplier)
-{
+void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size, float to_m_s2_multiplier) {
     printf("Datos de aceleración en m/s2\n");
 
     // arrays are created with malloc to store the data in m/s2
@@ -951,30 +927,26 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     float *acc_z_m_s2 = (float *)malloc(window_size * sizeof(float));
 
     // the data is added to the arrays in m/s2
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         acc_x_m_s2[i] = (int16_t)acc_x_array[i] * to_m_s2_multiplier;
         acc_y_m_s2[i] = (int16_t)acc_y_array[i] * to_m_s2_multiplier;
         acc_z_m_s2[i] = (int16_t)acc_z_array[i] * to_m_s2_multiplier;
     }
 
     // the data of the acc_x array is printed in m/s2
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Lectura %d: acc_x: %f m/s2\n", i+1 , acc_x_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the acc_y array is printed in m/s2
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Lectura %d: acc_y: %f m/s2\n", i+1 , acc_y_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the acc_z array is printed in m/s2
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Lectura %d: acc_z: %f m/s2\n", i+1 , acc_z_m_s2[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -993,15 +965,13 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     calcularFFT(acc_x_m_s2, window_size, FFTx_re, FFTx_im);
 
     // the data of the FFTx_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTx_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1020,15 +990,13 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     calcularFFT(acc_y_m_s2, window_size, FFTy_re, FFTy_im);
 
     // the data of the FFTy_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTy_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1047,15 +1015,13 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     calcularFFT(acc_z_m_s2, window_size, FFTz_re, FFTz_im);
 
     // the data of the FFTz_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTz_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1078,22 +1044,19 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     float *RMSz_array = (float *)malloc(window_size * sizeof(float));
 
     // the RMSx is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSx += pow(acc_x_m_s2[i], 2);
         RMSx_array[i] = sqrt(RMSx/(i+1));
     }
     
     // the RMSy is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSy += pow(acc_y_m_s2[i], 2);
         RMSy_array[i] = sqrt(RMSy/(i+1));
     }
 
     // the RMSz is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSz += pow(acc_z_m_s2[i], 2);
         RMSz_array[i] = sqrt(RMSz/(i+1));
     }
@@ -1101,22 +1064,19 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     printf("Datos de RMS\n");
 
     // the RMSx data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSy data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSz data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc m/s2] Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1136,8 +1096,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     save_top_5(RMSx_array, window_size, top_5_RMSx);
 
     // the data of the top_5_RMSx array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc m/s2] Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1152,8 +1111,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     save_top_5(RMSy_array, window_size, top_5_RMSy);
 
     // the data of the top_5_RMSy array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc m/s2] Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1168,8 +1126,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     save_top_5(RMSz_array, window_size, top_5_RMSz);
 
     // the data of the top_5_RMSz array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc m/s2] Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1193,8 +1150,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     save_top_5(acc_x_m_s2, window_size, top_5_acc_x);
 
     // the data of the top_5_acc_x array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc m/s2] Top %d: acc_x: %f m/s2\n", i+1 , top_5_acc_x[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1209,8 +1165,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     save_top_5(acc_y_m_s2, window_size, top_5_acc_y);
 
     // the data of the top_5_acc_y array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc m/s2] Top %d: acc_y: %f m/s2\n", i+1 , top_5_acc_y[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1225,8 +1180,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     save_top_5(acc_z_m_s2, window_size, top_5_acc_z);
 
     // the data of the top_5_acc_z array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc m/s2] Top %d: acc_z: %f m/s2\n", i+1 , top_5_acc_z[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1240,8 +1194,7 @@ void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc
     printf("Fin de los datos de aceleración en m/s2\n\n");
 }
 
-void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size, float to_g_multiplier)
-{
+void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size, float to_g_multiplier) {
     printf("Datos de aceleración en g\n");
 
     // arrays are created with malloc to store the data in g
@@ -1250,30 +1203,26 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     float *acc_z_g = (float *)malloc(window_size * sizeof(float));
 
     // the data is added to the arrays in g
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         acc_x_g[i] = (int16_t)acc_x_array[i] * to_g_multiplier;
         acc_y_g[i] = (int16_t)acc_y_array[i] * to_g_multiplier;
         acc_z_g[i] = (int16_t)acc_z_array[i] * to_g_multiplier;
     }
 
     // the data of the acc_x array is printed in g
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Lectura %d: acc_x: %f g\n", i+1 , acc_x_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the acc_y array is printed in g
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Lectura %d: acc_y: %f g\n", i+1 , acc_y_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the acc_z array is printed in g
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Lectura %d: acc_z: %f g\n", i+1 , acc_z_g[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1292,15 +1241,13 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     calcularFFT(acc_x_g, window_size, FFTx_re, FFTx_im);
     
     // the data of the FFTx_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTx_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1319,15 +1266,13 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     calcularFFT(acc_y_g, window_size, FFTy_re, FFTy_im);
 
     // the data of the FFTy_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTy_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1346,15 +1291,13 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     calcularFFT(acc_z_g, window_size, FFTz_re, FFTz_im);
 
     // the data of the FFTz_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTz_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1377,22 +1320,19 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     float *RMSz_array = (float *)malloc(window_size * sizeof(float));
 
     // the RMSx is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSx += pow(acc_x_g[i], 2);
         RMSx_array[i] = sqrt(RMSx/(i+1));
     }
 
     // the RMSy is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSy += pow(acc_y_g[i], 2);
         RMSy_array[i] = sqrt(RMSy/(i+1));
     }
 
     // the RMSz is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSz += pow(acc_z_g[i], 2);
         RMSz_array[i] = sqrt(RMSz/(i+1));
     }
@@ -1400,22 +1340,19 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     printf("Datos de RMS\n");
 
     // the RMSx data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSy data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSz data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Acc g] Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1435,8 +1372,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     save_top_5(RMSx_array, window_size, top_5_RMSx);
 
     // the data of the top_5_RMSx array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc g] Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1451,8 +1387,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     save_top_5(RMSy_array, window_size, top_5_RMSy);
 
     // the data of the top_5_RMSy array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc g] Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1467,8 +1402,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     save_top_5(RMSz_array, window_size, top_5_RMSz);
 
     // the data of the top_5_RMSz array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc g] Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1492,8 +1426,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     save_top_5(acc_x_g, window_size, top_5_acc_x);
 
     // the data of the top_5_acc_x array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc g] Top %d: acc_x: %f g\n", i+1 , top_5_acc_x[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1508,8 +1441,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     save_top_5(acc_y_g, window_size, top_5_acc_y);
 
     // the data of the top_5_acc_y array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc g] Top %d: acc_y: %f g\n", i+1 , top_5_acc_y[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1524,8 +1456,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     save_top_5(acc_z_g, window_size, top_5_acc_z);
 
     // the data of the top_5_acc_z array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Acc g] Top %d: acc_z: %f g\n", i+1 , top_5_acc_z[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1539,8 +1470,7 @@ void accel_g_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_
     printf("Fin de los datos de aceleración en g\n\n");
 }
 
-void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *gyr_z_array, int window_size, float to_rad_s_multiplier)
-{
+void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *gyr_z_array, int window_size, float to_rad_s_multiplier) {
     printf("Datos de velocidad angular en rad/s\n");
 
     // arrays are created with malloc to store the data in rad/s
@@ -1549,30 +1479,26 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     float *gyr_z_rad_s = (float *)malloc(window_size * sizeof(float));
 
     // the data is added to the arrays in rad/s
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         gyr_x_rad_s[i] = (int16_t)gyr_x_array[i] * to_rad_s_multiplier;
         gyr_y_rad_s[i] = (int16_t)gyr_y_array[i] * to_rad_s_multiplier;
         gyr_z_rad_s[i] = (int16_t)gyr_z_array[i] * to_rad_s_multiplier;
     }
 
     // the data of the gyr_x array is printed in rad/s
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Lectura %d: gyr_x: %f rad/s\n", i+1 , gyr_x_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the gyr_y array is printed in rad/s
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Lectura %d: gyr_y: %f rad/s\n", i+1 , gyr_y_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the gyr_z array is printed in rad/s
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Lectura %d: gyr_z: %f rad/s\n", i+1 , gyr_z_rad_s[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);    
     }
@@ -1591,15 +1517,13 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     calcularFFT(gyr_x_rad_s, window_size, FFTx_re, FFTx_im);
 
     // the data of the FFTx_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: FFTx_RE: %f\n", i+1 , FFTx_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTx_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: FFTx_IM: %f\n", i+1 , FFTx_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1618,15 +1542,13 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     calcularFFT(gyr_y_rad_s, window_size, FFTy_re, FFTy_im);
 
     // the data of the FFTy_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: FFTy_RE: %f\n", i+1 , FFTy_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTy_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: FFTy_IM: %f\n", i+1 , FFTy_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1645,15 +1567,13 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     calcularFFT(gyr_z_rad_s, window_size, FFTz_re, FFTz_im);
 
     // the data of the FFTz_re array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: FFTz_RE: %f\n", i+1 , FFTz_re[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the data of the FFTz_im array is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: FFTz_IM: %f\n", i+1 , FFTz_im[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1676,22 +1596,19 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     float *RMSz_array = (float *)malloc(window_size * sizeof(float));
 
     // the RMSx is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSx += pow(gyr_x_rad_s[i], 2);
         RMSx_array[i] = sqrt(RMSx/(i+1));
     }
 
     // the RMSy is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSy += pow(gyr_y_rad_s[i], 2);
         RMSy_array[i] = sqrt(RMSy/(i+1));
     }
 
     // the RMSz is calculated up to the i-th data and stored in the array
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         RMSz += pow(gyr_z_rad_s[i], 2);
         RMSz_array[i] = sqrt(RMSz/(i+1));
     }
@@ -1699,22 +1616,19 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     printf("Datos de RMS\n");
 
     // the RMSx data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: RMSx: %f\n", i+1 , RMSx_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSy data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: RMSy: %f\n", i+1 , RMSy_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
 
     // the RMSz data is printed
-    for (int i = 0; i < window_size; i++)
-    {
+    for (int i = 0; i < window_size; i++) {
         printf("[Ang_Vel rad/s] Dato %d: RMSz: %f\n", i+1 , RMSz_array[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1734,8 +1648,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     save_top_5(RMSx_array, window_size, top_5_RMSx);
 
     // the data of the top_5_RMSx array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Ang_Vel rad/s] Top %d: RMSx: %f\n", i+1 , top_5_RMSx[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1750,8 +1663,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     save_top_5(RMSy_array, window_size, top_5_RMSy);
 
     // the data of the top_5_RMSy array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Ang_Vel rad/s] Top %d: RMSy: %f\n", i+1 , top_5_RMSy[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1766,8 +1678,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     save_top_5(RMSz_array, window_size, top_5_RMSz);
 
     // the data of the top_5_RMSz array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Ang_Vel rad/s] Top %d: RMSz: %f\n", i+1 , top_5_RMSz[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1791,8 +1702,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     save_top_5(gyr_x_rad_s, window_size, top_5_gyr_x);
 
     // the data of the top_5_gyr_x array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Ang_Vel rad/s] Top %d: gyr_x: %f rad/s\n", i+1 , top_5_gyr_x[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1807,8 +1717,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     save_top_5(gyr_y_rad_s, window_size, top_5_gyr_y);
 
     // the data of the top_5_gyr_y array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Ang_Vel rad/s] Top %d: gyr_y: %f rad/s\n", i+1 , top_5_gyr_y[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1823,8 +1732,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     save_top_5(gyr_z_rad_s, window_size, top_5_gyr_z);
 
     // the data of the top_5_gyr_z array is printed
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         printf("[Ang_Vel rad/s] Top %d: gyr_z: %f rad/s\n", i+1 , top_5_gyr_z[i]);
         vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
     }
@@ -1838,8 +1746,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     printf("Fin de los datos de velocidad angular en rad/s\n\n");
 }
 
-void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, float to_rad_s_multiplier, char powermode)
-{
+void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, float to_rad_s_multiplier, char powermode) {
     uint8_t reg_intstatus = 0x03, tmp;
     int bytes_data8 = 12;
     uint8_t reg_data = 0x0C, data_data8[bytes_data8];
@@ -1857,14 +1764,12 @@ void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, f
 
     printf("Comienza lectura\n\n");
 
-    while (i < window_size)        
-    {
+    while (i < window_size) {
 
-        bmi_read(I2C_NUM_0, &reg_intstatus, &tmp, 1);
+        bmi_i2c_read(I2C_NUM_0, &reg_intstatus, &tmp, 1);
 
-        if ((tmp & 0b10000000) == 0x80)
-        {
-            ret = bmi_read(I2C_NUM_0, &reg_data, (uint8_t *)data_data8, bytes_data8);
+        if ((tmp & 0b10000000) == 0x80) {
+            ret = bmi_i2c_read(I2C_NUM_0, &reg_data, (uint8_t *)data_data8, bytes_data8);
 
             acc_x = ((uint16_t)data_data8[1] << 8) | (uint16_t)data_data8[0];
             acc_y = ((uint16_t)data_data8[3] << 8) | (uint16_t)data_data8[2];
@@ -1874,8 +1779,7 @@ void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, f
             gyr_y = ((uint16_t)data_data8[9] << 8) | (uint16_t)data_data8[8];
             gyr_z = ((uint16_t)data_data8[11] << 8) | (uint16_t)data_data8[10];
 
-            if (ret != ESP_OK)
-            {
+            if (ret != ESP_OK) {
                 printf("Error lectura: %s \n", esp_err_to_name(ret));
             }
             // if the read was successful
@@ -1906,8 +1810,7 @@ void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, f
     accel_g_data(acc_x_array, acc_y_array, acc_z_array, window_size, to_g_multiplier);
 
     // if it's not in low power mode
-    if (powermode != 'L')
-    {
+    if (powermode != 'L') {
         // the function that processes the gyroscope data in rad/s is called
         ang_vel_rad_s_data(gyr_x_array, gyr_y_array, gyr_z_array, window_size, to_rad_s_multiplier);
     }
@@ -1928,26 +1831,21 @@ void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, f
 int denominator = 32768;
 
 // function that sets and executes the lectura
-void loop_lectura()
-{
-    while (1)
-    {   
+void loop_lectura() {
+    while (1) {
 
         // waiting for a BEGIN to initiate the reading, this begin includes the configuration of the reading
         char begin_with_config[22];
         printf("Esperando inicio de lectura\n");
-        while (1)
-        {
+        while (1) {
             int rLen = serial_read(begin_with_config, 22);
-            if (rLen > 0)
-            {   
+            if (rLen > 0) {
                 // copy of the begin_with_config array only with the first 5 characters
                 char begin[6];
                 strncpy(begin, begin_with_config, 5);
                 begin[5] = '\0';
 
-                if (strcmp(begin, "BEGIN") == 0)
-                {
+                if (strcmp(begin, "BEGIN") == 0) {
                     printf("Inicio de lectura\n");
                     break;
                 }
@@ -1964,40 +1862,35 @@ void loop_lectura()
         
         // this is the index of the odr for the accelerometer that the user wants to use
         // the odr comes from the 6th to the 8th char in begin_with_config array
-        for (int i = 0; i < 3; i++)
-        {
+        for (int i = 0; i < 3; i++) {
             number_from_config[i] = begin_with_config[i + 6];
         }
         int acc_odr_index = atoi(number_from_config);
 
         // this is the index of the range for the accelerometer that the user wants to use
         // the range comes from the 9th to the 11th char in begin_with_config array
-        for (int i = 0; i < 3; i++)
-        {
+        for (int i = 0; i < 3; i++) {
             number_from_config[i] = begin_with_config[i + 9];
         }
         int acc_range_index = atoi(number_from_config);
 
         // this is the index of the odr for the gyroscope that the user wants to use
         // the odr comes from the 12th to the 14th char in begin_with_config array
-        for (int i = 0; i < 3; i++)
-        {
+        for (int i = 0; i < 3; i++) {
             number_from_config[i] = begin_with_config[i + 12];
         }
         int gyr_odr_index = atoi(number_from_config);
 
         // this is the index of the range for the gyroscope that the user wants to use
         // the range comes from the 15th to the 17th char in begin_with_config array
-        for (int i = 0; i < 3; i++)
-        {
+        for (int i = 0; i < 3; i++) {
             number_from_config[i] = begin_with_config[i + 15];
         }
         int gyr_range_index = atoi(number_from_config);
 
         // this is the number of readings that the user wants to take
         // the number comes from the 18th to the 20st char in begin_with_config array
-        for (int i = 0; i < 3; i++)
-        {
+        for (int i = 0; i < 3; i++) {
             number_from_config[i] = begin_with_config[i + 18];
         }
         int window_size = atoi(number_from_config);
@@ -2010,42 +1903,32 @@ void loop_lectura()
         float to_rad_s_multiplier = (gyr_range_values_rad_s[gyr_range_index] / denominator);
 
 
-        if (powermode == 'S')
-        {
+        if (powermode == 'S') {
             supend_mode();
-        }
-        else if (powermode == 'L')
-        {
+        } else if (powermode == 'L') {
             low_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index]);
             internal_status();
             lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
-        }
-        else if (powermode == 'N')
-        {
+        } else if (powermode == 'N') {
             normal_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             internal_status();
             lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
-        }
-        else if (powermode == 'P')
-        {
+        } else if (powermode == 'P') {
             performance_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             internal_status();
             lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
-        }
-        else
-        {
+        } else {
             printf("Modo de consumo no válido\n");
         }
     }
 }
 
-void app_main(void)
-{
+void app_main(void) {
     ESP_ERROR_CHECK(bmi_init());
-    softreset();
-    chipid();
-    initialization();
-    check_initialization();
+    bmi_softreset();
+    bmi_get_chipid();
+    bmi_initialization();
+    bmi_check_initialization();
     uart_setup();
     printf("\n");
     srand(time(0));
