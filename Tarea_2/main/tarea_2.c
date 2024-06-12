@@ -40,6 +40,9 @@ esp_err_t ret2 = ESP_OK;
 
 uint16_t val0[6];
 
+// this number helps to avoid triggering the watchdog in for/while loops
+int delay_for_watchdog = 10;
+
 esp_err_t sensor_init(void) {
     int i2c_master_port = I2C_NUM_0;
     i2c_config_t conf;
@@ -52,6 +55,92 @@ esp_err_t sensor_init(void) {
     conf.clk_flags = I2C_SCLK_SRC_FLAG_FOR_NOMAL;  // 0
     i2c_param_config(i2c_master_port, &conf);
     return i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0);
+}
+
+// ------------ Funciones de comuniación UART -------------- //
+
+// Function for sending things to UART1
+static int uart1_printf(const char *str, va_list ap) {
+    char *buf;
+    vasprintf(&buf, str, ap);
+    uart_write_bytes(UART_NUM_1, buf, strlen(buf));
+    free(buf);
+    return 0;
+}
+
+// Setup of UART connections 0 and 1, and try to redirect logs to UART1 if asked
+static void uart_setup() {
+    uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    };
+
+    uart_param_config(UART_NUM_0, &uart_config);
+    uart_param_config(UART_NUM_1, &uart_config);
+    uart_driver_install(UART_NUM_0, BUF_SIZE * 2, 0, 0, NULL, 0);
+    uart_driver_install(UART_NUM_1, BUF_SIZE * 2, 0, 0, NULL, 0);
+
+    // Redirect ESP log to UART1
+    if (REDIRECT_LOGS) {
+        esp_log_set_vprintf(uart1_printf);
+    }
+}
+
+// Read UART_num for input with timeout of 1 sec
+int serial_read(char *buffer, int size) {
+    int len = uart_read_bytes(UART_NUM, (uint8_t*)buffer, size, pdMS_TO_TICKS(1000));
+    return len;
+}
+
+// ------------ Funciones para datos -------------- //
+
+/**
+ * @brief Funcion que calcula la FFT de un arreglo y guarda el resultado inplace
+ *
+ * @param array Arreglo de elementos sobre los que se quiere calcular la FFT
+ * @param size Tamano del arreglo
+ * @param array_re Direccion del arreglo donde se guardara la parte real. Debe ser de tamano size
+ * @param array_im Direccion del arreglo donde se guardara la parte imaginaria. Debe ser de tamano size
+ */
+void calcularFFT(float *array, int size, float *array_re, float *array_im) {
+    for (int k = 0; k < size; k++) {
+        float real = 0;
+        float imag = 0;
+
+        for (int n = 0; n < size; n++) {
+            float angulo = 2 * M_PI * k * n / size;
+            float cos_angulo = cos(angulo);
+            float sin_angulo = -sin(angulo);
+
+            real += array[n] * cos_angulo;
+            imag += array[n] * sin_angulo;
+        }
+        real /= size;
+        imag /= size;
+        array_re[k] = real;
+        array_im[k] = imag;
+
+        // to avoid watchdog
+        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
+    }
+}
+
+// comparator function for qsort
+int compare(const void *a, const void *b) {
+    float fa = *(const float*) a;
+    float fb = *(const float*) b;
+    return (fa < fb) - (fa > fb);
+}
+
+// this function saves the top 5 values of an array in another array, this function modifies the original array
+void save_top_5(float *array, int size, float *top_5) {
+    qsort(array, size, sizeof(float), compare);
+    for (int i = 0; i < 5 && i < size; i++) {
+        top_5[i] = array[i];
+    }
 }
 
 // ------------ Funciones de lecutra/escritura por I2C -------------- //
@@ -557,21 +646,6 @@ const uint8_t bmi270_config_file[] = {
     0x2e, 0x00, 0xc1
 };
 
-
-esp_err_t bmi_init(void) {
-    int i2c_master_port = I2C_NUM_0;
-    i2c_config_t conf;
-    conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = I2C_MASTER_SDA_IO;
-    conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
-    conf.scl_io_num = I2C_MASTER_SCL_IO;
-    conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
-    conf.master.clk_speed = I2C_MASTER_FREQ_HZ;
-    conf.clk_flags = I2C_SCLK_SRC_FLAG_FOR_NOMAL; // 0
-    i2c_param_config(i2c_master_port, &conf);
-    return i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0);
-}
-
 void bmi_get_chipid(void) {
     uint8_t reg_id = 0x00;
     uint8_t tmp;
@@ -642,45 +716,6 @@ void bmi_check_initialization(void) {
         exit(EXIT_SUCCESS);
     }
 }
-
-// Function for sending things to UART1
-static int uart1_printf(const char *str, va_list ap) {
-    char *buf;
-    vasprintf(&buf, str, ap);
-    uart_write_bytes(UART_NUM_1, buf, strlen(buf));
-    free(buf);
-    return 0;
-}
-
-// Setup of UART connections 0 and 1, and try to redirect logs to UART1 if asked
-static void uart_setup() {
-    uart_config_t uart_config = {
-        .baud_rate = 115200,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-    };
-
-    uart_param_config(UART_NUM_0, &uart_config);
-    uart_param_config(UART_NUM_1, &uart_config);
-    uart_driver_install(UART_NUM_0, BUF_SIZE * 2, 0, 0, NULL, 0);
-    uart_driver_install(UART_NUM_1, BUF_SIZE * 2, 0, 0, NULL, 0);
-
-    // Redirect ESP log to UART1
-    if (REDIRECT_LOGS) {
-        esp_log_set_vprintf(uart1_printf);
-    }
-}
-
-// Read UART_num for input with timeout of 1 sec
-int serial_read(char *buffer, int size) {
-    int len = uart_read_bytes(UART_NUM, (uint8_t*)buffer, size, pdMS_TO_TICKS(1000));
-    return len;
-}
-
-// this number helps to avoid triggering the watchdog in for/while loops
-int delay_for_watchdog = 10;
 
 // these are the available values for the ODR of the accelerometer
 // this represents the 4 least significant bits of the ACC_CONF register
@@ -774,7 +809,7 @@ float gyr_range_values_rad_s[8] = {
     0  // Reserved
 };
 
-void supend_mode(void) {
+void bmi_supend_mode(void) {
     // PWR_CTRL: disable auxiliary sensor, gyro, acc and temp
     // PWR_CONF: disable fup_en and fifo_self_wake_up, enable adv_power_save
 
@@ -789,7 +824,7 @@ void supend_mode(void) {
     printf("Modo de suspension: activado. \n\n");
 }
 
-void low_power_mode(uint8_t acc_odr, uint8_t acc_range) {
+void bmi_low_power_mode(uint8_t acc_odr, uint8_t acc_range) {
     // PWR_CTRL: disable auxiliary sensor, gyro and temp, enable acc 
     // ACC_CONF: _Hz en datos acc, filter: power optimized, acc_bwp: osr2_avg2
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
@@ -810,7 +845,7 @@ void low_power_mode(uint8_t acc_odr, uint8_t acc_range) {
     printf("Modo de bajo consumo: activado. \n\n");
 }
 
-void normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range) {
+void bmi_normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range) {
     // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc 
     // ACC_CONF: _Hz en datos acc, filter: performance optimized, acc_bwp: norm_avg4
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
@@ -837,7 +872,7 @@ void normal_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint
     printf("Modo de potencia normal: activado. \n\n");
 }
 
-void performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range) {
+void bmi_performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr, uint8_t gyr_range) {
     // PWR_CTRL: disable auxiliary sensor, enbale gryo, temp and acc
     // ACC_CONF: _Hz en datos acc, filter: performance optimized, acc_bwp: osr4_avg4
     // ACC_RANGE: acc_range +/-8g (1g = 9.80665 m/s2, alcance max: 78.4532 m/s2, 16 bit= 65536 => 1bit = 78.4532/32768 m/s2)
@@ -864,58 +899,12 @@ void performance_power_mode(uint8_t acc_odr, uint8_t acc_range, uint8_t gyr_odr,
     printf("Modo de potencia de rendimiento: activado. \n\n");
 }
 
-void internal_status(void) {
+void bmi_internal_status(void) {
     uint8_t reg_internalstatus = 0x21;
     uint8_t tmp;
 
     bmi_i2c_read(I2C_NUM_0, &reg_internalstatus, &tmp, 1);
     printf("Internal Status: %2X\n\n", tmp);
-}
-
-/**
- * @brief Funcion que calcula la FFT de un arreglo y guarda el resultado inplace
- *
- * @param array Arreglo de elementos sobre los que se quiere calcular la FFT
- * @param size Tamano del arreglo
- * @param array_re Direccion del arreglo donde se guardara la parte real. Debe ser de tamano size
- * @param array_im Direccion del arreglo donde se guardara la parte imaginaria. Debe ser de tamano size
- */
-void calcularFFT(float *array, int size, float *array_re, float *array_im) {
-    for (int k = 0; k < size; k++) {
-        float real = 0;
-        float imag = 0;
-
-        for (int n = 0; n < size; n++) {
-            float angulo = 2 * M_PI * k * n / size;
-            float cos_angulo = cos(angulo);
-            float sin_angulo = -sin(angulo);
-
-            real += array[n] * cos_angulo;
-            imag += array[n] * sin_angulo;
-        }
-        real /= size;
-        imag /= size;
-        array_re[k] = real;
-        array_im[k] = imag;
-
-        // to avoid watchdog
-        vTaskDelay(delay_for_watchdog / portTICK_PERIOD_MS);
-    }
-}
-
-// comparator function for qsort
-int compare(const void *a, const void *b) {
-    float fa = *(const float*) a;
-    float fb = *(const float*) b;
-    return (fa < fb) - (fa > fb);
-}
-
-// this function saves the top 5 values of an array in another array, this function modifies the original array
-void save_top_5(float *array, int size, float *top_5) {
-    qsort(array, size, sizeof(float), compare);
-    for (int i = 0; i < 5 && i < size; i++) {
-        top_5[i] = array[i];
-    }
 }
 
 void accel_m_s2_data(uint16_t *acc_x_array, uint16_t *acc_y_array, uint16_t *acc_z_array, int window_size, float to_m_s2_multiplier) {
@@ -1904,18 +1893,18 @@ void loop_lectura() {
 
 
         if (powermode == 'S') {
-            supend_mode();
+            bmi_supend_mode();
         } else if (powermode == 'L') {
-            low_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index]);
-            internal_status();
+            bmi_low_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index]);
+            bmi_internal_status();
             lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         } else if (powermode == 'N') {
-            normal_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
-            internal_status();
+            bmi_normal_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
+            bmi_internal_status();
             lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         } else if (powermode == 'P') {
-            performance_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
-            internal_status();
+            bmi_performance_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
+            bmi_internal_status();
             lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         } else {
             printf("Modo de consumo no válido\n");
@@ -1924,7 +1913,7 @@ void loop_lectura() {
 }
 
 void app_main(void) {
-    ESP_ERROR_CHECK(bmi_init());
+    ESP_ERROR_CHECK(sensor_init());
     bmi_softreset();
     bmi_get_chipid();
     bmi_initialization();
