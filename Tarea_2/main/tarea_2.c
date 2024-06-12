@@ -649,19 +649,21 @@ const uint8_t bmi270_config_file[] = {
     0x2e, 0x00, 0xc1
 };
 
-void bmi_get_chipid(void) {
+int bmi_get_chipid(void) {
     uint8_t reg_id = 0x00;
     uint8_t tmp;
 
     bmi_i2c_read(I2C_NUM_0, &reg_id, &tmp, 1);
     printf("valor de CHIPID: %2X \n\n", tmp);
+
     if (tmp == 0x24) {
-        printf("Chip reconocido.\n\n");
+        printf("Chip BMI270 reconocido.\n\n");
+        return 1;
+    } else {
+        printf("Chip BMI270 no reconocido. \nCHIP ID: %2x\n\n", tmp);  // %2X
     }
-    if (tmp != 0x24) {
-        printf("Chip no reconocido. \nCHIP ID: %2x\n\n", tmp); // %2X
-        exit(EXIT_SUCCESS);
-    }
+
+    return 0;
 }
 
 void bmi_softreset(void) {
@@ -2001,12 +2003,12 @@ int bme_get_chipid(void) {
 
     if (tmp == 0x61) {
         printf("Chip BME688 reconocido.\n\n");
-        return 0;
+        return 1;
     } else {
         printf("Chip BME688 no reconocido. \nCHIP ID: %2x\n\n", tmp);  // %2X
     }
 
-    return 1;
+    return 0;
 }
 
 int bme_softreset(void) {
@@ -2205,20 +2207,26 @@ void bme_read_data(void) {
 }
 
 void app_main(void) {
-    // ESP_ERROR_CHECK(sensor_init());
-    // bmi_softreset();
-    // bmi_get_chipid();
-    // bmi_initialization();
-    // bmi_check_initialization();
-    // uart_setup();
-    // printf("\n");
-    // srand(time(0));
-    // bmi_loop_lectura();
     ESP_ERROR_CHECK(sensor_init());
-    bme_get_chipid();
-    bme_softreset();
-    bme_get_mode();
-    bme_forced_mode();
-    printf("Comienza lectura\n\n");
-    bme_read_data();
+
+    if (bmi_get_chipid()) {
+        // ------------ BMI 270 ------------- //
+        bmi_softreset();
+        bmi_initialization();
+        bmi_check_initialization();
+        uart_setup();
+        printf("\n");
+        srand(time(0));
+        bmi_loop_lectura();
+    }
+    else if (bme_get_chipid()) {
+        // ------------ BME 688 ------------- //
+        bme_softreset();
+        bme_get_mode();
+        bme_forced_mode();
+        printf("Comienza lectura\n\n");
+        bme_read_data();
+    } else {
+        printf("No se reconoce ningún chip.\n\n");
+    }
 }
