@@ -1735,7 +1735,7 @@ void ang_vel_rad_s_data(uint16_t *gyr_x_array, uint16_t *gyr_y_array, uint16_t *
     printf("Fin de los datos de velocidad angular en rad/s\n\n");
 }
 
-void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, float to_rad_s_multiplier, char powermode) {
+void bmi_lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, float to_rad_s_multiplier, char powermode) {
     uint8_t reg_intstatus = 0x03, tmp;
     int bytes_data8 = 12;
     uint8_t reg_data = 0x0C, data_data8[bytes_data8];
@@ -1817,10 +1817,10 @@ void lectura(int window_size, float to_m_s2_multiplier, float to_g_multiplier, f
 
 // this number is the denominator to get the multiplier for converting the data to m/s2, g and rad/s
 // it's half of 2 to the power of 16 (because the data is 16 bits)
-int denominator = 32768;
+int bmi_denominator = 32768;
 
 // function that sets and executes the lectura
-void loop_lectura() {
+void bmi_loop_lectura() {
     while (1) {
 
         // waiting for a BEGIN to initiate the reading, this begin includes the configuration of the reading
@@ -1885,11 +1885,11 @@ void loop_lectura() {
         int window_size = atoi(number_from_config);
 
         // this is the multiplier for converting the data to m/s2
-        float to_m_s2_multiplier = (acc_range_values_m_s2[acc_range_index] / denominator);
+        float to_m_s2_multiplier = (acc_range_values_m_s2[acc_range_index] / bmi_denominator);
         // this is the multiplier for converting the data to g
-        float to_g_multiplier = (acc_range_values_g[acc_range_index] / denominator);
+        float to_g_multiplier = (acc_range_values_g[acc_range_index] / bmi_denominator);
         // this is the multiplier for converting the data to rad/s
-        float to_rad_s_multiplier = (gyr_range_values_rad_s[gyr_range_index] / denominator);
+        float to_rad_s_multiplier = (gyr_range_values_rad_s[gyr_range_index] / bmi_denominator);
 
 
         if (powermode == 'S') {
@@ -1897,15 +1897,15 @@ void loop_lectura() {
         } else if (powermode == 'L') {
             bmi_low_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index]);
             bmi_internal_status();
-            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
+            bmi_lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         } else if (powermode == 'N') {
             bmi_normal_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             bmi_internal_status();
-            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
+            bmi_lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         } else if (powermode == 'P') {
             bmi_performance_power_mode(acc_odr_values[acc_odr_index], acc_range_values[acc_range_index], gyr_odr_values[gyr_odr_index], gyr_range_values[gyr_range_index]);
             bmi_internal_status();
-            lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
+            bmi_lectura(window_size, to_m_s2_multiplier, to_g_multiplier, to_rad_s_multiplier, powermode);
         } else {
             printf("Modo de consumo no válido\n");
         }
@@ -1921,5 +1921,5 @@ void app_main(void) {
     uart_setup();
     printf("\n");
     srand(time(0));
-    loop_lectura();
+    bmi_loop_lectura();
 }
