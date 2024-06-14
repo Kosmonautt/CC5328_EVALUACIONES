@@ -2083,10 +2083,10 @@ void bme_forced_mode(void) {
     uint8_t run_gas = 0b00100000;
     uint8_t gas_conf = nb_conv | run_gas;
 
-    bme_i2c_write(I2C_NUM_0, &gas_wait_0, &gas_duration, 1);
-    bme_i2c_write(I2C_NUM_0, &res_heat_0, &heater_step, 1);
     bme_i2c_write(I2C_NUM_0, &ctrl_hum, &osrs_h, 1);
     bme_i2c_write(I2C_NUM_0, &ctrl_meas, &osrs_t_p, 1);
+    bme_i2c_write(I2C_NUM_0, &gas_wait_0, &gas_duration, 1);
+    bme_i2c_write(I2C_NUM_0, &res_heat_0, &heater_step, 1);
     bme_i2c_write(I2C_NUM_0, &ctrl_gas_1, &gas_conf, 1);
 
     // Seteamos el modo
