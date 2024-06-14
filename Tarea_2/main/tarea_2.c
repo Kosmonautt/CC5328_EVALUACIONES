@@ -2131,6 +2131,26 @@ int bme_check_forced_mode(void) {
     return (tmp == 0b001 && tmp2 == 0x59 && tmp3 == 0x00 && tmp4 == 0b100000 && tmp5 == 0b01010101);
 }
 
+uint32_t read_temp_data() {
+    uint8_t tmp;
+
+    // Se obtienen los datos de temperatura
+    uint8_t forced_temp_addr[] = {0x22, 0x23, 0x24};
+    uint32_t temp_adc = 0;
+    bme_forced_mode();
+    // Datasheet[41]
+    // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
+
+    bme_i2c_read(I2C_NUM_0, &forced_temp_addr[0], &tmp, 1);
+    temp_adc = temp_adc | tmp << 12;
+    bme_i2c_read(I2C_NUM_0, &forced_temp_addr[1], &tmp, 1);
+    temp_adc = temp_adc | tmp << 4;
+    bme_i2c_read(I2C_NUM_0, &forced_temp_addr[2], &tmp, 1);
+    temp_adc = temp_adc | (tmp & 0xf0) >> 4;
+
+    return temp_adc;
+}
+
 int bme_temp_celsius(uint32_t temp_adc) {
     // Datasheet[23]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=23
@@ -2184,23 +2204,8 @@ void bme_read_data(void) {
     // Datasheet[23:41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=23
 
-    uint8_t tmp;
-
-    // Se obtienen los datos de temperatura
-    uint8_t forced_temp_addr[] = {0x22, 0x23, 0x24};
     for (;;) {
-        uint32_t temp_adc = 0;
-        bme_forced_mode();
-        // Datasheet[41]
-        // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
-
-        bme_i2c_read(I2C_NUM_0, &forced_temp_addr[0], &tmp, 1);
-        temp_adc = temp_adc | tmp << 12;
-        bme_i2c_read(I2C_NUM_0, &forced_temp_addr[1], &tmp, 1);
-        temp_adc = temp_adc | tmp << 4;
-        bme_i2c_read(I2C_NUM_0, &forced_temp_addr[2], &tmp, 1);
-        temp_adc = temp_adc | (tmp & 0xf0) >> 4;
-
+        uint32_t temp_adc = read_temp_data();
         uint32_t temp = bme_temp_celsius(temp_adc);
         printf("Temperatura: %f\n", (float)temp / 100);
     }
