@@ -2189,6 +2189,62 @@ int bme_temp_celsius(uint32_t temp_adc) {
     return calc_temp;
 }
 
+uint32_t read_pressure_data() {
+    uint8_t tmp;
+
+    // Se obtienen los datos de presion
+    uint8_t forced_press_addr[] = {0x1F, 0x20, 0x21};
+    uint32_t press_adc = 0;
+    bme_forced_mode();
+    // Datasheet[41]
+    // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
+
+    bme_i2c_read(I2C_NUM_0, &forced_press_addr[0], &tmp, 1);
+    press_adc = press_adc | tmp << 12;
+    bme_i2c_read(I2C_NUM_0, &forced_press_addr[1], &tmp, 1);
+    press_adc = press_adc | tmp << 4;
+    bme_i2c_read(I2C_NUM_0, &forced_press_addr[2], &tmp, 1);
+    press_adc = press_adc | (tmp & 0xf0) >> 4;
+
+    return press_adc;
+}
+
+uint16_t read_humidity_data() {
+    uint8_t tmp;
+
+    // Se obtienen los datos de humedad
+    uint8_t forced_hum_addr[] = {0x25, 0x26};
+    uint16_t hum_adc = 0;
+    bme_forced_mode();
+    // Datasheet[41]
+    // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
+
+    bme_i2c_read(I2C_NUM_0, &forced_hum_addr[0], &tmp, 1);
+    hum_adc = hum_adc | tmp << 8;
+    bme_i2c_read(I2C_NUM_0, &forced_hum_addr[1], &tmp, 1);
+    hum_adc = hum_adc | tmp;
+
+    return hum_adc;
+}
+
+uint16_t read_gas_resistance_data() {
+    uint8_t tmp;
+
+    // Se obtienen los datos de resistencia de gas
+    uint8_t forced_gas_addr[] = {0x2C, 0x2D};
+    uint16_t gas_res_adc = 0;
+    bme_forced_mode();
+    // Datasheet[41]
+    // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
+
+    bme_i2c_read(I2C_NUM_0, &forced_gas_addr[0], &tmp, 1);
+    gas_res_adc = gas_res_adc | tmp << 2;
+    bme_i2c_read(I2C_NUM_0, &forced_gas_addr[1], &tmp, 1);
+    gas_res_adc = gas_res_adc | (tmp & 0xc0) >> 6;
+
+    return gas_res_adc;
+}
+
 void bme_get_mode(void) {
     uint8_t reg_mode = 0x74;
     uint8_t tmp;
