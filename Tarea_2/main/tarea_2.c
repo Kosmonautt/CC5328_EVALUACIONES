@@ -2294,12 +2294,12 @@ int bme_pressure_pascal(uint32_t press_adc, int t_fine) {
     return press_comp;
 }
 
-uint16_t read_humidity_data() {
+uint32_t read_humidity_data() {
     uint8_t tmp;
 
     // Se obtienen los datos de humedad
     uint8_t forced_hum_addr[] = {0x25, 0x26};
-    uint16_t hum_adc = 0;
+    uint32_t hum_adc = 0;
     bme_forced_mode();
     // Datasheet[41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
@@ -2310,6 +2310,69 @@ uint16_t read_humidity_data() {
     hum_adc = hum_adc | tmp;
 
     return hum_adc;
+}
+
+int bme_humidity_percent(uint32_t hum_adc, int temp_comp) {
+    // Datasheet[26]
+    // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=26
+
+    // Se obtienen los parametros de calibracion
+    uint8_t addr_par_h1_lsb = 0xE2, addr_par_h1_msb = 0xE3;
+    uint8_t addr_par_h2_lsb = 0xE2, addr_par_h2_msb = 0xE1;
+    uint8_t addr_par_h3_lsb = 0xE4;
+    uint8_t addr_par_h4_lsb = 0xE5;
+    uint8_t addr_par_h5_lsb = 0xE6;
+    uint8_t addr_par_h6_lsb = 0xE7;
+    uint8_t addr_par_h7_lsb = 0xE8;
+    uint16_t par_h1;
+    uint16_t par_h2;
+    uint16_t par_h3;
+    uint16_t par_h4;
+    uint16_t par_h5;
+    uint16_t par_h6;
+    uint16_t par_h7;
+
+    uint8_t par[9];
+    bme_i2c_read(I2C_NUM_0, &addr_par_h1_lsb, par, 1);
+    bme_i2c_read(I2C_NUM_0, &addr_par_h1_msb, par + 1, 1);
+    par[2] = par[0];
+    bme_i2c_read(I2C_NUM_0, &addr_par_h2_msb, par + 3, 1);
+    bme_i2c_read(I2C_NUM_0, &addr_par_h3_lsb, par + 4, 1);
+    bme_i2c_read(I2C_NUM_0, &addr_par_h4_lsb, par + 5, 1);
+    bme_i2c_read(I2C_NUM_0, &addr_par_h5_lsb, par + 6, 1);
+    bme_i2c_read(I2C_NUM_0, &addr_par_h6_lsb, par + 7, 1);
+    bme_i2c_read(I2C_NUM_0, &addr_par_h7_lsb, par + 8, 1);
+
+    par_h1 = (par[1] << 4) | (par[0] & 0x0f);
+    par_h2 = (par[3] << 4) | ((par[2] & 0xf0) >> 4);
+    par_h3 = par[4];
+    par_h4 = par[5];
+    par_h5 = par[6];
+    par_h6 = par[7];
+    par_h7 = par[8];
+
+    int64_t var1;
+    int64_t var2;
+    int64_t var3;
+    int64_t var4;
+    int64_t var5;
+    int64_t var6;
+
+    int32_t temp_scaled = (int32_t) temp_comp;
+    var1 = (int32_t)hum_adc - (int32_t)((int32_t)par_h1 << 4) - 
+                (((temp_scaled * (int32_t)par_h3) / ((int32_t)100)) >> 1);
+    var2 = ((int32_t)par_h2 * (((temp_scaled *
+            (int32_t)par_h4) / ((int32_t)100)) +
+            (((temp_scaled * ((temp_scaled * (int32_t)par_h5) / 
+            ((int32_t)100))) >> 6) / ((int32_t)100)) + ((int32_t)(1 << 14)))) >> 10;
+    var3 = var1 * var2;
+    var4 = (((int32_t)par_h6 << 7) + 
+            ((temp_scaled * (int32_t)par_h7) / ((int32_t)100))) >> 4;
+    var5 = ((var3 >> 14) * (var3 >> 14)) >> 10;
+    var6 = (var4 * var5) >> 1;
+    int hum_comp = (var3 + var6) >> 12;
+    hum_comp = (((var3 + var6) >> 10) * ((int32_t)1000)) >> 12;
+    return hum_comp;
 }
 
 uint16_t read_gas_resistance_data() {
@@ -2352,8 +2415,10 @@ void bme_read_data(void) {
         uint32_t temp = pair[0];
         uint32_t press_adc = read_pressure_data();
         uint32_t press = bme_pressure_pascal(press_adc, pair[1]);
+        uint32_t hum_adc = read_humidity_data();
+        uint32_t hum = bme_humidity_percent(hum_adc, pair[0]);
 
-        printf("Temperatura: %f, Presion: %d\n", (float)temp / 100, (int)press);
+        printf("Temperatura: %f, Presión: %d, Humedad: %f%%\n", (float)temp / 100, (int)press, (float)hum/1000);
 
     }
 }
