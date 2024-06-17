@@ -2137,7 +2137,6 @@ uint32_t read_temp_data() {
     // Se obtienen los datos de temperatura
     uint8_t forced_temp_addr[] = {0x22, 0x23, 0x24};
     uint32_t temp_adc = 0;
-    bme_forced_mode();
     // Datasheet[41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
 
@@ -2182,10 +2181,9 @@ int* bme_temp_celsius(uint32_t temp_adc) {
 
     var1 = ((int32_t)temp_adc >> 3) - ((int32_t)par_t1 << 1);
     var2 = (var1 * (int32_t)par_t2) >> 11;
-    var3 = ((var1 >> 1) * (var1 >> 1)) >> 12;
-    var3 = ((var3) * ((int32_t)par_t3 << 4)) >> 14;
-    t_fine = (int32_t)(var2 + var3);
-    temp_comp = (((t_fine * 5) + 128) >> 8);
+    var3 = ((((var1 >> 1) * (var1 >> 1)) >> 12) * ((int32_t)par_t3 << 4)) >> 14;
+    t_fine = var2 + var3;
+    temp_comp = ((t_fine * 5) + 128) >> 8;
 
     static int arr[2];
     arr[0] = temp_comp;
@@ -2199,7 +2197,6 @@ uint32_t read_pressure_data() {
     // Se obtienen los datos de presion
     uint8_t forced_press_addr[] = {0x1F, 0x20, 0x21};
     uint32_t press_adc = 0;
-    bme_forced_mode();
     // Datasheet[41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
 
@@ -2277,20 +2274,24 @@ int bme_pressure_pascal(uint32_t press_adc, int t_fine) {
     var2 = ((((var1 >> 2) * (var1 >> 2)) >> 11) * (int32_t)par_p6) >> 2;
     var2 = var2 + ((var1 * (int32_t)par_p5) << 1);
     var2 = (var2 >> 2) + ((int32_t)par_p4 << 16);
-    var1 = (((((var1 >> 2) * (var1 >> 2)) >> 13) * ((int32_t)par_p3 << 5)) >> 3) + (((int32_t)par_p2 * var1) >> 1);
+    var1 = (((((var1 >> 2) * (var1 >> 2)) >> 13) *
+                ((int32_t)par_p3 << 5)) >> 3) + (((int32_t)par_p2 * var1) >> 1);
     var1 = var1 >> 18;
     var1 = ((32768 + var1) * (int32_t)par_p1) >> 15;
     press_comp = 1048576 - press_adc;
     press_comp = (uint32_t)((press_comp - (var2 >> 12)) * ((uint32_t)3125));
-    if (press_comp >= (1 << 30)) {
+    if (press_comp >= (1 << 30))
         press_comp = ((press_comp / (uint32_t)var1) << 1);
-    } else {
+    else
         press_comp = ((press_comp << 1) / (uint32_t)var1);
-    }
-    var1 = ((int32_t)par_p9 * (int32_t)(((press_comp >> 3) * (press_comp >> 3)) >> 13)) >> 12;
+    var1 = ((int32_t)par_p9 * (int32_t)(((press_comp >> 3) *
+                (press_comp >> 3)) >> 13)) >> 12;
     var2 = ((int32_t)(press_comp >> 2) * (int32_t)par_p8) >> 13;
-    var3 = ((int32_t)(press_comp >> 8) * (int32_t)(press_comp >> 8) * (int32_t)(press_comp >> 8) * (int32_t)par_p10) >> 17;
-    press_comp = (int32_t)(press_comp) + ((var1 + var2 + var3 + ((int32_t)par_p7 << 7)) >> 4);
+    var3 = ((int32_t)(press_comp >> 8) * (int32_t)(press_comp >> 8) *
+                (int32_t)(press_comp >> 8) * (int32_t)par_p10) >> 17;
+    press_comp = (int32_t)(press_comp) +
+                ((var1 + var2 + var3 + ((int32_t)par_p7 << 7)) >> 4);
+    
     return press_comp;
 }
 
@@ -2300,7 +2301,6 @@ uint32_t read_humidity_data() {
     // Se obtienen los datos de humedad
     uint8_t forced_hum_addr[] = {0x25, 0x26};
     uint32_t hum_adc = 0;
-    bme_forced_mode();
     // Datasheet[41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
 
@@ -2357,21 +2357,24 @@ int bme_humidity_percent(uint32_t hum_adc, int temp_comp) {
     int64_t var4;
     int64_t var5;
     int64_t var6;
+    int temp_scaled;
+    int hum_comp;
 
-    int32_t temp_scaled = (int32_t) temp_comp;
-    var1 = (int32_t)hum_adc - (int32_t)((int32_t)par_h1 << 4) - 
-                (((temp_scaled * (int32_t)par_h3) / ((int32_t)100)) >> 1);
+    temp_scaled = (int32_t)temp_comp;
+    var1 = (int32_t)hum_adc - (int32_t)((int32_t)par_h1 << 4) -
+            (((temp_scaled * (int32_t)par_h3) / ((int32_t)100)) >> 1);
     var2 = ((int32_t)par_h2 * (((temp_scaled *
             (int32_t)par_h4) / ((int32_t)100)) +
-            (((temp_scaled * ((temp_scaled * (int32_t)par_h5) / 
+            (((temp_scaled * ((temp_scaled * (int32_t)par_h5) /
             ((int32_t)100))) >> 6) / ((int32_t)100)) + ((int32_t)(1 << 14)))) >> 10;
     var3 = var1 * var2;
-    var4 = (((int32_t)par_h6 << 7) + 
+    var4 = (((int32_t)par_h6 << 7) +
             ((temp_scaled * (int32_t)par_h7) / ((int32_t)100))) >> 4;
     var5 = ((var3 >> 14) * (var3 >> 14)) >> 10;
     var6 = (var4 * var5) >> 1;
-    int hum_comp = (var3 + var6) >> 12;
-    hum_comp = (((var3 + var6) >> 10) * ((int32_t)1000)) >> 12;
+    hum_comp = (var3 + var6) >> 12;
+    hum_comp = (((var3 + var6) >> 10) * ((int32_t) 1000)) >> 12;    
+
     return hum_comp;
 }
 
@@ -2381,7 +2384,6 @@ uint16_t read_gas_resistance_data() {
     // Se obtienen los datos de resistencia de gas
     uint8_t forced_gas_addr[] = {0x2C, 0x2D};
     uint16_t gas_res_adc = 0;
-    bme_forced_mode();
     // Datasheet[41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
 
@@ -2409,6 +2411,7 @@ void bme_read_data(void) {
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=23
 
     for (;;) {
+        bme_forced_mode();
         uint32_t temp_adc = read_temp_data();
         int* pair = bme_temp_celsius(temp_adc);
 
