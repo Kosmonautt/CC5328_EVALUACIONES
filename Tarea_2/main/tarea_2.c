@@ -2335,7 +2335,7 @@ int bme_humidity_percent(uint32_t hum_adc, int temp_comp) {
     uint8_t par[9];
     bme_i2c_read(I2C_NUM_0, &addr_par_h1_lsb, par, 1);
     bme_i2c_read(I2C_NUM_0, &addr_par_h1_msb, par + 1, 1);
-    par[2] = par[0];
+    bme_i2c_read(I2C_NUM_0, &addr_par_h2_lsb, par + 2, 1);
     bme_i2c_read(I2C_NUM_0, &addr_par_h2_msb, par + 3, 1);
     bme_i2c_read(I2C_NUM_0, &addr_par_h3_lsb, par + 4, 1);
     bme_i2c_read(I2C_NUM_0, &addr_par_h4_lsb, par + 5, 1);
@@ -2384,7 +2384,7 @@ uint16_t read_gas_resistance_data() {
     // Se obtienen los datos de resistencia de gas
     uint8_t forced_gas_addr[] = {0x2C, 0x2D};
     uint16_t gas_res_adc = 0;
-    // Datasheet[41]
+    // Datasheet[42]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
 
     bme_i2c_read(I2C_NUM_0, &forced_gas_addr[0], &tmp, 1);
@@ -2394,6 +2394,67 @@ uint16_t read_gas_resistance_data() {
 
     return gas_res_adc;
 }
+
+uint8_t read_gas_resistance_range() {
+    uint8_t forced_gas_range_addr = 0x2D;
+
+    uint8_t gas_range_adc = 0;
+    // Datasheet[42]
+    // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
+
+    bme_i2c_read(I2C_NUM_0, &forced_gas_range_addr, &gas_range_adc, 1);
+    gas_range_adc = (gas_range_adc & 0x0f);
+
+    return gas_range_adc;
+}
+
+// int bme_gas_resistance_ohm(uint16_t gas_res_adc, uint8_t gas_range_adc) {
+//     // Datasheet[27]
+//     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=27
+
+//     // Se obtienen los parametros de calibracion
+//     uint8_t addr_par_g1_lsb = 0xED;
+//     uint8_t addr_par_g2_lsb = 0xEB, addr_par_g2_msb = 0xEC;
+//     uint8_t addr_par_g3 = 0xEE;
+//     uint8_t addr_res_heat_range = 0x02;
+//     uint8_t addr_res_heat_val = 0x00;
+//     uint16_t par_g1;
+//     uint16_t par_g2;
+//     uint16_t par_g3;
+//     uint8_t res_heat_range;
+//     uint8_t res_heat_val;
+
+//     uint8_t par[6];
+//     bme_i2c_read(I2C_NUM_0, &addr_par_g1_lsb, par, 1);
+//     bme_i2c_read(I2C_NUM_0, &addr_par_g2_lsb, par + 1, 1);
+//     bme_i2c_read(I2C_NUM_0, &addr_par_g2_msb, par + 2, 1);
+//     bme_i2c_read(I2C_NUM_0, &addr_par_g3, par + 3, 1);
+//     bme_i2c_read(I2C_NUM_0, &addr_res_heat_range, par + 4, 1);
+//     bme_i2c_read(I2C_NUM_0, &addr_res_heat_val, par + 5, 1);
+
+//     par_g1 = par[0];
+//     par_g2 = (par[2] << 8) | par[1];
+//     par_g3 = par[3];
+//     res_heat_range = (par[4] & 0x30) >> 4;
+//     res_heat_val = par[5];
+
+//     int64_t var1;
+//     int64_t var2;
+//     int64_t var3;
+//     int64_t var4;
+//     int64_t var5;
+//     int64_t res_heat_x100;
+//     int64_t res_heat_x;
+//     int32_t amb_temp = 25;
+
+//     var1 = (((int32_t)amb_temp * par_g3) / 10) << 8;
+//     var2 = (par_g1 + 784) * (((((par_g2 + 154009) * target_temp * 5) / 100) + 3276800) / 10);
+//     var3 = var1 + (var2 >> 1);
+//     var4 = (var3 / (res_heat_range + 4));
+//     var5 = (131 * res_heat_val) + 65536;
+//     res_heat_x100 = (int32_t)(((var4 / var5) - 250) * 34);
+//     res_heat_x = (uint8_t)((res_heat_x100 + 50) / 100);
+// }
 
 void bme_get_mode(void) {
     uint8_t reg_mode = 0x74;
@@ -2421,7 +2482,7 @@ void bme_read_data(void) {
         uint32_t hum_adc = read_humidity_data();
         uint32_t hum = bme_humidity_percent(hum_adc, pair[0]);
 
-        printf("Temperatura: %f, Presión: %d, Humedad: %f%%\n", (float)temp / 100, (int)press, (float)hum/1000);
+        printf("Temperatura: %f, Presión: %d, Humedad: %f%%\n", (float)temp / 100, (int)press, (float)hum / 1000);
 
     }
 }
