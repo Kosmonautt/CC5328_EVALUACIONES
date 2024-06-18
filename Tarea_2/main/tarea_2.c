@@ -2535,19 +2535,23 @@ void bme_read_data(void) {
 
     for (;;) {
         bme_forced_mode();
-        uint32_t temp_adc = read_temp_data();
-        int* pair = bme_temp_celsius(temp_adc);
 
-        uint32_t temp = pair[0];
+        // Se obtienen los datos raw
+        uint32_t temp_adc = read_temp_data();
         uint32_t press_adc = read_pressure_data();
-        uint32_t press = bme_pressure_pascal(press_adc, pair[1]);
         uint32_t hum_adc = read_humidity_data();
-        uint32_t hum = bme_humidity_percent(hum_adc, pair[0]);
         uint32_t gas_adc = read_gas_resistance_data();
         uint8_t gas_range = read_gas_resistance_range();
-        uint32_t gas = bme_gas_resistance_ohm(gas_adc, gas_range);
 
-        printf("Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", (float)temp / 100, (int)press, (float)hum / 1000, (int)gas);
+        // Se calculan los valores
+        int* pair = bme_temp_celsius(temp_adc);
+        int temp_comp = pair[0];
+        int t_fine = pair[1];
+        int press = bme_pressure_pascal(press_adc, t_fine);
+        int hum = bme_humidity_percent(hum_adc, temp_comp);
+        int gas = bme_gas_resistance_ohm(gas_adc, gas_range);
+
+        printf("Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", (float)temp_comp / 100, press, (float)hum / 1000, gas);
 
     }
 }
