@@ -2125,7 +2125,11 @@ void bme_parallel_mode(void) {
     3. Set pressure oversampling to 16x    |-| 0b101 to osrs_p<2:0>
 
     4. Set gas duration to 100 ms          |-| 0x59 to gas_wait_0
-    5. Set heater step size to 1           |-| 0x00 to res_heat_0
+    5. Set heater step size to 0           |-| 0x00 to res_heat_0
+    6. Set number of conversion to 1       |-| 0b0001 to nb_conv<3:0> and enable gas measurements
+    7. Set run_gas to 1                    |-| 0b1 to run_gas<5>
+
+    8. Set operation mode                  |-| 0b11  to mode<1:0>
 
     */
 
@@ -2156,14 +2160,17 @@ void bme_parallel_mode(void) {
 
     // Configuramos el sensor de gas
 
-    // 4. Seteamos gas_wait_0 y gas_wait_shared a 100ms
+    // 4. Seteamos gas_wait_0 a 100ms
     uint8_t gas_duration = calc_gas_wait(100);
+
+    // 4.5 Seteamos gas_wait_shared a 100ms
+    uint8_t gas_duration_shared = calc_gas_wait(100);
 
     // 5. Seteamos res_heat_0
     uint8_t heater_step = calc_res_heat(300);
 
     // 6. nb_conv esta en ctrl_gas_1 -> seteamos bits 3:0
-    uint8_t nb_conv = 0b00000000;
+    uint8_t nb_conv = 0b00000001;
     // 7. run_gas esta en ctrl_gas_1 -> seteamos bit 5
     uint8_t run_gas = 0b00100000;
     uint8_t gas_conf = nb_conv | run_gas;
@@ -2171,7 +2178,7 @@ void bme_parallel_mode(void) {
     bme_i2c_write(I2C_NUM_0, &ctrl_hum, &osrs_h, 1);
     bme_i2c_write(I2C_NUM_0, &ctrl_meas, &osrs_t_p, 1);
     bme_i2c_write(I2C_NUM_0, &gas_wait_0, &gas_duration, 1);
-    bme_i2c_write(I2C_NUM_0, &gas_wait_shared, &gas_duration, 1);
+    bme_i2c_write(I2C_NUM_0, &gas_wait_shared, &gas_duration_shared, 1);
     bme_i2c_write(I2C_NUM_0, &res_heat_0, &heater_step, 1);
     bme_i2c_write(I2C_NUM_0, &ctrl_gas_1, &gas_conf, 1);
 
@@ -2527,7 +2534,7 @@ void bme_read_data(void) {
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=23
 
     for (;;) {
-        bme_forced_mode();
+        bme_parallel_mode();
         uint32_t temp_adc = read_temp_data();
         int* pair = bme_temp_celsius(temp_adc);
 
@@ -2562,7 +2569,7 @@ void app_main(void) {
         // ------------ BME 688 ------------- //
         bme_softreset();
         bme_get_mode();
-        bme_forced_mode();
+        bme_parallel_mode();
         printf("Comienza lectura\n\n");
         bme_read_data();
     } else {
