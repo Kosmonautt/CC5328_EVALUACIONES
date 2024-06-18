@@ -2224,11 +2224,27 @@ int bme_check_forced_mode(void) {
     return (tmp == 0b001 && tmp2 == 0x59 && tmp3 == 0xDD && tmp4 == 0b100000 && tmp5 == 0b01010101);
 }
 
-uint32_t read_temp_data() {
+uint32_t read_temp_data(char field) {
     uint8_t tmp;
+    uint8_t forced_temp_addr[3];
 
-    // Se obtienen los datos de temperatura
-    uint8_t forced_temp_addr[] = {0x22, 0x23, 0x24};
+    // Se configura la direccion de memoria de los datos de temperatura
+    if (field == 0) {
+        forced_temp_addr[0] = 0x22;
+        forced_temp_addr[1] = 0x23;
+        forced_temp_addr[2] = 0x24;
+    } else if (field == 1) {
+        forced_temp_addr[0] = 0x33;
+        forced_temp_addr[1] = 0x34;
+        forced_temp_addr[2] = 0x35;
+    } else if (field == 2) {
+        forced_temp_addr[0] = 0x44;
+        forced_temp_addr[1] = 0x45;
+        forced_temp_addr[2] = 0x46;
+    } else {
+        return 0;
+    };
+
     uint32_t temp_adc = 0;
     // Datasheet[41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
@@ -2284,11 +2300,27 @@ int* bme_temp_celsius(uint32_t temp_adc) {
     return arr;
 }
 
-uint32_t read_pressure_data() {
+uint32_t read_pressure_data(char field) {
     uint8_t tmp;
+    uint8_t forced_press_addr[3];
 
-    // Se obtienen los datos de presion
-    uint8_t forced_press_addr[] = {0x1F, 0x20, 0x21};
+    // Se configura la direccion de memoria de los datos de presion
+    if (field == 0) {
+        forced_press_addr[0] = 0x1F;
+        forced_press_addr[1] = 0x20;
+        forced_press_addr[2] = 0x21;
+    } else if (field == 1) {
+        forced_press_addr[0] = 0x30;
+        forced_press_addr[1] = 0x31;
+        forced_press_addr[2] = 0x32;
+    } else if (field == 2) {
+        forced_press_addr[0] = 0x41;
+        forced_press_addr[1] = 0x42;
+        forced_press_addr[2] = 0x43;
+    } else {
+        return 0;
+    };
+
     uint32_t press_adc = 0;
     // Datasheet[41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
@@ -2388,11 +2420,24 @@ int bme_pressure_pascal(uint32_t press_adc, int t_fine) {
     return press_comp;
 }
 
-uint32_t read_humidity_data() {
+uint32_t read_humidity_data(char field) {
     uint8_t tmp;
+    uint8_t forced_hum_addr[2];
 
-    // Se obtienen los datos de humedad
-    uint8_t forced_hum_addr[] = {0x25, 0x26};
+    // Se configura la direccion de memoria de los datos de humedad
+    if (field == 0) {
+        forced_hum_addr[0] = 0x25;
+        forced_hum_addr[1] = 0x26;
+    } else if (field == 1) {
+        forced_hum_addr[0] = 0x36;
+        forced_hum_addr[1] = 0x37;
+    } else if (field == 2) {
+        forced_hum_addr[0] = 0x47;
+        forced_hum_addr[1] = 0x48;
+    } else {
+        return 0;
+    };
+
     uint32_t hum_adc = 0;
     // Datasheet[41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
@@ -2471,11 +2516,24 @@ int bme_humidity_percent(uint32_t hum_adc, int temp_comp) {
     return hum_comp;
 }
 
-uint16_t read_gas_resistance_data() {
+uint16_t read_gas_resistance_data(char field) {
     uint8_t tmp;
+    uint8_t forced_gas_addr[2];
 
-    // Se obtienen los datos de resistencia de gas
-    uint8_t forced_gas_addr[] = {0x2C, 0x2D};
+    // Se configura la direccion de memoria de los datos de resistencia de gas
+    if (field == 0) {
+        forced_gas_addr[0] = 0x2C;
+        forced_gas_addr[1] = 0x2D;
+    } else if (field == 1) {
+        forced_gas_addr[0] = 0x3D;
+        forced_gas_addr[1] = 0x3E;
+    } else if (field == 2) {
+        forced_gas_addr[0] = 0x4E;
+        forced_gas_addr[1] = 0x4F;
+    } else {
+        return 0;
+    };
+
     uint16_t gas_adc = 0;
     // Datasheet[42]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
@@ -2488,11 +2546,21 @@ uint16_t read_gas_resistance_data() {
     return gas_adc;
 }
 
-uint8_t read_gas_resistance_range() {
+uint8_t read_gas_resistance_range(char field) {
     uint8_t tmp;
+    uint8_t forced_gas_range_addr;
 
-    // Se obtienen el rango de resistencia de gas
-    uint8_t forced_gas_range_addr = 0x2D;
+    // Se configura la direccion de memoria del rango de resistencia de gas
+    if (field == 0) {
+        forced_gas_range_addr = 0x2D;
+    } else if (field == 1) {
+        forced_gas_range_addr = 0x3E;
+    } else if (field == 2) {
+        forced_gas_range_addr = 0x4F;
+    } else {
+        return 0;
+    };
+
     uint8_t gas_range = 0;
     // Datasheet[42]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
@@ -2537,11 +2605,11 @@ void bme_read_data(void) {
         bme_forced_mode();
 
         // Se obtienen los datos raw
-        uint32_t temp_adc = read_temp_data();
-        uint32_t press_adc = read_pressure_data();
-        uint32_t hum_adc = read_humidity_data();
-        uint32_t gas_adc = read_gas_resistance_data();
-        uint8_t gas_range = read_gas_resistance_range();
+        uint32_t temp_adc = read_temp_data(0);
+        uint32_t press_adc = read_pressure_data(0);
+        uint32_t hum_adc = read_humidity_data(0);
+        uint32_t gas_adc = read_gas_resistance_data(0);
+        uint8_t gas_range = read_gas_resistance_range(0);
 
         // Se calculan los valores
         int* pair = bme_temp_celsius(temp_adc);
