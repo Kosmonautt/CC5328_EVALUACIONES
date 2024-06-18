@@ -2383,78 +2383,47 @@ uint16_t read_gas_resistance_data() {
 
     // Se obtienen los datos de resistencia de gas
     uint8_t forced_gas_addr[] = {0x2C, 0x2D};
-    uint16_t gas_res_adc = 0;
+    uint16_t gas_adc = 0;
     // Datasheet[42]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
 
     bme_i2c_read(I2C_NUM_0, &forced_gas_addr[0], &tmp, 1);
-    gas_res_adc = gas_res_adc | tmp << 2;
+    gas_adc = gas_adc | tmp << 2;
     bme_i2c_read(I2C_NUM_0, &forced_gas_addr[1], &tmp, 1);
-    gas_res_adc = gas_res_adc | (tmp & 0xc0) >> 6;
+    gas_adc = gas_adc | (tmp & 0xc0) >> 6;
 
-    return gas_res_adc;
+    return gas_adc;
 }
 
 uint8_t read_gas_resistance_range() {
-    uint8_t forced_gas_range_addr = 0x2D;
+    uint8_t tmp;
 
-    uint8_t gas_range_adc = 0;
+    // Se obtienen el rango de resistencia de gas
+    uint8_t forced_gas_range_addr = 0x2D;
+    uint8_t gas_range = 0;
     // Datasheet[42]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=41
 
-    bme_i2c_read(I2C_NUM_0, &forced_gas_range_addr, &gas_range_adc, 1);
-    gas_range_adc = (gas_range_adc & 0x0f);
+    bme_i2c_read(I2C_NUM_0, &forced_gas_range_addr, &tmp, 1);
+    gas_range = (tmp & 0x0f);
 
-    return gas_range_adc;
+    return gas_range;
 }
 
-// int bme_gas_resistance_ohm(uint16_t gas_res_adc, uint8_t gas_range_adc) {
-//     // Datasheet[27]
-//     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=27
+uint32_t bme_gas_resistance_ohm(uint16_t gas_adc, uint8_t gas_range) {
+    // Datasheet[27]
+    // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=29
 
-//     // Se obtienen los parametros de calibracion
-//     uint8_t addr_par_g1_lsb = 0xED;
-//     uint8_t addr_par_g2_lsb = 0xEB, addr_par_g2_msb = 0xEC;
-//     uint8_t addr_par_g3 = 0xEE;
-//     uint8_t addr_res_heat_range = 0x02;
-//     uint8_t addr_res_heat_val = 0x00;
-//     uint16_t par_g1;
-//     uint16_t par_g2;
-//     uint16_t par_g3;
-//     uint8_t res_heat_range;
-//     uint8_t res_heat_val;
-
-//     uint8_t par[6];
-//     bme_i2c_read(I2C_NUM_0, &addr_par_g1_lsb, par, 1);
-//     bme_i2c_read(I2C_NUM_0, &addr_par_g2_lsb, par + 1, 1);
-//     bme_i2c_read(I2C_NUM_0, &addr_par_g2_msb, par + 2, 1);
-//     bme_i2c_read(I2C_NUM_0, &addr_par_g3, par + 3, 1);
-//     bme_i2c_read(I2C_NUM_0, &addr_res_heat_range, par + 4, 1);
-//     bme_i2c_read(I2C_NUM_0, &addr_res_heat_val, par + 5, 1);
-
-//     par_g1 = par[0];
-//     par_g2 = (par[2] << 8) | par[1];
-//     par_g3 = par[3];
-//     res_heat_range = (par[4] & 0x30) >> 4;
-//     res_heat_val = par[5];
-
-//     int64_t var1;
-//     int64_t var2;
-//     int64_t var3;
-//     int64_t var4;
-//     int64_t var5;
-//     int64_t res_heat_x100;
-//     int64_t res_heat_x;
-//     int32_t amb_temp = 25;
-
-//     var1 = (((int32_t)amb_temp * par_g3) / 10) << 8;
-//     var2 = (par_g1 + 784) * (((((par_g2 + 154009) * target_temp * 5) / 100) + 3276800) / 10);
-//     var3 = var1 + (var2 >> 1);
-//     var4 = (var3 / (res_heat_range + 4));
-//     var5 = (131 * res_heat_val) + 65536;
-//     res_heat_x100 = (int32_t)(((var4 / var5) - 250) * 34);
-//     res_heat_x = (uint8_t)((res_heat_x100 + 50) / 100);
-// }
+    uint32_t var1 = UINT32_C(262144) >> gas_range;
+    int32_t var2 = (int32_t) gas_adc - INT32_C(512);
+    var2 *= INT32_C(3);
+    var2 = INT32_C(4096) + var2;
+    /* multiplying 10000 then dividing then multiplying by 100 instead of multiplying by 1000000 to prevent
+    overflow */
+    uint32_t calc_gas_res = (UINT32_C(10000) * var1) / (uint32_t)var2;
+    uint32_t gas_res = calc_gas_res * 100;
+    return gas_res;
+}
 
 void bme_get_mode(void) {
     uint8_t reg_mode = 0x74;
@@ -2481,8 +2450,11 @@ void bme_read_data(void) {
         uint32_t press = bme_pressure_pascal(press_adc, pair[1]);
         uint32_t hum_adc = read_humidity_data();
         uint32_t hum = bme_humidity_percent(hum_adc, pair[0]);
+        uint32_t gas_adc = read_gas_resistance_data();
+        uint8_t gas_range = read_gas_resistance_range();
+        uint32_t gas = bme_gas_resistance_ohm(gas_adc, gas_range);
 
-        printf("Temperatura: %f, Presión: %d, Humedad: %f%%\n", (float)temp / 100, (int)press, (float)hum / 1000);
+        printf("Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", (float)temp / 100, (int)press, (float)hum / 1000, (int)gas);
 
     }
 }
