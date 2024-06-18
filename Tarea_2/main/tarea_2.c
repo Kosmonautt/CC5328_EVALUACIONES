@@ -2170,7 +2170,7 @@ void bme_parallel_mode(void) {
     uint8_t heater_step = calc_res_heat(300);
 
     // 6. nb_conv esta en ctrl_gas_1 -> seteamos bits 3:0
-    uint8_t nb_conv = 0b00000001;
+    uint8_t nb_conv = 0b00000010;
     // 7. run_gas esta en ctrl_gas_1 -> seteamos bit 5
     uint8_t run_gas = 0b00100000;
     uint8_t gas_conf = nb_conv | run_gas;
@@ -2602,25 +2602,26 @@ void bme_read_data(void) {
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=23
 
     for (;;) {
-        bme_forced_mode();
+        bme_parallel_mode();
 
-        // Se obtienen los datos raw
-        uint32_t temp_adc = read_temp_data(0);
-        uint32_t press_adc = read_pressure_data(0);
-        uint32_t hum_adc = read_humidity_data(0);
-        uint32_t gas_adc = read_gas_resistance_data(0);
-        uint8_t gas_range = read_gas_resistance_range(0);
+        for(char i = 0; i < 3; i++) {
+            // Se obtienen los datos raw
+            uint32_t temp_adc = read_temp_data(i);
+            uint32_t press_adc = read_pressure_data(i);
+            uint32_t hum_adc = read_humidity_data(i);
+            uint32_t gas_adc = read_gas_resistance_data(i);
+            uint8_t gas_range = read_gas_resistance_range(i);
 
-        // Se calculan los valores
-        int* pair = bme_temp_celsius(temp_adc);
-        int temp_comp = pair[0];
-        int t_fine = pair[1];
-        int press = bme_pressure_pascal(press_adc, t_fine);
-        int hum = bme_humidity_percent(hum_adc, temp_comp);
-        int gas = bme_gas_resistance_ohm(gas_adc, gas_range);
+            // Se calculan los valores
+            int* pair = bme_temp_celsius(temp_adc);
+            int temp_comp = pair[0];
+            int t_fine = pair[1];
+            int press = bme_pressure_pascal(press_adc, t_fine);
+            int hum = bme_humidity_percent(hum_adc, temp_comp);
+            int gas = bme_gas_resistance_ohm(gas_adc, gas_range);
 
-        printf("Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", (float)temp_comp / 100, press, (float)hum / 1000, gas);
-
+            printf("Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", (float)temp_comp / 100, press, (float)hum / 1000, gas);
+        }
     }
 }
 
@@ -2641,11 +2642,7 @@ void app_main(void) {
         // ------------ BME 688 ------------- //
         bme_softreset();
         bme_get_mode();
-        bme_forced_mode();
-        if(!bme_check_forced_mode()) {
-            printf("Error en modo forzado\n\n");
-            return;
-        }
+        bme_parallel_mode();
         printf("Comienza lectura\n\n");
         bme_read_data();
     } else {
