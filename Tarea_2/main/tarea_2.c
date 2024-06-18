@@ -2113,6 +2113,92 @@ void bme_forced_mode(void) {
     vTaskDelay(pdMS_TO_TICKS(50));
 }
 
+void bme_parallel_mode(void) {
+    /*
+    Fuente: Datasheet[20]
+    https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=19
+
+    Para configurar el BME688 en forced mode los pasos son:
+
+    1. Set humidity oversampling to 1x     |-| 0b001 to osrs_h<2:0>
+    2. Set temperature oversampling to 2x  |-| 0b010 to osrs_t<2:0>
+    3. Set pressure oversampling to 16x    |-| 0b101 to osrs_p<2:0>
+
+    4. Set gas duration to 100 ms          |-| 0x59 to gas_wait_0
+    5. Set heater step size to 1           |-| 0x00 to res_heat_0
+
+    */
+
+    // Datasheet[33]
+    uint8_t ctrl_hum = 0x72;
+    uint8_t ctrl_meas = 0x74;
+    uint8_t gas_wait_0 = 0x64;
+    uint8_t gas_wait_shared = 0x6E;
+    uint8_t res_heat_0 = 0x5A;
+    uint8_t ctrl_gas_1 = 0x71;
+
+    uint8_t mask;
+    uint8_t prev;
+    // Configuramos el oversampling (Datasheet[36])
+
+    // 1. osrs_h esta en ctrl_hum (LSB) -> seteamos 001 en bits 2:0
+    uint8_t osrs_h = 0b001;
+    mask = 0b00000111;
+    bme_i2c_read(I2C_NUM_0, &ctrl_hum, &prev, 1);
+    osrs_h = (prev & ~mask) | osrs_h;
+
+    // 2. osrs_t esta en ctrl_meas MSB -> seteamos 010 en bits 7:5
+    uint8_t osrs_t = 0b01000000;
+    // 3. osrs_p esta en ctrl_meas LSB -> seteamos 101 en bits 4:2 [Datasheet:37]
+    uint8_t osrs_p = 0b00010100;
+    uint8_t osrs_t_p = osrs_t | osrs_p;
+    // Se recomienda escribir hum, temp y pres en un solo write
+
+    // Configuramos el sensor de gas
+
+    // 4. Seteamos gas_wait_0 y gas_wait_shared a 100ms
+    uint8_t gas_duration = calc_gas_wait(100);
+
+    // 5. Seteamos res_heat_0
+    uint8_t heater_step = calc_res_heat(300);
+
+    // 6. nb_conv esta en ctrl_gas_1 -> seteamos bits 3:0
+    uint8_t nb_conv = 0b00000000;
+    // 7. run_gas esta en ctrl_gas_1 -> seteamos bit 5
+    uint8_t run_gas = 0b00100000;
+    uint8_t gas_conf = nb_conv | run_gas;
+
+    bme_i2c_write(I2C_NUM_0, &ctrl_hum, &osrs_h, 1);
+    bme_i2c_write(I2C_NUM_0, &ctrl_meas, &osrs_t_p, 1);
+    bme_i2c_write(I2C_NUM_0, &gas_wait_0, &gas_duration, 1);
+    bme_i2c_write(I2C_NUM_0, &gas_wait_shared, &gas_duration, 1);
+    bme_i2c_write(I2C_NUM_0, &res_heat_0, &heater_step, 1);
+    bme_i2c_write(I2C_NUM_0, &ctrl_gas_1, &gas_conf, 1);
+
+    // Seteamos el modo
+    // 8. Seteamos el modo a 10, pasando primero por sleep
+    uint8_t mode = 0b00000010;
+    uint8_t tmp_pow_mode;
+    uint8_t pow_mode = 0;
+
+    do {
+        ret = bme_i2c_read(I2C_NUM_0, &ctrl_meas, &tmp_pow_mode, 1);
+
+        if (ret == ESP_OK) {
+            // Se pone en sleep
+            pow_mode = (tmp_pow_mode & 0x03);
+            if (pow_mode != 0) {
+                tmp_pow_mode &= ~0x03;
+                ret = bme_i2c_write(I2C_NUM_0, &ctrl_meas, &tmp_pow_mode, 1);
+            }
+        }
+    } while ((pow_mode != 0x0) && (ret == ESP_OK));
+
+    tmp_pow_mode = (tmp_pow_mode & ~0x03) | mode;
+    ret = bme_i2c_write(I2C_NUM_0, &ctrl_meas, &tmp_pow_mode, 1);
+    vTaskDelay(pdMS_TO_TICKS(50));
+}
+
 int bme_check_forced_mode(void) {
     uint8_t ctrl_hum = 0x72;
     uint8_t ctrl_meas = 0x74;
