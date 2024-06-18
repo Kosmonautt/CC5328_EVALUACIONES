@@ -2221,7 +2221,7 @@ int bme_check_forced_mode(void) {
     ret = bme_i2c_read(I2C_NUM_0, &ctrl_gas_1, &tmp4, 1);
     ret = bme_i2c_read(I2C_NUM_0, &ctrl_meas, &tmp5, 1);
     vTaskDelay(task_delay_ms / portTICK_PERIOD_MS);
-    return (tmp == 0b001 && tmp2 == 0x59 && tmp3 == 0x00 && tmp4 == 0b100000 && tmp5 == 0b01010101);
+    return (tmp == 0b001 && tmp2 == 0x59 && tmp3 == 0xDD && tmp4 == 0b100000 && tmp5 == 0b01010101);
 }
 
 uint32_t read_temp_data() {
@@ -2534,7 +2534,7 @@ void bme_read_data(void) {
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=23
 
     for (;;) {
-        bme_parallel_mode();
+        bme_forced_mode();
         uint32_t temp_adc = read_temp_data();
         int* pair = bme_temp_celsius(temp_adc);
 
@@ -2569,7 +2569,11 @@ void app_main(void) {
         // ------------ BME 688 ------------- //
         bme_softreset();
         bme_get_mode();
-        bme_parallel_mode();
+        bme_forced_mode();
+        if(!bme_check_forced_mode()) {
+            printf("Error en modo forzado\n\n");
+            return;
+        }
         printf("Comienza lectura\n\n");
         bme_read_data();
     } else {
