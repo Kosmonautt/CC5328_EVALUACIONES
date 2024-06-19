@@ -2231,6 +2231,16 @@ void bme_parallel_mode(void) {
     vTaskDelay(pdMS_TO_TICKS(50));
 }
 
+int bme_check_sleep_mode(void) {
+    uint8_t ctrl_meas = 0x74;
+    uint8_t tmp;
+
+    ret = bme_i2c_read(I2C_NUM_0, &ctrl_meas, &tmp, 1);
+    vTaskDelay(task_delay_ms / portTICK_PERIOD_MS);
+    return (tmp == 0b00);
+
+}
+
 int bme_check_forced_mode(void) {
     uint8_t ctrl_hum = 0x72;
     uint8_t ctrl_meas = 0x74;
@@ -2267,16 +2277,6 @@ int bme_check_parallel_mode(void) {
     ret = bme_i2c_read(I2C_NUM_0, &ctrl_meas, &tmp6, 1);
     vTaskDelay(task_delay_ms / portTICK_PERIOD_MS);
     return (tmp == 0b001 && tmp2 == 0x59 && tmp3 == 0x59 && tmp4 == 0xDD && tmp5 == 0b100010 && tmp6 == 0b01010110); 
-}
-
-int bme_check_sleep_mode(void) {
-    uint8_t ctrl_meas = 0x74;
-    uint8_t tmp;
-
-    ret = bme_i2c_read(I2C_NUM_0, &ctrl_meas, &tmp, 1);
-    vTaskDelay(task_delay_ms / portTICK_PERIOD_MS);
-    return (tmp == 0b00);
-
 }
 
 uint32_t read_temp_data(char field) {
@@ -2652,14 +2652,25 @@ void bme_get_mode(void) {
     printf("Valor de BME MODE: %2X \n\n", tmp);
 }
 
-void bme_read_data(void) {
+void bme_read_data(int window_size, char powermode) {
     // Datasheet[23:41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=23
 
-    for (;;) {
-        bme_parallel_mode();
+    int n_lectura = 0;
 
-        for(char i = 0; i < 3; i++) {
+    for (;;) {
+        char n_regist = 0;
+
+        if (powermode == 'F') {
+            n_regist = 1;
+            bme_forced_mode();
+        } else if (powermode == 'P') {
+            n_regist = 3;
+            bme_parallel_mode();
+        }
+
+
+        for(char i = 0; i < n_regist; i++) {
             // Se obtienen los datos raw
             uint32_t temp_adc = read_temp_data(i);
             uint32_t press_adc = read_pressure_data(i);
@@ -2675,8 +2686,66 @@ void bme_read_data(void) {
             int hum = bme_humidity_percent(hum_adc, temp_comp);
             int gas = bme_gas_resistance_ohm(gas_adc, gas_range);
 
-            printf("Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", (float)temp_comp / 100, press, (float)hum / 1000, gas);
+            n_lectura++;
+            
+            printf("Lectura %d, Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", n_lectura, (float)temp_comp / 100, press, (float)hum / 1000, gas);
+            
+            if (n_lectura >= window_size) 
+                return;
         }
+    }
+}
+
+void bme_loop_read() {
+    for(;;) {
+        
+        // // waiting for a BEGIN to initiate the reading, this begin includes the configuration of the reading
+        // char begin_with_config[22];
+        // printf("Esperando inicio de lectura\n");
+        // while (1) {
+        //     int rLen = serial_read(begin_with_config, 22);
+        //     if (rLen > 0) {
+        //         // copy of the begin_with_config array only with the first 5 characters
+        //         char begin[6];
+        //         strncpy(begin, begin_with_config, 5);
+        //         begin[5] = '\0';
+
+        //         if (strcmp(begin, "BEGIN") == 0) {
+        //             printf("Inicio de lectura\n");
+        //             break;
+        //         }
+        //     }
+        // }
+
+        char powermode = 'P';
+        int window_size = 50;
+
+        if (powermode == 'S') {
+            bme_sleep_mode();
+            if (!bme_check_sleep_mode()) {
+                printf("Error en la configuración del modo sleep.\n\n");
+                return;
+            }
+        } else if (powermode == 'F') {
+            bme_forced_mode();
+            if (!bme_check_forced_mode()) {
+                printf("Error en la configuración del modo forced.\n\n");
+                return;
+            }
+            bme_read_data(window_size, powermode);
+        } else if (powermode == 'P') {
+            bme_parallel_mode();
+            if (!bme_check_parallel_mode()) {
+                printf("Error en la configuración del modo paralelo.\n\n");
+                return;
+            }
+            bme_read_data(window_size, powermode);
+        } else {
+            printf("Error en la configuración del modo.\n\n");
+            return;
+        }
+
+        return;
     }
 }
 
@@ -2697,18 +2766,7 @@ void app_main(void) {
         // ------------ BME 688 ------------- //
         bme_softreset();
         bme_get_mode();
-        bme_sleep_mode();
-        if(!bme_check_sleep_mode()) {
-            printf("Error en la configuración del modo sleep.\n\n");
-            return;
-        }
-        // bme_parallel_mode();
-        // if(!bme_check_parallel_mode()) {
-        //     printf("Error en la configuración del modo paralelo.\n\n");
-        //     return;
-        // }
-        // printf("Comienza lectura\n\n");
-        // bme_read_data();
+        bme_loop_read();
     } else {
         printf("No se reconoce ningún chip.\n\n");
     }
