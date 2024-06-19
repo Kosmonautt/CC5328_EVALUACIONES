@@ -2224,6 +2224,26 @@ int bme_check_forced_mode(void) {
     return (tmp == 0b001 && tmp2 == 0x59 && tmp3 == 0xDD && tmp4 == 0b100000 && tmp5 == 0b01010101);
 }
 
+int bme_check_parallel_mode(void) {
+    uint8_t ctrl_hum = 0x72;
+    uint8_t ctrl_meas = 0x74;
+    uint8_t gas_wait_0 = 0x64;
+    uint8_t gas_wait_shared = 0x6E;
+    uint8_t res_heat_0 = 0x5A;
+    uint8_t ctrl_gas_1 = 0x71;
+
+    uint8_t tmp, tmp2, tmp3, tmp4, tmp5, tmp6;
+
+    ret = bme_i2c_read(I2C_NUM_0, &ctrl_hum, &tmp, 1);
+    ret = bme_i2c_read(I2C_NUM_0, &gas_wait_0, &tmp2, 1);
+    ret = bme_i2c_read(I2C_NUM_0, &gas_wait_shared, &tmp3, 1);
+    ret = bme_i2c_read(I2C_NUM_0, &res_heat_0, &tmp4, 1);
+    ret = bme_i2c_read(I2C_NUM_0, &ctrl_gas_1, &tmp5, 1);
+    ret = bme_i2c_read(I2C_NUM_0, &ctrl_meas, &tmp6, 1);
+    vTaskDelay(task_delay_ms / portTICK_PERIOD_MS);
+    return (tmp == 0b001 && tmp2 == 0x59 && tmp3 == 0x59 && tmp4 == 0xDD && tmp5 == 0b100010 && tmp6 == 0b01010110); 
+}
+
 uint32_t read_temp_data(char field) {
     uint8_t tmp;
     uint8_t forced_temp_addr[3];
@@ -2643,6 +2663,10 @@ void app_main(void) {
         bme_softreset();
         bme_get_mode();
         bme_parallel_mode();
+        if(!bme_check_parallel_mode()) {
+            printf("Error en la configuración del modo paralelo.\n\n");
+            return;
+        }
         printf("Comienza lectura\n\n");
         bme_read_data();
     } else {
