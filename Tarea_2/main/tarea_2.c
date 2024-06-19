@@ -2025,6 +2025,31 @@ int bme_softreset(void) {
     return 0;
 }
 
+void bme_sleep_mode(void) {
+    uint8_t reg_ctrl_meas = 0x74;
+    uint8_t tmp_pow_mode;
+    uint8_t pow_mode = 0;
+
+    do {
+        ret = bme_i2c_read(I2C_NUM_0, &reg_ctrl_meas, &tmp_pow_mode, 1);
+
+        if (ret == ESP_OK) {
+            // Se pone en sleep
+            pow_mode = (tmp_pow_mode & 0x03);
+            if (pow_mode != 0) {
+                tmp_pow_mode &= ~0x03;
+                ret = bme_i2c_write(I2C_NUM_0, &reg_ctrl_meas, &tmp_pow_mode, 1);
+            }
+        }
+    } while ((pow_mode != 0x0) && (ret == ESP_OK));
+
+    if (ret != ESP_OK) {
+        printf("\nError en sleep mode: %s \n", esp_err_to_name(ret));
+    } else {
+        printf("\nSleep mode: OK\n\n");
+    }
+}
+
 void bme_forced_mode(void) {
     /*
     Fuente: Datasheet[19]
@@ -2242,6 +2267,16 @@ int bme_check_parallel_mode(void) {
     ret = bme_i2c_read(I2C_NUM_0, &ctrl_meas, &tmp6, 1);
     vTaskDelay(task_delay_ms / portTICK_PERIOD_MS);
     return (tmp == 0b001 && tmp2 == 0x59 && tmp3 == 0x59 && tmp4 == 0xDD && tmp5 == 0b100010 && tmp6 == 0b01010110); 
+}
+
+int bme_check_sleep_mode(void) {
+    uint8_t ctrl_meas = 0x74;
+    uint8_t tmp;
+
+    ret = bme_i2c_read(I2C_NUM_0, &ctrl_meas, &tmp, 1);
+    vTaskDelay(task_delay_ms / portTICK_PERIOD_MS);
+    return (tmp == 0b00);
+
 }
 
 uint32_t read_temp_data(char field) {
@@ -2662,13 +2697,18 @@ void app_main(void) {
         // ------------ BME 688 ------------- //
         bme_softreset();
         bme_get_mode();
-        bme_parallel_mode();
-        if(!bme_check_parallel_mode()) {
-            printf("Error en la configuración del modo paralelo.\n\n");
+        bme_sleep_mode();
+        if(!bme_check_sleep_mode()) {
+            printf("Error en la configuración del modo sleep.\n\n");
             return;
         }
-        printf("Comienza lectura\n\n");
-        bme_read_data();
+        // bme_parallel_mode();
+        // if(!bme_check_parallel_mode()) {
+        //     printf("Error en la configuración del modo paralelo.\n\n");
+        //     return;
+        // }
+        // printf("Comienza lectura\n\n");
+        // bme_read_data();
     } else {
         printf("No se reconoce ningún chip.\n\n");
     }
