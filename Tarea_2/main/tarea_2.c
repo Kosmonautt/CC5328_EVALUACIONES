@@ -2656,9 +2656,18 @@ void bme_read_data(int window_size, char powermode) {
     // Datasheet[23:41]
     // https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf#page=23
 
-    int n_lectura = 0;
+    // Se crean arrays con malloc para almacenar los window_size valores datos de temperatura, presion, humedad y resistencia de gas
+    int* temp_comp_array = malloc(window_size * sizeof(int));
+    int* press_array = malloc(window_size * sizeof(int));
+    int* hum_array = malloc(window_size * sizeof(int));
+    int* gas_array = malloc(window_size * sizeof(int));
 
-    for (;;) {
+    int n_lectura = 0;
+    bool continue_loop = true;
+
+    printf("Comienza lectura\n\n");
+
+    while(continue_loop) {
         char n_regist = 0;
 
         if (powermode == 'F') {
@@ -2686,14 +2695,32 @@ void bme_read_data(int window_size, char powermode) {
             int hum = bme_humidity_percent(hum_adc, temp_comp);
             int gas = bme_gas_resistance_ohm(gas_adc, gas_range);
 
+            // Se almacenan los valores en los arrays
+            temp_comp_array[n_lectura] = temp_comp;
+            press_array[n_lectura] = press;
+            hum_array[n_lectura] = hum;
+            gas_array[n_lectura] = gas;
+            
+            printf("Lectura %d, Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", n_lectura + 1, (float)temp_comp / 100, press, (float)hum / 1000, gas);
+            
             n_lectura++;
             
-            printf("Lectura %d, Temperatura: %f[°C], Presión: %d[pa], Humedad: %f%%, Resistencia: %d[Ω]\n", n_lectura, (float)temp_comp / 100, press, (float)hum / 1000, gas);
-            
-            if (n_lectura >= window_size) 
-                return;
+            if (n_lectura >= window_size) {
+                continue_loop = false;
+                break;
+            }
         }
     }
+
+    printf("Fin de la lectura\n\n");
+
+    // Se libera la memoria de los arrays
+    free(temp_comp_array);
+    free(press_array);
+    free(hum_array);
+    free(gas_array);
+
+    printf("Procesamiento finalizado\n\n");
 }
 
 void bme_loop_read() {
@@ -2717,7 +2744,7 @@ void bme_loop_read() {
         //     }
         // }
 
-        char powermode = 'P';
+        char powermode = 'F';
         int window_size = 50;
 
         if (powermode == 'S') {
