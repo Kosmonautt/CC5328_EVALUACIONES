@@ -146,6 +146,14 @@ void save_top_5(float *array, int size, float *top_5) {
     }
 }
 
+// same function from above but for int
+void save_top_5_int(int *array, int size, int *top_5) {
+    qsort(array, size, sizeof(int), compare);
+    for (int i = 0; i < 5 && i < size; i++) {
+        top_5[i] = array[i];
+    }
+}
+
 // ------------ Funciones de lecutra/escritura por I2C -------------- //
 esp_err_t bmi_i2c_read(i2c_port_t i2c_num, uint8_t *data_addres, uint8_t *data_rd, size_t size) {
     if (size == 0) {
@@ -2714,7 +2722,60 @@ void bme_read_data(int window_size, char powermode) {
 
     printf("Fin de la lectura\n\n");
 
+    // Los datos de temp_comp_array son impresos en [°C]
+    for (int i = 0; i < window_size; i++) {
+        printf("[Temperatura] Lectura %d: %f[°C]\n", i + 1, (float)temp_comp_array[i] / 100);
+    }
+
+    // Los datos de press_array son impresos en [pa]
+    for (int i = 0; i < window_size; i++) {
+        printf("[Presión] Lectura %d: %d[pa]\n", i + 1, press_array[i]);
+    }
+
+    // Los datos de hum_array son impresos en [%]
+    for (int i = 0; i < window_size; i++) {
+        printf("[Humedad] Lectura %d: %f%%\n", i + 1, (float)hum_array[i] / 1000);
+    }
+
+    // Los datos de gas_array son impresos en [Ω]
+    for (int i = 0; i < window_size; i++) {
+        printf("[Resistencia] Lectura %d: %d[Ω]\n", i + 1, gas_array[i]);
+    }
+
+    // Arreglos para guardar los 5 peaks de cada medición con malloc
+    int* temp_comp_peaks = malloc(5 * sizeof(int));
+    int* press_peaks = malloc(5 * sizeof(int));
+    int* hum_peaks = malloc(5 * sizeof(int));
+    int* gas_peaks = malloc(5 * sizeof(int));
+
+    // Se obtienen los 5 peaks de cada medición
+    save_top_5_int(temp_comp_array, window_size, temp_comp_peaks);
+    save_top_5_int(press_array, window_size, press_peaks);
+    save_top_5_int(hum_array, window_size, hum_peaks);
+    save_top_5_int(gas_array, window_size, gas_peaks);
+
+    // Se imprimen los 5 peaks de cada medicion
+    for (int i = 0; i < 5; i++) {
+        printf("[Temperatura] Top %d: %f[°C]\n", i + 1, (float)temp_comp_peaks[i] / 100);
+    }
+
+    for (int i = 0; i < 5; i++) {
+        printf("[Presión] Top %d: %d[pa]\n", i + 1, press_peaks[i]);
+    }
+
+    for (int i = 0; i < 5; i++) {
+        printf("[Humedad] Top %d: %f%%\n", i + 1, (float)hum_peaks[i] / 1000);
+    }
+
+    for (int i = 0; i < 5; i++) {
+        printf("[Resistencia] Top %d: %d[Ω]\n", i + 1, gas_peaks[i]);
+    }
+
     // Se libera la memoria de los arrays
+    free(temp_comp_peaks);
+    free(press_peaks);
+    free(hum_peaks);
+    free(gas_peaks);
     free(temp_comp_array);
     free(press_array);
     free(hum_array);
@@ -2744,7 +2805,7 @@ void bme_loop_read() {
         //     }
         // }
 
-        char powermode = 'F';
+        char powermode = 'P';
         int window_size = 50;
 
         if (powermode == 'S') {
