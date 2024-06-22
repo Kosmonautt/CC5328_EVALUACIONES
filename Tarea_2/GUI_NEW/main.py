@@ -7,7 +7,7 @@ class Controller:
         self.parent = parent
 
     def setSignals(self):
-        self.ui.selec_12.currentIndexChanged.connect(self.leerModoOperacion)
+        self.ui.comboBox_sensor.currentIndexChanged.connect(self.leerModoOperacion)
         self.ui.pushButton.clicked.connect(self.leerConfiguracion)
         # self.ui.pushButton_2.clicked.connect(self.stop())
 
@@ -19,8 +19,8 @@ class Controller:
         return conf
 
     def leerModoOperacion(self):
-        index = self.ui.selec_12.currentIndex()
-        texto = self.ui.selec_12.itemText(index)
+        index = self.ui.comboBox_sensor.currentIndex()
+        texto = self.ui.comboBox_sensor.itemText(index)
         print(texto)
         return texto
 

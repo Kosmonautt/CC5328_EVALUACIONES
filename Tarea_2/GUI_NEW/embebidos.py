@@ -15,23 +15,29 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(774, 836)
-        self.label_30 = QtWidgets.QLabel(Dialog)
-        self.label_30.setGeometry(QtCore.QRect(350, 130, 101, 21))
-        self.label_30.setStyleSheet("color: rgb(0, 0, 0);\n"
+
+        # Sensor activo label
+        self.label_sensor = QtWidgets.QLabel(Dialog)
+        self.label_sensor.setGeometry(QtCore.QRect(350, 130, 101, 21))
+        self.label_sensor.setStyleSheet("color: rgb(0, 0, 0);\n"
 "\n"
 "")
-        self.label_30.setObjectName("label_30")
+        self.label_sensor.setObjectName("label_sensor")
         self.progressBar = QtWidgets.QProgressBar(Dialog)
         self.progressBar.setGeometry(QtCore.QRect(460, 130, 118, 23))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
-        self.selec_12 = QtWidgets.QComboBox(Dialog)
-        self.selec_12.setGeometry(QtCore.QRect(350, 160, 181, 31))
-        self.selec_12.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.selec_12.setObjectName("selec_12")
-        self.selec_12.addItem("")
-        self.selec_12.addItem("")
-        self.selec_12.addItem("")
+
+        # Sensor activo dropdown
+        self.comboBox_sensor = QtWidgets.QComboBox(Dialog)
+        self.comboBox_sensor.setGeometry(QtCore.QRect(350, 160, 181, 31))
+        self.comboBox_sensor.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.comboBox_sensor.setObjectName("comboBox_sensor")
+        self.comboBox_sensor.addItem("")
+        self.comboBox_sensor.addItem("")
+        self.comboBox_sensor.addItem("")
+
+        # Frecuencia de muestreo de acelerometro label
         self.label_acc_ODR = QtWidgets.QLabel(Dialog)
         self.label_acc_ODR.setGeometry(QtCore.QRect(120, 180, 81, 31))
         self.label_acc_ODR.setObjectName("label_acc_ODR")
@@ -55,18 +61,22 @@ class Ui_Dialog(object):
         for i in range(12):
                 self.comboBox_acc_odr.addItem("")
 
-        self.selec_13 = QtWidgets.QComboBox(Dialog)
-        self.selec_13.setGeometry(QtCore.QRect(360, 300, 181, 31))
-        self.selec_13.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.selec_13.setObjectName("selec_13")
-        self.selec_13.addItem("")
-        self.selec_13.addItem("")
-        self.label_31 = QtWidgets.QLabel(Dialog)
-        self.label_31.setGeometry(QtCore.QRect(390, 270, 121, 21))
-        self.label_31.setStyleSheet("color: rgb(0, 0, 0);\n"
+        ## Modo de funcionamiento dropdown
+        self.comboBox_mode = QtWidgets.QComboBox(Dialog)
+        self.comboBox_mode.setGeometry(QtCore.QRect(360, 230, 181, 31))
+        self.comboBox_mode.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.comboBox_mode.setObjectName("comboBox_mode")
+        self.comboBox_mode.addItem("")
+        self.comboBox_mode.addItem("")
+
+        # Modo de funcionamiento label
+        self.label_mode = QtWidgets.QLabel(Dialog)
+        self.label_mode.setGeometry(QtCore.QRect(390, 200, 121, 21))
+        self.label_mode.setStyleSheet("color: rgb(0, 0, 0);\n"
 "\n"
 "")
-        self.label_31.setObjectName("label_31")
+        self.label_mode.setObjectName("label_mode")
+
         self.label_32 = QtWidgets.QLabel(Dialog)
         self.label_32.setGeometry(QtCore.QRect(170, 100, 121, 21))
         self.label_32.setStyleSheet("color: rgb(0, 0, 0);\n"
@@ -167,18 +177,23 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "UI Sensores"))
-        self.label_30.setText(_translate("Dialog", "<html><head/><body><p align=\"center\"><span style=\" text-decoration: underline;\">Sensor activo</span></p></body></html>"))
-        self.selec_12.setItemText(0, _translate("Dialog", "<Ninguno>"))
-        self.selec_12.setItemText(1, _translate("Dialog", "BMI270"))
-        self.selec_12.setItemText(2, _translate("Dialog", "BME688"))
+
+        # Sensor activo label valor
+        self.label_sensor.setText(_translate("Dialog", "<html><head/><body><p align=\"center\"><span style=\" text-decoration: underline;\">Sensor activo</span></p></body></html>"))
+        
+        # Sensor activo dropdown valores
+        self.comboBox_sensor.setItemText(0, _translate("Dialog", "<Ninguno>"))
+        self.comboBox_sensor.setItemText(1, _translate("Dialog", "BMI270"))
+        self.comboBox_sensor.setItemText(2, _translate("Dialog", "BME688"))
+        
         self.label_acc_ODR.setText(_translate("Dialog", "Frecuencia de \n"
 " muestreo"))
         self.label_acc_range.setText(_translate("Dialog", "Rango"))
         self.label_2.setText(_translate("Dialog", "Configuracion \n"
 " Sensor"))
-        self.selec_13.setItemText(0, _translate("Dialog", "Paralelo"))
-        self.selec_13.setItemText(1, _translate("Dialog", "Forzado"))
-        self.label_31.setText(_translate("Dialog", "Modo de Funcionamiento"))
+        self.comboBox_mode.setItemText(0, _translate("Dialog", "Paralelo"))
+        self.comboBox_mode.setItemText(1, _translate("Dialog", "Forzado"))
+        self.label_mode.setText(_translate("Dialog", "Modo de Funcionamiento"))
         self.label_32.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Acelerómetro</span></p></body></html>"))
         self.label_33.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Giroscopio</span></p></body></html>"))
         self.label_gyr_range.setText(_translate("Dialog", "Rango"))
