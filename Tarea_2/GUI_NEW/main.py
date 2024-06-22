@@ -1,6 +1,5 @@
 from embebidos import Ui_Dialog
 from PyQt5 import QtCore, QtGui, QtWidgets
-import serial_example as SE
 class Controller:
 
     def __init__(self, parent):
