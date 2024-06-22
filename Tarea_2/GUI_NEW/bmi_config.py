@@ -1,3 +1,5 @@
+import threading
+
 # Función que transforma un entero en un string de 3 caracteres
 def int_to_str(num):
     # si el número es None, se retorna '000'
@@ -51,6 +53,8 @@ class BMI_CONFIG:
                         "+/- 125 dps": 0x04
                 }
 
+                self.ready_event = threading.Event()
+
                 self.chosen_mode = None
                 self.chosen_odr_accel = None
                 self.chosen_range_accel = None
@@ -95,27 +99,27 @@ class BMI_CONFIG:
                 self.sample_size = int_to_str(sample_size)
         
         # Se revisa que todos los valores necesarios estén definidos
-        def is_ready(self):
+        def is_ready_changed(self):
                 # Si el modo de operación no está definido, se retorna False
                 if self.chosen_mode is None:
-                        return False
+                        self.ready_event.clear()
 
                 # Si el modo de operación es "L", se revisa que el ODR, el rango del acelerómetro y el tamaño de la muestra estén definidos
                 if self.chosen_mode == "L":
                         if self.chosen_odr_accel is None or self.chosen_range_accel is None or self.sample_size is None:
-                                return False
+                                self.ready_event.clear()
             
                 # Si el modo de operación es "N" o "P", se revisa que el ODR, el rango del acelerómetro, el ODR y el rango del giroscopio y el tamaño de la muestra estén definidos
                 if self.chosen_mode == "N" or self.chosen_mode == "P":
                         if self.chosen_odr_accel is None or self.chosen_range_accel is None or self.chosen_odr_gyro is None or self.chosen_range_gyro is None or self.sample_size is None:
-                                return False
+                                self.ready_event.clear()
                 
-                return True
+                self.ready_event.set()
         
         # Se transforma la configuración en un string
         def to_string(self):
                 # Si la configuración no está lista, se retorna None
-                if not self.is_ready():
+                if not self.ready_event.is_set():
                         return None
                 
                 # Se retorna el string con la configuración

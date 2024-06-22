@@ -37,6 +37,9 @@ class Controller:
         bmi_config.set_range_gyro(conf['GyroRange'])
         bmi_config.set_sample_size(conf['SampleSize'])
 
+        # Se revisa si la configuración está lista
+        bmi_config.is_ready_changed()
+
         print (conf)
         return conf
 
@@ -75,9 +78,10 @@ class Controller:
                         # si el mensaje es b'Esperando inicio de lectura\r\n'
                         if response == b'Esperando inicio de lectura\r\n':
 
-                            # si la configuración no ha sido seleccionada (BUSY WAITING, MALO!!!)
-                            while not bmi_config.is_ready():
-                                pass
+                            # si la configuración no ha sido seleccionada, se espera
+                            bmi_config.ready_event.wait()
+
+                            print('Configuracion lista')
 
                             # se codifica la configuración de la BMI270
                             begin_message = esp32_com.encode_message(bmi_config.to_string())
@@ -85,9 +89,12 @@ class Controller:
                             # se envia el mensaje de inicio de lectura, este también contiene la configuración de la BMI270
                             esp32_com.send_message(begin_message)
 
-                            # Se limpian los valores de la configuración
+                            # se limpian los valores de la configuración
                             bmi_config.clear()
 
+                            # se pone el evento en estado clear
+                            bmi_config.ready_event.clear()
+                            
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
                             pass
