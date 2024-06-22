@@ -66,8 +66,8 @@ class Ui_Dialog(object):
         self.comboBox_mode.setGeometry(QtCore.QRect(360, 230, 181, 31))
         self.comboBox_mode.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.comboBox_mode.setObjectName("comboBox_mode")
-        self.comboBox_mode.addItem("")
-        self.comboBox_mode.addItem("")
+        for i in range(4):
+                self.comboBox_mode.addItem("")
 
         # Modo de funcionamiento label
         self.label_mode = QtWidgets.QLabel(Dialog)
@@ -157,12 +157,12 @@ class Ui_Dialog(object):
         self.label_6.setFrameShape(QtWidgets.QFrame.Box)
         self.label_6.setAlignment(QtCore.Qt.AlignCenter)
         self.label_6.setObjectName("label_6")
-        self.pushButton = QtWidgets.QPushButton(Dialog)
-        self.pushButton.setGeometry(QtCore.QRect(550, 160, 141, 31))
-        self.pushButton.setObjectName("pushButton")
-        self.pushButton_2 = QtWidgets.QPushButton(Dialog)
-        self.pushButton_2.setGeometry(QtCore.QRect(320, 370, 101, 41))
-        self.pushButton_2.setObjectName("pushButton_2")
+        self.button_configure = QtWidgets.QPushButton(Dialog)
+        self.button_configure.setGeometry(QtCore.QRect(550, 160, 141, 31))
+        self.button_configure.setObjectName("button_configure")
+        self.button_start_read = QtWidgets.QPushButton(Dialog)
+        self.button_start_read.setGeometry(QtCore.QRect(320, 370, 101, 41))
+        self.button_start_read.setObjectName("button_start_read")
 
         # Rango de acelerometro dropdown
         self.comboBox_acc_range = QtWidgets.QComboBox(Dialog)
@@ -191,8 +191,6 @@ class Ui_Dialog(object):
         self.label_acc_range.setText(_translate("Dialog", "Rango"))
         self.label_2.setText(_translate("Dialog", "Configuracion \n"
 " Sensor"))
-        self.comboBox_mode.setItemText(0, _translate("Dialog", "Paralelo"))
-        self.comboBox_mode.setItemText(1, _translate("Dialog", "Forzado"))
         self.label_mode.setText(_translate("Dialog", "Modo de Funcionamiento"))
         self.label_32.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Acelerómetro</span></p></body></html>"))
         self.label_33.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Giroscopio</span></p></body></html>"))
@@ -203,12 +201,16 @@ class Ui_Dialog(object):
         self.label_4.setText(_translate("Dialog", "Datos 2: <Datos>"))
         self.label_5.setText(_translate("Dialog", "Datos 3: <Datos>"))
         self.label_6.setText(_translate("Dialog", "Datos 4: <Datos>"))
-        self.pushButton.setText(_translate("Dialog", "Iniciar configuración"))
-        self.pushButton_2.setText(_translate("Dialog", "Iniciar captación \n"
+        self.button_configure.setText(_translate("Dialog", "Iniciar configuración"))
+        self.button_start_read.setText(_translate("Dialog", "Iniciar captación \n"
 " de datos"))
         
         # para acceder a los valores de los dropdowns
         bmi_config = BMI_CONFIG()
+
+        # Modo de funcionamiento dropdown valores
+        for i in range(4):
+                self.comboBox_mode.setItemText(i, _translate("Dialog", list(bmi_config.power_modes.keys())[i]))
 
         # Valores de rangos de acelerometro dropdown
         for i in range(4):

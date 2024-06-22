@@ -1,20 +1,33 @@
 from embebidos import Ui_Dialog
 from PyQt5 import QtCore, QtGui, QtWidgets
-class Controller:
+from esp32_com import ESP32_COM
+from bmi_config import BMI_CONFIG
+from serial.serialutil import SerialException
 
+# Se configura el puerto y el BAUD_Rate
+PORT = 'COM3'  # Esto depende del sistema operativo
+BAUD_RATE = 115200  # Debe coincidir con la configuracion de la ESP32
+
+bmi_config = BMI_CONFIG()
+
+class Controller:
     def __init__(self, parent):
         self.ui = Ui_Dialog()
         self.parent = parent
 
     def setSignals(self):
         self.ui.comboBox_sensor.currentIndexChanged.connect(self.leerModoOperacion)
-        self.ui.pushButton.clicked.connect(self.leerConfiguracion)
-        # self.ui.pushButton_2.clicked.connect(self.stop())
+        self.ui.button_configure.clicked.connect(self.leerConfiguracion)
+        self.ui.button_start_read.clicked.connect(self.read_loop_BMI)
 
     def leerConfiguracion(self):
         conf = dict()
-        conf['AccRange'] = self.ui.comboBox_acc_range.currentText()
+        conf['Mode'] = self.ui.comboBox_mode.currentText()
         conf['AccODR'] = self.ui.comboBox_acc_odr.currentText()
+        conf['AccRange'] = self.ui.comboBox_acc_range.currentText()
+        conf['GyroODR'] = self.ui.comboBox_gyr_odr.currentText()
+        conf['GyroRange'] = self.ui.comboBox_gyr_range.currentText()
+        conf['SampleSize'] = 50
         print (conf)
         return conf
 
@@ -33,7 +46,48 @@ class Controller:
 
     def stop(self):
         print('Captando datos')
-        #SE.serial_cycle()
+
+    def read_loop_BMI(self):
+        try:
+            esp32_com = ESP32_COM(PORT, BAUD_RATE)
+
+            # se lee data por la conexion serial
+            while True:
+                if esp32_com.ser.in_waiting > 0:
+                    try:
+                        # se lee lo que la ESP32 imprime en la consola
+                        response = esp32_com.receive_response()
+
+                        # si el mensaje es b'Esperando inicio de lectura\r\n'
+                        if response == b'Esperando inicio de lectura\r\n':
+
+                            # si la configuración no ha sido seleccionada
+                            if bmi_config.is_ready() == False:
+                                print('Configuracion no seleccionada')
+                                return
+                            return
+
+                            # se codifica la configuración de la BMI270
+                            begin_message = esp32_com.encode_message(bmi_config.to_string())
+
+                            # # se envia el mensaje de inicio de lectura, este también contiene la configuración de la BMI270
+                            esp32_com.send_message(begin_message)
+
+                        ## si el mensaje es b'Procesamiento finalizado\n\n'
+                        elif response == b'Procesamiento finalizado\r\n':
+                            return
+                              
+                        else:
+                            pass
+
+                    except KeyboardInterrupt:
+                        print('Finalizando comunicacion')
+                        return
+
+        except SerialException:
+            print('Error al conectar con el puerto serial')
+            return
+
 
 if __name__ == "__main__":
     import sys

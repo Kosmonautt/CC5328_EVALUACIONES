@@ -7,7 +7,12 @@ def int_to_str(num):
 
 class BMI_CONFIG:
         def __init__(self):
-                self.power_modes = ["S", "L", "N", "P"]
+                self.power_modes = {
+                        "Suspendido": "S",
+                        "Baja potencia": "L",
+                        "Normal": "N",
+                        "Alta potencia": "P"
+                }
                 self.odr_accel = {
                         "0.78125 Hz": 0x01,
                         "1.5625 Hz": 0x02,
@@ -55,17 +60,17 @@ class BMI_CONFIG:
 
         def set_mode(self, mode):
                 # Se cambia el modo de operación
-                self.chosen_mode = mode
+                self.chosen_mode = self.power_modes[mode]
 
                 # Si el modo es "S", se resetean los valores de la aceleración
-                if mode == "S":
+                if self.chosen_mode == "S":
                         self.chosen_odr_accel = int_to_str(None)
                         self.chosen_range_accel = int_to_str(None)
                         self.chosen_odr_gyro = int_to_str(None)
                         self.chosen_range_gyro = int_to_str(None)
 
                 # Si el modo es "L", se resetean los valores del giroscopio
-                elif mode == "L":
+                elif self.chosen_mode == "L":
                         self.chosen_odr_gyro = int_to_str(None)
                         self.chosen_range_gyro = int_to_str(None)
         
