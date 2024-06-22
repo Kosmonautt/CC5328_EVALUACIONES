@@ -93,9 +93,9 @@ class Ui_Dialog(object):
         self.label_9 = QtWidgets.QLabel(Dialog)
         self.label_9.setGeometry(QtCore.QRect(120, 180, 81, 31))
         self.label_9.setObjectName("label_9")
-        self.label_7 = QtWidgets.QLabel(Dialog)
-        self.label_7.setGeometry(QtCore.QRect(120, 130, 81, 31))
-        self.label_7.setObjectName("label_7")
+        self.acc_range = QtWidgets.QLabel(Dialog)
+        self.acc_range.setGeometry(QtCore.QRect(120, 130, 81, 31))
+        self.acc_range.setObjectName("acc_range")
         self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(350, 40, 71, 41))
         self.label_2.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -191,12 +191,13 @@ class Ui_Dialog(object):
         self.pushButton_2 = QtWidgets.QPushButton(Dialog)
         self.pushButton_2.setGeometry(QtCore.QRect(320, 370, 101, 41))
         self.pushButton_2.setObjectName("pushButton_2")
-        self.comboBox_acc_sampling = QtWidgets.QComboBox(Dialog)
-        self.comboBox_acc_sampling.setGeometry(QtCore.QRect(210, 130, 101, 31))
-        self.comboBox_acc_sampling.setObjectName("comboBox_acc_sampling")
-        self.comboBox_acc_sampling.addItem("")
-        self.comboBox_acc_sampling.addItem("")
-        self.comboBox_acc_sampling.addItem("")
+        self.comboBox_acc_range = QtWidgets.QComboBox(Dialog)
+        self.comboBox_acc_range.setGeometry(QtCore.QRect(210, 130, 101, 31))
+        self.comboBox_acc_range.setObjectName("comboBox_acc_range")
+        self.comboBox_acc_range.addItem("")
+        self.comboBox_acc_range.addItem("")
+        self.comboBox_acc_range.addItem("")
+        self.comboBox_acc_range.addItem("")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -210,7 +211,7 @@ class Ui_Dialog(object):
         self.selec_12.setItemText(2, _translate("Dialog", "BME688"))
         self.label_9.setText(_translate("Dialog", "Frecuencia de \n"
 " muestro"))
-        self.label_7.setText(_translate("Dialog", "Sensibilidad"))
+        self.acc_range.setText(_translate("Dialog", "Rango"))
         self.label_2.setText(_translate("Dialog", "Configuracion \n"
 " Sensor"))
         self.selec_13.setItemText(0, _translate("Dialog", "Paralelo"))
@@ -218,7 +219,7 @@ class Ui_Dialog(object):
         self.label_31.setText(_translate("Dialog", "Modo de Funcionamiento"))
         self.label_32.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Acelerómetro</span></p></body></html>"))
         self.label_33.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Giroscopio</span></p></body></html>"))
-        self.label_8.setText(_translate("Dialog", "Sensibilidad"))
+        self.label_8.setText(_translate("Dialog", "Rango"))
         self.label_10.setText(_translate("Dialog", "Frecuencia de \n"
 " muestro"))
         self.label_3.setText(_translate("Dialog", "Datos 1: <Datos>"))
@@ -228,9 +229,10 @@ class Ui_Dialog(object):
         self.pushButton.setText(_translate("Dialog", "Iniciar configuración"))
         self.pushButton_2.setText(_translate("Dialog", "Iniciar captación \n"
 " de datos"))
-        self.comboBox_acc_sampling.setItemText(0, _translate("Dialog", "30"))
-        self.comboBox_acc_sampling.setItemText(1, _translate("Dialog", "120"))
-        self.comboBox_acc_sampling.setItemText(2, _translate("Dialog", "60"))
+        self.comboBox_acc_range.setItemText(0, _translate("Dialog", "+/- 2g"))
+        self.comboBox_acc_range.setItemText(1, _translate("Dialog", "+/- 4g"))
+        self.comboBox_acc_range.setItemText(2, _translate("Dialog", "+/- 8g"))
+        self.comboBox_acc_range.setItemText(3, _translate("Dialog", "+/- 16g"))
 
 
 if __name__ == "__main__":
