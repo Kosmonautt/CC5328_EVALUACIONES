@@ -13,7 +13,9 @@ bmi_config = BMI_CONFIG()
 class Controller:
     def __init__(self, parent):
         self.ui = Ui_Dialog()
-        self.parent = parent
+        self.parent = parent        
+        self.esp32_ready = False # determines if the ESP32 is ready to receive the begin message
+
 
     def setSignals(self):
         self.ui.comboBox_sensor.currentIndexChanged.connect(self.leerModoOperacion)
@@ -28,6 +30,15 @@ class Controller:
         conf['GyroODR'] = self.ui.comboBox_gyr_odr.currentText()
         conf['GyroRange'] = self.ui.comboBox_gyr_range.currentText()
         conf['SampleSize'] = 50
+
+        # Se configura la BMI270
+        bmi_config.set_mode(conf['Mode'])
+        bmi_config.set_odr_accel(conf['AccODR'])
+        bmi_config.set_range_accel(conf['AccRange'])
+        bmi_config.set_odr_gyro(conf['GyroODR'])
+        bmi_config.set_range_gyro(conf['GyroRange'])
+        bmi_config.set_sample_size(conf['SampleSize'])
+
         print (conf)
         return conf
 
@@ -59,13 +70,13 @@ class Controller:
                         response = esp32_com.receive_response()
 
                         # si el mensaje es b'Esperando inicio de lectura\r\n'
-                        if response == b'Esperando inicio de lectura\r\n':
+                        if response == b'Esperando inicio de lectura\r\n' or self.esp32_ready == True:
 
                             # si la configuración no ha sido seleccionada
                             if bmi_config.is_ready() == False:
                                 print('Configuracion no seleccionada')
+                                self.esp32_ready = True
                                 return
-                            return
 
                             # se codifica la configuración de la BMI270
                             begin_message = esp32_com.encode_message(bmi_config.to_string())
@@ -75,12 +86,13 @@ class Controller:
 
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
-                            return
-                              
+                            self.esp32_ready = True
+                            return  
                         else:
                             pass
 
                     except KeyboardInterrupt:
+                        self.esp32_ready = False
                         print('Finalizando comunicacion')
                         return
 
