@@ -14,7 +14,7 @@ class Controller:
     def leerConfiguracion(self):
         conf = dict()
         conf['AccRange'] = self.ui.comboBox_acc_range.currentText()
-        conf['AccSen'] = self.ui.text_acc_sensibity.toPlainText()
+        conf['AccODR'] = self.ui.comboBox_acc_odr.currentText()
         print (conf)
         return conf
 

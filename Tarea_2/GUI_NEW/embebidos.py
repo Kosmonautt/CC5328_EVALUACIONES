@@ -102,9 +102,22 @@ class Ui_Dialog(object):
         self.label_2.setFrameShape(QtWidgets.QFrame.Box)
         self.label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_2.setObjectName("label_2")
-        self.text_acc_sensibity = QtWidgets.QTextEdit(Dialog)
-        self.text_acc_sensibity.setGeometry(QtCore.QRect(210, 180, 104, 31))
-        self.text_acc_sensibity.setObjectName("text_acc_sensibity")
+        ## ODR de acelerometro
+        self.comboBox_acc_odr = QtWidgets.QComboBox(Dialog)
+        self.comboBox_acc_odr.setGeometry(QtCore.QRect(210, 180, 104, 31))
+        self.comboBox_acc_odr.setObjectName("comboBox_acc_odr")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
+        self.comboBox_acc_odr.addItem("")
         self.selec_13 = QtWidgets.QComboBox(Dialog)
         self.selec_13.setGeometry(QtCore.QRect(360, 300, 181, 31))
         self.selec_13.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -191,6 +204,7 @@ class Ui_Dialog(object):
         self.pushButton_2 = QtWidgets.QPushButton(Dialog)
         self.pushButton_2.setGeometry(QtCore.QRect(320, 370, 101, 41))
         self.pushButton_2.setObjectName("pushButton_2")
+        # Rango de acelerometro
         self.comboBox_acc_range = QtWidgets.QComboBox(Dialog)
         self.comboBox_acc_range.setGeometry(QtCore.QRect(210, 130, 101, 31))
         self.comboBox_acc_range.setObjectName("comboBox_acc_range")
@@ -210,7 +224,7 @@ class Ui_Dialog(object):
         self.selec_12.setItemText(1, _translate("Dialog", "BMI270"))
         self.selec_12.setItemText(2, _translate("Dialog", "BME688"))
         self.label_9.setText(_translate("Dialog", "Frecuencia de \n"
-" muestro"))
+" muestreo"))
         self.acc_range.setText(_translate("Dialog", "Rango"))
         self.label_2.setText(_translate("Dialog", "Configuracion \n"
 " Sensor"))
@@ -221,7 +235,7 @@ class Ui_Dialog(object):
         self.label_33.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Giroscopio</span></p></body></html>"))
         self.label_8.setText(_translate("Dialog", "Rango"))
         self.label_10.setText(_translate("Dialog", "Frecuencia de \n"
-" muestro"))
+" muestreo"))
         self.label_3.setText(_translate("Dialog", "Datos 1: <Datos>"))
         self.label_4.setText(_translate("Dialog", "Datos 2: <Datos>"))
         self.label_5.setText(_translate("Dialog", "Datos 3: <Datos>"))
@@ -229,10 +243,24 @@ class Ui_Dialog(object):
         self.pushButton.setText(_translate("Dialog", "Iniciar configuración"))
         self.pushButton_2.setText(_translate("Dialog", "Iniciar captación \n"
 " de datos"))
+        # Valores de rangos de acelerometro 
         self.comboBox_acc_range.setItemText(0, _translate("Dialog", "+/- 2g"))
         self.comboBox_acc_range.setItemText(1, _translate("Dialog", "+/- 4g"))
         self.comboBox_acc_range.setItemText(2, _translate("Dialog", "+/- 8g"))
         self.comboBox_acc_range.setItemText(3, _translate("Dialog", "+/- 16g"))
+        # Valores de ODR de acelerometro
+        self.comboBox_acc_odr.setItemText(0, _translate("Dialog", "0.78125 Hz"))
+        self.comboBox_acc_odr.setItemText(1, _translate("Dialog", "1.5625 Hz"))
+        self.comboBox_acc_odr.setItemText(2, _translate("Dialog", "3.125 Hz"))
+        self.comboBox_acc_odr.setItemText(3, _translate("Dialog", "6.25 Hz"))
+        self.comboBox_acc_odr.setItemText(4, _translate("Dialog", "12.5 Hz"))
+        self.comboBox_acc_odr.setItemText(5, _translate("Dialog", "25 Hz"))
+        self.comboBox_acc_odr.setItemText(6, _translate("Dialog", "50 Hz"))
+        self.comboBox_acc_odr.setItemText(7, _translate("Dialog", "100 Hz"))
+        self.comboBox_acc_odr.setItemText(8, _translate("Dialog", "200 Hz"))
+        self.comboBox_acc_odr.setItemText(9, _translate("Dialog", "400 Hz"))
+        self.comboBox_acc_odr.setItemText(10, _translate("Dialog", "800 Hz"))
+        self.comboBox_acc_odr.setItemText(11, _translate("Dialog", "1600 Hz"))
 
 
 if __name__ == "__main__":
