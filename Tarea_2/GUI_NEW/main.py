@@ -1,3 +1,4 @@
+import threading
 from embebidos import Ui_Dialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from esp32_com import ESP32_COM
@@ -14,13 +15,10 @@ class Controller:
     def __init__(self, parent):
         self.ui = Ui_Dialog()
         self.parent = parent        
-        self.esp32_ready = False # determines if the ESP32 is ready to receive the begin message
-
 
     def setSignals(self):
         self.ui.comboBox_sensor.currentIndexChanged.connect(self.leerModoOperacion)
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
-        self.ui.button_start_read.clicked.connect(self.read_loop_BMI)
 
     def leerConfiguracion(self):
         conf = dict()
@@ -58,6 +56,11 @@ class Controller:
     def stop(self):
         print('Captando datos')
 
+    def start_read_thread(self):
+        thread = threading.Thread(target=self.read_loop_BMI)
+        thread.daemon = True  # Set the thread as a daemon
+        thread.start()
+
     def read_loop_BMI(self):
         try:
             esp32_com = ESP32_COM(PORT, BAUD_RATE)
@@ -70,13 +73,11 @@ class Controller:
                         response = esp32_com.receive_response()
 
                         # si el mensaje es b'Esperando inicio de lectura\r\n'
-                        if response == b'Esperando inicio de lectura\r\n' or self.esp32_ready == True:
+                        if response == b'Esperando inicio de lectura\r\n':
 
                             # si la configuración no ha sido seleccionada
-                            if bmi_config.is_ready() == False:
+                            while bmi_config.is_ready() == False:
                                 print('Configuracion no seleccionada')
-                                self.esp32_ready = True
-                                return
 
                             # se codifica la configuración de la BMI270
                             begin_message = esp32_com.encode_message(bmi_config.to_string())
@@ -86,13 +87,9 @@ class Controller:
 
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
-                            self.esp32_ready = True
-                            return  
-                        else:
                             pass
 
                     except KeyboardInterrupt:
-                        self.esp32_ready = False
                         print('Finalizando comunicacion')
                         return
 
@@ -110,4 +107,5 @@ if __name__ == "__main__":
     ui.setupUi(Dialog)
     Dialog.show()
     cont.setSignals()
+    cont.start_read_thread()
     sys.exit(app.exec_())
