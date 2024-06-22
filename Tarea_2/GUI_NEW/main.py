@@ -75,15 +75,18 @@ class Controller:
                         # si el mensaje es b'Esperando inicio de lectura\r\n'
                         if response == b'Esperando inicio de lectura\r\n':
 
-                            # si la configuración no ha sido seleccionada
-                            while bmi_config.is_ready() == False:
-                                print('Configuracion no seleccionada')
+                            # si la configuración no ha sido seleccionada (BUSY WAITING, MALO!!!)
+                            while not bmi_config.is_ready():
+                                pass
 
                             # se codifica la configuración de la BMI270
                             begin_message = esp32_com.encode_message(bmi_config.to_string())
 
-                            # # se envia el mensaje de inicio de lectura, este también contiene la configuración de la BMI270
+                            # se envia el mensaje de inicio de lectura, este también contiene la configuración de la BMI270
                             esp32_com.send_message(begin_message)
+
+                            # Se limpian los valores de la configuración
+                            bmi_config.clear()
 
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':

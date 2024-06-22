@@ -121,6 +121,14 @@ class BMI_CONFIG:
                 # Se retorna el string con la configuración
                 return 'BEGIN' + self.chosen_mode + self.chosen_odr_accel + self.chosen_range_accel + self.chosen_odr_gyro + self.chosen_range_gyro + self.sample_size + '\0'
         
+        # Se limpian los valores de la configuración
+        def clear(self):
+                self.chosen_mode = None
+                self.chosen_odr_accel = None
+                self.chosen_range_accel = None
+                self.chosen_odr_gyro = None
+                self.chosen_range_gyro = None
+                self.sample_size = None
         
 
         
