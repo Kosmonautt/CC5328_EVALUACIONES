@@ -9,65 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
-class BMI_CONFIG:
-        def __init__(self):
-                self.power_modes = ["S", "L", "N", "P"]
-                self.odr_accel = {
-                        "0.78125 Hz": 0x01,
-                        "1.5625 Hz": 0x02,
-                        "3.125 Hz": 0x03,
-                        "6.25 Hz": 0x04,
-                        "12.5 Hz": 0x05,
-                        "25 Hz": 0x06,
-                        "50 Hz": 0x07,
-                        "100 Hz": 0x08,
-                        "200 Hz": 0x09,
-                        "400 Hz": 0x0A,
-                        "800 Hz": 0x0B,
-                        "1600 Hz": 0x0C
-                }
-                self.range_accel = {
-                        "+/- 2g": 0x00,
-                        "+/- 4g": 0x01,
-                        "+/- 8g": 0x02,
-                        "+/- 16g": 0x03
-                }
-                self.odr_gyro = {
-                        "25 Hz": 0x06,
-                        "50 Hz": 0x07,
-                        "100 Hz": 0x08,
-                        "200 Hz": 0x09,
-                        "400 Hz": 0x0A,
-                        "800 Hz": 0x0B,
-                        "1600 Hz": 0x0C,
-                        "3200 Hz": 0x0D
-                }
-                self.range_gyro = {
-                        "+/- 2000 dps": 0x00,
-                        "+/- 1000 dps": 0x01,
-                        "+/- 500 dps": 0x02,
-                        "+/- 250 dps": 0x03,
-                        "+/- 125 dps": 0x04
-                }
-
-                self.chosen_mode = None
-                self.chosen_odr_accel = None
-                self.chosen_range_accel = None
-                self.chosen_odr_gyro = None
-                self.chosen_range_gyro = None
-                self.sample_size = None
-
-        def get_user_input(self):
-                return {
-                "mode": self.chosen_mode,
-                "odr_accel": self.odr_accel[self.chosen_odr_accel] if self.chosen_odr_accel else None,
-                "range_accel": self.range_accel[self.chosen_range_accel] if self.chosen_range_accel else None,
-                "odr_gyro": self.odr_gyro[self.chosen_odr_gyro] if self.chosen_odr_gyro else None,
-                "range_gyro": self.range_gyro[self.chosen_range_gyro] if self.chosen_range_gyro else None,
-                "sample_size": self.sample_size
-                }
-
+from bmi_config import BMI_CONFIG
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
