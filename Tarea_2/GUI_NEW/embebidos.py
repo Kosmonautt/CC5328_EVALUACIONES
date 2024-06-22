@@ -11,62 +11,62 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class BMI_CONFIG:
-    def __init__(self):
-        self.power_modes = ["S", "L", "N", "P"]
-        self.odr_accel = {
-            "0.78125 Hz": 0x01,
-            "1.5625 Hz": 0x02,
-            "3.125 Hz": 0x03,
-            "6.25 Hz": 0x04,
-            "12.5 Hz": 0x05,
-            "25 Hz": 0x06,
-            "50 Hz": 0x07,
-            "100 Hz": 0x08,
-            "200 Hz": 0x09,
-            "400 Hz": 0x0A,
-            "800 Hz": 0x0B,
-            "1600 Hz": 0x0C
-        }
-        self.range_accel = {
-            "+/- 2g": 0x00,
-            "+/- 4g": 0x01,
-            "+/- 8g": 0x02,
-            "+/- 16g": 0x03
-        }
-        self.odr_gyro = {
-            "25 Hz": 0x06,
-            "50 Hz": 0x07,
-            "100 Hz": 0x08,
-            "200 Hz": 0x09,
-            "400 Hz": 0x0A,
-            "800 Hz": 0x0B,
-            "1600 Hz": 0x0C,
-            "3200 Hz": 0x0D
-        }
-        self.range_gyro = {
-            "+/- 2000 dps": 0x00,
-            "+/- 1000 dps": 0x01,
-            "+/- 500 dps": 0x02,
-            "+/- 250 dps": 0x03,
-            "+/- 125 dps": 0x04
-        }
+        def __init__(self):
+                self.power_modes = ["S", "L", "N", "P"]
+                self.odr_accel = {
+                        "0.78125 Hz": 0x01,
+                        "1.5625 Hz": 0x02,
+                        "3.125 Hz": 0x03,
+                        "6.25 Hz": 0x04,
+                        "12.5 Hz": 0x05,
+                        "25 Hz": 0x06,
+                        "50 Hz": 0x07,
+                        "100 Hz": 0x08,
+                        "200 Hz": 0x09,
+                        "400 Hz": 0x0A,
+                        "800 Hz": 0x0B,
+                        "1600 Hz": 0x0C
+                }
+                self.range_accel = {
+                        "+/- 2g": 0x00,
+                        "+/- 4g": 0x01,
+                        "+/- 8g": 0x02,
+                        "+/- 16g": 0x03
+                }
+                self.odr_gyro = {
+                        "25 Hz": 0x06,
+                        "50 Hz": 0x07,
+                        "100 Hz": 0x08,
+                        "200 Hz": 0x09,
+                        "400 Hz": 0x0A,
+                        "800 Hz": 0x0B,
+                        "1600 Hz": 0x0C,
+                        "3200 Hz": 0x0D
+                }
+                self.range_gyro = {
+                        "+/- 2000 dps": 0x00,
+                        "+/- 1000 dps": 0x01,
+                        "+/- 500 dps": 0x02,
+                        "+/- 250 dps": 0x03,
+                        "+/- 125 dps": 0x04
+                }
 
-        self.chosen_mode = None
-        self.chosen_odr_accel = None
-        self.chosen_range_accel = None
-        self.chosen_odr_gyro = None
-        self.chosen_range_gyro = None
-        self.sample_size = None
+                self.chosen_mode = None
+                self.chosen_odr_accel = None
+                self.chosen_range_accel = None
+                self.chosen_odr_gyro = None
+                self.chosen_range_gyro = None
+                self.sample_size = None
 
-    def get_user_input(self):
-        return {
-            "mode": self.chosen_mode,
-            "odr_accel": self.odr_accel[self.chosen_odr_accel] if self.chosen_odr_accel else None,
-            "range_accel": self.range_accel[self.chosen_range_accel] if self.chosen_range_accel else None,
-            "odr_gyro": self.odr_gyro[self.chosen_odr_gyro] if self.chosen_odr_gyro else None,
-            "range_gyro": self.range_gyro[self.chosen_range_gyro] if self.chosen_range_gyro else None,
-            "sample_size": self.sample_size
-        }
+        def get_user_input(self):
+                return {
+                "mode": self.chosen_mode,
+                "odr_accel": self.odr_accel[self.chosen_odr_accel] if self.chosen_odr_accel else None,
+                "range_accel": self.range_accel[self.chosen_range_accel] if self.chosen_range_accel else None,
+                "odr_gyro": self.odr_gyro[self.chosen_odr_gyro] if self.chosen_odr_gyro else None,
+                "range_gyro": self.range_gyro[self.chosen_range_gyro] if self.chosen_range_gyro else None,
+                "sample_size": self.sample_size
+                }
 
 
 class Ui_Dialog(object):
@@ -90,34 +90,29 @@ class Ui_Dialog(object):
         self.selec_12.addItem("")
         self.selec_12.addItem("")
         self.selec_12.addItem("")
-        self.label_9 = QtWidgets.QLabel(Dialog)
-        self.label_9.setGeometry(QtCore.QRect(120, 180, 81, 31))
-        self.label_9.setObjectName("label_9")
-        self.acc_range = QtWidgets.QLabel(Dialog)
-        self.acc_range.setGeometry(QtCore.QRect(120, 130, 81, 31))
-        self.acc_range.setObjectName("acc_range")
+        self.label_acc_ODR = QtWidgets.QLabel(Dialog)
+        self.label_acc_ODR.setGeometry(QtCore.QRect(120, 180, 81, 31))
+        self.label_acc_ODR.setObjectName("label_acc_ODR")
+
+        ## ODR de acelerometro label
+        self.label_acc_range = QtWidgets.QLabel(Dialog)
+        self.label_acc_range.setGeometry(QtCore.QRect(120, 130, 81, 31))
+        self.label_acc_range.setObjectName("label_acc_range")
+
         self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(350, 40, 71, 41))
         self.label_2.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.label_2.setFrameShape(QtWidgets.QFrame.Box)
         self.label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_2.setObjectName("label_2")
-        ## ODR de acelerometro
+
+        ## ODR de acelerometro dropdown
         self.comboBox_acc_odr = QtWidgets.QComboBox(Dialog)
         self.comboBox_acc_odr.setGeometry(QtCore.QRect(210, 180, 104, 31))
         self.comboBox_acc_odr.setObjectName("comboBox_acc_odr")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
-        self.comboBox_acc_odr.addItem("")
+        for i in range(12):
+                self.comboBox_acc_odr.addItem("")
+
         self.selec_13 = QtWidgets.QComboBox(Dialog)
         self.selec_13.setGeometry(QtCore.QRect(360, 300, 181, 31))
         self.selec_13.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -142,18 +137,30 @@ class Ui_Dialog(object):
 "\n"
 "")
         self.label_33.setObjectName("label_33")
-        self.label_8 = QtWidgets.QLabel(Dialog)
-        self.label_8.setGeometry(QtCore.QRect(120, 250, 81, 31))
-        self.label_8.setObjectName("label_8")
-        self.label_10 = QtWidgets.QLabel(Dialog)
-        self.label_10.setGeometry(QtCore.QRect(120, 300, 81, 31))
-        self.label_10.setObjectName("label_10")
-        self.text_acc_sensibity_2 = QtWidgets.QTextEdit(Dialog)
-        self.text_acc_sensibity_2.setGeometry(QtCore.QRect(210, 300, 104, 31))
-        self.text_acc_sensibity_2.setObjectName("text_acc_sensibity_2")
-        self.text_acc_sampling_2 = QtWidgets.QTextEdit(Dialog)
-        self.text_acc_sampling_2.setGeometry(QtCore.QRect(210, 250, 104, 31))
-        self.text_acc_sampling_2.setObjectName("text_acc_sampling_2")
+
+        # ODR de giroscopio label
+        self.label_gyr_range = QtWidgets.QLabel(Dialog)
+        self.label_gyr_range.setGeometry(QtCore.QRect(120, 250, 81, 31))
+        self.label_gyr_range.setObjectName("label_gyr_range")
+        self.label_gyr_ODR = QtWidgets.QLabel(Dialog)
+        self.label_gyr_ODR.setGeometry(QtCore.QRect(120, 300, 81, 31))
+        self.label_gyr_ODR.setObjectName("label_gyr_ODR")
+
+        # ODR de giroscopio dropdown
+        self.comboBox_gyr_odr = QtWidgets.QComboBox(Dialog)
+        self.comboBox_gyr_odr.setGeometry(QtCore.QRect(210, 300, 104, 31))
+        self.comboBox_gyr_odr.setObjectName("comboBox_gyr_odr")
+        for i in range(8):
+                self.comboBox_gyr_odr.addItem("")
+
+        # Rango de giroscopio dropdown
+        self.comboBox_gyr_range = QtWidgets.QComboBox(Dialog)
+        self.comboBox_gyr_range.setGeometry(QtCore.QRect(210, 250, 104, 31))
+        self.comboBox_gyr_range.setObjectName("comboBox_gyr_range")
+        for i in range(5):
+                self.comboBox_gyr_range.addItem("")
+
+
         self.Plot1 = QtWidgets.QGraphicsView(Dialog)
         self.Plot1.setGeometry(QtCore.QRect(60, 420, 291, 181))
         self.Plot1.setFrameShape(QtWidgets.QFrame.Box)
@@ -204,14 +211,13 @@ class Ui_Dialog(object):
         self.pushButton_2 = QtWidgets.QPushButton(Dialog)
         self.pushButton_2.setGeometry(QtCore.QRect(320, 370, 101, 41))
         self.pushButton_2.setObjectName("pushButton_2")
-        # Rango de acelerometro
+
+        # Rango de acelerometro dropdown
         self.comboBox_acc_range = QtWidgets.QComboBox(Dialog)
         self.comboBox_acc_range.setGeometry(QtCore.QRect(210, 130, 101, 31))
         self.comboBox_acc_range.setObjectName("comboBox_acc_range")
-        self.comboBox_acc_range.addItem("")
-        self.comboBox_acc_range.addItem("")
-        self.comboBox_acc_range.addItem("")
-        self.comboBox_acc_range.addItem("")
+        for i in range(4):
+                self.comboBox_acc_range.addItem("")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -223,9 +229,9 @@ class Ui_Dialog(object):
         self.selec_12.setItemText(0, _translate("Dialog", "<Ninguno>"))
         self.selec_12.setItemText(1, _translate("Dialog", "BMI270"))
         self.selec_12.setItemText(2, _translate("Dialog", "BME688"))
-        self.label_9.setText(_translate("Dialog", "Frecuencia de \n"
+        self.label_acc_ODR.setText(_translate("Dialog", "Frecuencia de \n"
 " muestreo"))
-        self.acc_range.setText(_translate("Dialog", "Rango"))
+        self.label_acc_range.setText(_translate("Dialog", "Rango"))
         self.label_2.setText(_translate("Dialog", "Configuracion \n"
 " Sensor"))
         self.selec_13.setItemText(0, _translate("Dialog", "Paralelo"))
@@ -233,8 +239,8 @@ class Ui_Dialog(object):
         self.label_31.setText(_translate("Dialog", "Modo de Funcionamiento"))
         self.label_32.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Acelerómetro</span></p></body></html>"))
         self.label_33.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Giroscopio</span></p></body></html>"))
-        self.label_8.setText(_translate("Dialog", "Rango"))
-        self.label_10.setText(_translate("Dialog", "Frecuencia de \n"
+        self.label_gyr_range.setText(_translate("Dialog", "Rango"))
+        self.label_gyr_ODR.setText(_translate("Dialog", "Frecuencia de \n"
 " muestreo"))
         self.label_3.setText(_translate("Dialog", "Datos 1: <Datos>"))
         self.label_4.setText(_translate("Dialog", "Datos 2: <Datos>"))
@@ -243,24 +249,26 @@ class Ui_Dialog(object):
         self.pushButton.setText(_translate("Dialog", "Iniciar configuración"))
         self.pushButton_2.setText(_translate("Dialog", "Iniciar captación \n"
 " de datos"))
-        # Valores de rangos de acelerometro 
-        self.comboBox_acc_range.setItemText(0, _translate("Dialog", "+/- 2g"))
-        self.comboBox_acc_range.setItemText(1, _translate("Dialog", "+/- 4g"))
-        self.comboBox_acc_range.setItemText(2, _translate("Dialog", "+/- 8g"))
-        self.comboBox_acc_range.setItemText(3, _translate("Dialog", "+/- 16g"))
-        # Valores de ODR de acelerometro
-        self.comboBox_acc_odr.setItemText(0, _translate("Dialog", "0.78125 Hz"))
-        self.comboBox_acc_odr.setItemText(1, _translate("Dialog", "1.5625 Hz"))
-        self.comboBox_acc_odr.setItemText(2, _translate("Dialog", "3.125 Hz"))
-        self.comboBox_acc_odr.setItemText(3, _translate("Dialog", "6.25 Hz"))
-        self.comboBox_acc_odr.setItemText(4, _translate("Dialog", "12.5 Hz"))
-        self.comboBox_acc_odr.setItemText(5, _translate("Dialog", "25 Hz"))
-        self.comboBox_acc_odr.setItemText(6, _translate("Dialog", "50 Hz"))
-        self.comboBox_acc_odr.setItemText(7, _translate("Dialog", "100 Hz"))
-        self.comboBox_acc_odr.setItemText(8, _translate("Dialog", "200 Hz"))
-        self.comboBox_acc_odr.setItemText(9, _translate("Dialog", "400 Hz"))
-        self.comboBox_acc_odr.setItemText(10, _translate("Dialog", "800 Hz"))
-        self.comboBox_acc_odr.setItemText(11, _translate("Dialog", "1600 Hz"))
+        
+        # para acceder a los valores de los dropdowns
+        bmi_config = BMI_CONFIG()
+
+        # Valores de rangos de acelerometro dropdown
+        for i in range(4):
+                self.comboBox_acc_range.setItemText(i, _translate("Dialog", list(bmi_config.range_accel.keys())[i]))
+
+        # Valores de ODR de acelerometro dropdown
+        for i in range(12):
+                self.comboBox_acc_odr.setItemText(i, _translate("Dialog", list(bmi_config.odr_accel.keys())[i]))
+
+
+        # Valores de rangos de giroscopio dropdown
+        for i in range(5):
+                self.comboBox_gyr_range.setItemText(i, _translate("Dialog", list(bmi_config.range_gyro.keys())[i]))
+
+        # Valores de ODR de giroscopio dropdown
+        for i in range(8):
+                self.comboBox_gyr_odr.setItemText(i, _translate("Dialog", list(bmi_config.odr_gyro.keys())[i]))
 
 
 if __name__ == "__main__":
