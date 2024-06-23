@@ -108,23 +108,36 @@ class Controller:
 
     def leerConfiguracion(self):
         conf = dict()
-        conf['Mode'] = self.ui.comboBox_mode.currentText()
-        conf['AccODR'] = self.ui.comboBox_acc_odr.currentText()
-        conf['AccRange'] = self.ui.comboBox_acc_range.currentText()
-        conf['GyroODR'] = self.ui.comboBox_gyr_odr.currentText()
-        conf['GyroRange'] = self.ui.comboBox_gyr_range.currentText()
-        conf['SampleSize'] = 50
 
-        # Se configura la BMI270
-        bmi_config.set_mode(conf['Mode'])
-        bmi_config.set_odr_accel(conf['AccODR'])
-        bmi_config.set_range_accel(conf['AccRange'])
-        bmi_config.set_odr_gyro(conf['GyroODR'])
-        bmi_config.set_range_gyro(conf['GyroRange'])
-        bmi_config.set_sample_size(conf['SampleSize'])
+        if self.chosen_sensor == Sensor.BMI270:
+            conf['Mode'] = self.ui.comboBox_mode.currentText()
+            conf['AccODR'] = self.ui.comboBox_acc_odr.currentText()
+            conf['AccRange'] = self.ui.comboBox_acc_range.currentText()
+            conf['GyroODR'] = self.ui.comboBox_gyr_odr.currentText()
+            conf['GyroRange'] = self.ui.comboBox_gyr_range.currentText()
+            conf['SampleSize'] = 50
 
-        # Se revisa si la configuración está lista
-        bmi_config.is_ready_changed()
+            # Se configura la BMI270
+            bmi_config.set_mode(conf['Mode'])
+            bmi_config.set_odr_accel(conf['AccODR'])
+            bmi_config.set_range_accel(conf['AccRange'])
+            bmi_config.set_odr_gyro(conf['GyroODR'])
+            bmi_config.set_range_gyro(conf['GyroRange'])
+            bmi_config.set_sample_size(conf['SampleSize'])
+
+            # Se revisa si la configuración está lista
+            bmi_config.is_ready_changed()
+        
+        elif self.chosen_sensor == Sensor.BME688:
+            conf['Mode'] = self.ui.comboBox_mode.currentText()
+            conf['SampleSize'] = 50
+
+            # Se configura la BME688
+            bme_config.set_mode(conf['Mode'])
+            bme_config.set_sample_size(conf['SampleSize'])
+
+            # Se revisa si la configuración está lista
+            bme_config.is_ready_changed()
 
         print (conf)
         return conf
@@ -162,22 +175,41 @@ class Controller:
                             # Se pone en 100 el progressBar
                             self.worker.progressBarSignal.emit(100)
 
-                            # si la configuración no ha sido seleccionada, se espera
-                            bmi_config.ready_event.wait()
+                            if self.chosen_sensor == Sensor.BMI270:
+                                # si la configuración no ha sido seleccionada, se espera
+                                bmi_config.ready_event.wait()
 
-                            print('Configuracion lista')
+                                print('Configuracion lista')
 
-                            # se codifica la configuración de la BMI270
-                            begin_message = esp32_com.encode_message(bmi_config.to_string())
+                                # se codifica la configuración de la BMI270
+                                begin_message = esp32_com.encode_message(bmi_config.to_string())
 
-                            # se envia el mensaje de inicio de lectura, este también contiene la configuración de la BMI270
-                            esp32_com.send_message(begin_message)
+                                # se envia el mensaje de inicio de lectura, este también contiene la configuración de la BMI270
+                                esp32_com.send_message(begin_message)
 
-                            # se limpian los valores de la configuración
-                            bmi_config.clear()
+                                # se limpian los valores de la configuración
+                                bmi_config.clear()
 
-                            # se pone el evento en estado clear
-                            bmi_config.ready_event.clear()
+                                # se pone el evento en estado clear
+                                bmi_config.ready_event.clear()
+
+                            elif self.chosen_sensor == Sensor.BME688:
+                                # si la configuración no ha sido seleccionada, se espera
+                                bme_config.ready_event.wait()
+
+                                print('Configuracion lista')
+
+                                # se codifica la configuración de la BME688
+                                begin_message = esp32_com.encode_message(bme_config.to_string())
+
+                                # se envia el mensaje de inicio de lectura, este también contiene la configuración de la BME688
+                                esp32_com.send_message(begin_message)
+
+                                # se limpian los valores de la configuración
+                                bme_config.clear()
+
+                                # se pone el evento en estado clear
+                                bme_config.ready_event.clear()
                         
                         # Si el mensaje es b'Chip BMI270 reconocido.\r\n'
                         elif response == b'Chip BMI270 reconocido.\r\n':

@@ -2844,8 +2844,6 @@ void bme_loop_read() {
             printf("Error en la configuración del modo.\n\n");
             return;
         }
-
-        return;
     }
 }
 
