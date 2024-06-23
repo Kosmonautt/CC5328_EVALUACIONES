@@ -10,47 +10,47 @@ def int_to_str(num):
 class BMI_CONFIG:
     def __init__(self):
         self.power_modes = {
-                "Suspendido": "S",
-                "Baja potencia": "L",
-                "Normal": "N",
-                "Alta potencia": "P"
+            "Suspendido": "S",
+            "Baja potencia": "L",
+            "Normal": "N",
+            "Alta potencia": "P"
         }
         self.odr_accel = {
-                "0.78125 Hz": 0x01,
-                "1.5625 Hz": 0x02,
-                "3.125 Hz": 0x03,
-                "6.25 Hz": 0x04,
-                "12.5 Hz": 0x05,
-                "25 Hz": 0x06,
-                "50 Hz": 0x07,
-                "100 Hz": 0x08,
-                "200 Hz": 0x09,
-                "400 Hz": 0x0A,
-                "800 Hz": 0x0B,
-                "1600 Hz": 0x0C
+            "0.78125 Hz": 0x01,
+            "1.5625 Hz": 0x02,
+            "3.125 Hz": 0x03,
+            "6.25 Hz": 0x04,
+            "12.5 Hz": 0x05,
+            "25 Hz": 0x06,
+            "50 Hz": 0x07,
+            "100 Hz": 0x08,
+            "200 Hz": 0x09,
+            "400 Hz": 0x0A,
+            "800 Hz": 0x0B,
+            "1600 Hz": 0x0C
         }
         self.range_accel = {
-                "+/- 2g": 0x00,
-                "+/- 4g": 0x01,
-                "+/- 8g": 0x02,
-                "+/- 16g": 0x03
+            "+/- 2g": 0x00,
+            "+/- 4g": 0x01,
+            "+/- 8g": 0x02,
+            "+/- 16g": 0x03
         }
         self.odr_gyro = {
-                "25 Hz": 0x06,
-                "50 Hz": 0x07,
-                "100 Hz": 0x08,
-                "200 Hz": 0x09,
-                "400 Hz": 0x0A,
-                "800 Hz": 0x0B,
-                "1600 Hz": 0x0C,
-                "3200 Hz": 0x0D
+            "25 Hz": 0x06,
+            "50 Hz": 0x07,
+            "100 Hz": 0x08,
+            "200 Hz": 0x09,
+            "400 Hz": 0x0A,
+            "800 Hz": 0x0B,
+            "1600 Hz": 0x0C,
+            "3200 Hz": 0x0D
         }
         self.range_gyro = {
-                "+/- 2000 dps": 0x00,
-                "+/- 1000 dps": 0x01,
-                "+/- 500 dps": 0x02,
-                "+/- 250 dps": 0x03,
-                "+/- 125 dps": 0x04
+            "+/- 2000 dps": 0x00,
+            "+/- 1000 dps": 0x01,
+            "+/- 500 dps": 0x02,
+            "+/- 250 dps": 0x03,
+            "+/- 125 dps": 0x04
         }
 
         self.ready_event = threading.Event()
@@ -68,15 +68,15 @@ class BMI_CONFIG:
 
         # Si el modo es "S", se resetean los valores de la aceleración
         if self.chosen_mode == "S":
-                self.chosen_odr_accel = int_to_str(None)
-                self.chosen_range_accel = int_to_str(None)
-                self.chosen_odr_gyro = int_to_str(None)
-                self.chosen_range_gyro = int_to_str(None)
+            self.chosen_odr_accel = int_to_str(None)
+            self.chosen_range_accel = int_to_str(None)
+            self.chosen_odr_gyro = int_to_str(None)
+            self.chosen_range_gyro = int_to_str(None)
 
         # Si el modo es "L", se resetean los valores del giroscopio
         elif self.chosen_mode == "L":
-                self.chosen_odr_gyro = int_to_str(None)
-                self.chosen_range_gyro = int_to_str(None)
+            self.chosen_odr_gyro = int_to_str(None)
+            self.chosen_range_gyro = int_to_str(None)
         
     # Se cambia el ODR del acelerómetro
     def set_odr_accel(self, odr_key):
@@ -102,17 +102,17 @@ class BMI_CONFIG:
     def is_ready_changed(self):
         # Si el modo de operación no está definido, se retorna False
         if self.chosen_mode is None:
-                self.ready_event.clear()
+            self.ready_event.clear()
 
         # Si el modo de operación es "L", se revisa que el ODR, el rango del acelerómetro y el tamaño de la muestra estén definidos
         if self.chosen_mode == "L":
-                if self.chosen_odr_accel is None or self.chosen_range_accel is None or self.sample_size is None:
-                        self.ready_event.clear()
+            if self.chosen_odr_accel is None or self.chosen_range_accel is None or self.sample_size is None:
+                self.ready_event.clear()
     
         # Si el modo de operación es "N" o "P", se revisa que el ODR, el rango del acelerómetro, el ODR y el rango del giroscopio y el tamaño de la muestra estén definidos
         if self.chosen_mode == "N" or self.chosen_mode == "P":
-                if self.chosen_odr_accel is None or self.chosen_range_accel is None or self.chosen_odr_gyro is None or self.chosen_range_gyro is None or self.sample_size is None:
-                        self.ready_event.clear()
+            if self.chosen_odr_accel is None or self.chosen_range_accel is None or self.chosen_odr_gyro is None or self.chosen_range_gyro is None or self.sample_size is None:
+                self.ready_event.clear()
         
         self.ready_event.set()
     
@@ -120,7 +120,7 @@ class BMI_CONFIG:
     def to_string(self):
         # Si la configuración no está lista, se retorna None
         if not self.ready_event.is_set():
-                return None
+            return None
         
         # Se retorna el string con la configuración
         return 'BEGIN' + self.chosen_mode + self.chosen_odr_accel + self.chosen_range_accel + self.chosen_odr_gyro + self.chosen_range_gyro + self.sample_size + '\0'
@@ -134,8 +134,49 @@ class BMI_CONFIG:
         self.chosen_range_gyro = None
         self.sample_size = None
 
-# class BME_CONFIG:
-#     def __init__(self):
+class BME_CONFIG:
+    def __init__(self):
+        self.power_modes = {
+            "Suspendido": "S",
+            "Forzado": "F",
+            "Paralelo": "P",
+        }
+
+        self.ready_event = threading.Event()
+
+        self.chosen_mode = None
+        self.sample_size = None
+
+    def set_mode(self, mode):
+        # Se cambia el modo de operación
+        self.chosen_mode = self.power_modes[mode]
+    
+    def set_sample_size(self, sample_size):
+        self.sample_size = int_to_str(sample_size)
+
+    def is_ready_changed(self):
+        # Si el modo de operación no está definido, se retorna False
+        if self.chosen_mode is None:
+            self.ready_event.clear()
+        
+        # Si el modo de operación es "S", se revisa que el tamaño de la muestra esté definido
+        if self.chosen_mode == "F" or self.chosen_mode == "P":
+            if self.sample_size is None:
+                self.ready_event.clear()
+        
+        self.ready_event.set()
+    
+    def to_string(self):
+        # Si la configuración no está lista, se retorna None
+        if not self.ready_event.is_set():
+            return None
+        
+        # Se retorna el string con la configuración
+        return 'BEGIN' + self.chosen_mode + self.sample_size + '\0'
+
+    def clear(self):
+        self.chosen_mode = None
+        self.sample_size = None
     
     
         
