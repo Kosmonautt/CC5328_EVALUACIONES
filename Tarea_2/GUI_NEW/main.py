@@ -17,8 +17,11 @@ class Controller:
         self.parent = parent        
 
     def setSignals(self):
-        self.ui.comboBox_sensor.currentIndexChanged.connect(self.leerModoOperacion)
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
+    
+    def setDetectedSensor(self, sensor):
+        self.ui.label_set_sensor.setText(sensor)
+        self.ui.progressBar.setProperty("value", 100)
 
     def leerConfiguracion(self):
         conf = dict()
@@ -43,11 +46,6 @@ class Controller:
         print (conf)
         return conf
 
-    def leerModoOperacion(self):
-        index = self.ui.comboBox_sensor.currentIndex()
-        texto = self.ui.comboBox_sensor.itemText(index)
-        print(texto)
-        return texto
 
     def criticalError(self):
         popup = QtWidgets.QMessageBox(parent= self.parent)
@@ -94,6 +92,14 @@ class Controller:
 
                             # se pone el evento en estado clear
                             bmi_config.ready_event.clear()
+                        
+                        # Si el mensaje es b'Chip BMI270 reconocido.\r\n'
+                        elif response == b'Chip BMI270 reconocido.\r\n':
+                            self.setDetectedSensor('BMI270')
+
+                        # Si el mensaje es b'Chip BME688 reconocido.\r\n'
+                        elif response == b'Chip BME688 reconocido.\r\n':
+                            self.setDetectedSensor('BME688')
                             
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':

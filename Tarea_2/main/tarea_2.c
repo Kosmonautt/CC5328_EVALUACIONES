@@ -2848,12 +2848,14 @@ void app_main(void) {
         uart_setup();
         printf("\n");
         srand(time(0));
+        bmi_get_chipid();
         bmi_loop_lectura();
     }
     else if (bme_get_chipid()) {
         // ------------ BME 688 ------------- //
         bme_softreset();
         bme_get_mode();
+        bmi_get_chipid();
         bme_loop_read();
     } else {
         printf("No se reconoce ningún chip.\n\n");

@@ -29,13 +29,10 @@ class Ui_Dialog(object):
         self.progressBar.setObjectName("progressBar")
 
         # Sensor activo dropdown
-        self.comboBox_sensor = QtWidgets.QComboBox(Dialog)
-        self.comboBox_sensor.setGeometry(QtCore.QRect(350, 160, 181, 31))
-        self.comboBox_sensor.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.comboBox_sensor.setObjectName("comboBox_sensor")
-        self.comboBox_sensor.addItem("")
-        self.comboBox_sensor.addItem("")
-        self.comboBox_sensor.addItem("")
+        self.label_set_sensor = QtWidgets.QLabel(Dialog)
+        self.label_set_sensor.setGeometry(QtCore.QRect(350, 160, 181, 31))
+        self.label_set_sensor.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.label_set_sensor.setObjectName("label_set_sensor")
 
         # Frecuencia de muestreo de acelerometro label
         self.label_acc_ODR = QtWidgets.QLabel(Dialog)
@@ -181,10 +178,8 @@ class Ui_Dialog(object):
         # Sensor activo label valor
         self.label_sensor.setText(_translate("Dialog", "<html><head/><body><p align=\"center\"><span style=\" text-decoration: underline;\">Sensor activo</span></p></body></html>"))
         
-        # Sensor activo dropdown valores
-        self.comboBox_sensor.setItemText(0, _translate("Dialog", "<Ninguno>"))
-        self.comboBox_sensor.setItemText(1, _translate("Dialog", "BMI270"))
-        self.comboBox_sensor.setItemText(2, _translate("Dialog", "BME688"))
+        # Sensor activo label valor
+        self.label_set_sensor.setText(_translate("Dialog", "<Ninguno>"))
         
         self.label_acc_ODR.setText(_translate("Dialog", "Frecuencia de \n"
 " muestreo"))
