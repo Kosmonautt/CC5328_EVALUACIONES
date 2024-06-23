@@ -55,16 +55,12 @@ class Ui_Dialog(object):
         self.comboBox_acc_odr = QtWidgets.QComboBox(Dialog)
         self.comboBox_acc_odr.setGeometry(QtCore.QRect(210, 180, 104, 31))
         self.comboBox_acc_odr.setObjectName("comboBox_acc_odr")
-        for i in range(12):
-                self.comboBox_acc_odr.addItem("")
 
         ## Modo de funcionamiento dropdown
         self.comboBox_mode = QtWidgets.QComboBox(Dialog)
         self.comboBox_mode.setGeometry(QtCore.QRect(360, 230, 181, 31))
         self.comboBox_mode.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.comboBox_mode.setObjectName("comboBox_mode")
-        for i in range(4):
-                self.comboBox_mode.addItem("")
 
         # Modo de funcionamiento label
         self.label_mode = QtWidgets.QLabel(Dialog)
@@ -99,15 +95,11 @@ class Ui_Dialog(object):
         self.comboBox_gyr_odr = QtWidgets.QComboBox(Dialog)
         self.comboBox_gyr_odr.setGeometry(QtCore.QRect(210, 300, 104, 31))
         self.comboBox_gyr_odr.setObjectName("comboBox_gyr_odr")
-        for i in range(8):
-                self.comboBox_gyr_odr.addItem("")
 
         # Rango de giroscopio dropdown
         self.comboBox_gyr_range = QtWidgets.QComboBox(Dialog)
         self.comboBox_gyr_range.setGeometry(QtCore.QRect(210, 250, 104, 31))
         self.comboBox_gyr_range.setObjectName("comboBox_gyr_range")
-        for i in range(5):
-                self.comboBox_gyr_range.addItem("")
 
 
         self.Plot1 = QtWidgets.QGraphicsView(Dialog)
@@ -165,8 +157,6 @@ class Ui_Dialog(object):
         self.comboBox_acc_range = QtWidgets.QComboBox(Dialog)
         self.comboBox_acc_range.setGeometry(QtCore.QRect(210, 130, 101, 31))
         self.comboBox_acc_range.setObjectName("comboBox_acc_range")
-        for i in range(4):
-                self.comboBox_acc_range.addItem("")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -200,31 +190,6 @@ class Ui_Dialog(object):
         self.button_start_read.setText(_translate("Dialog", "Iniciar captación \n"
 " de datos"))
         
-        # para acceder a los valores de los dropdowns
-        bmi_config = BMI_CONFIG()
-
-        # Modo de funcionamiento dropdown valores
-        for i in range(4):
-                self.comboBox_mode.setItemText(i, _translate("Dialog", list(bmi_config.power_modes.keys())[i]))
-
-        # Valores de rangos de acelerometro dropdown
-        for i in range(4):
-                self.comboBox_acc_range.setItemText(i, _translate("Dialog", list(bmi_config.range_accel.keys())[i]))
-
-        # Valores de ODR de acelerometro dropdown
-        for i in range(12):
-                self.comboBox_acc_odr.setItemText(i, _translate("Dialog", list(bmi_config.odr_accel.keys())[i]))
-
-
-        # Valores de rangos de giroscopio dropdown
-        for i in range(5):
-                self.comboBox_gyr_range.setItemText(i, _translate("Dialog", list(bmi_config.range_gyro.keys())[i]))
-
-        # Valores de ODR de giroscopio dropdown
-        for i in range(8):
-                self.comboBox_gyr_odr.setItemText(i, _translate("Dialog", list(bmi_config.odr_gyro.keys())[i]))
-
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

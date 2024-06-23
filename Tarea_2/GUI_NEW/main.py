@@ -14,6 +14,7 @@ bmi_config = BMI_CONFIG()
 class SerialWorker(QtCore.QObject):
     detectedSensorSignal = QtCore.pyqtSignal(str)
     progressBarSignal = QtCore.pyqtSignal(int)
+    initIMU = QtCore.pyqtSignal()
 
 class Controller:
     def __init__(self, parent):
@@ -21,7 +22,52 @@ class Controller:
         self.parent = parent
         self.worker = SerialWorker()
         self.worker.detectedSensorSignal.connect(self.setDetectedSensor)
-        self.worker.progressBarSignal.connect(self.setProgressBar)     
+        self.worker.progressBarSignal.connect(self.setProgressBar)
+        self.worker.initIMU.connect(self.initIMU)
+        self.uiReady = False
+    
+    def initIMU(self):
+        if self.uiReady:
+            return
+
+        self.uiReady = True
+
+        _translate = QtCore.QCoreApplication.translate
+
+        # Para el rango del acelerometro
+        for i in range(4):
+                self.ui.comboBox_acc_range.addItem("")
+        # Valores de rango de acelerometro dropdown
+        for i in range(4):
+                self.ui.comboBox_acc_range.setItemText(i, _translate("Dialog", list(bmi_config.range_accel.keys())[i]))
+        
+        # Para el ODR del acelerometro
+        for i in range(12):
+                self.ui.comboBox_acc_odr.addItem("")
+        # Valores de ODR de acelerometro dropdown
+        for i in range(12):
+                self.ui.comboBox_acc_odr.setItemText(i, _translate("Dialog", list(bmi_config.odr_accel.keys())[i]))
+        
+        # Para el rango del giroscopio
+        for i in range(5):
+            self.ui.comboBox_gyr_range.addItem("")
+        # Valores de rangos de giroscopio dropdown
+        for i in range(5):
+                self.ui.comboBox_gyr_range.setItemText(i, _translate("Dialog", list(bmi_config.range_gyro.keys())[i]))
+        
+        # Para el ODR del giroscopio
+        for i in range(8):
+                self.ui.comboBox_gyr_odr.addItem("")
+        # Valores de ODR de giroscopio dropdown
+        for i in range(8):
+                self.ui.comboBox_gyr_odr.setItemText(i, _translate("Dialog", list(bmi_config.odr_gyro.keys())[i]))
+        
+        # Para el modo de operacion
+        for i in range(4):
+                self.ui.comboBox_mode.addItem("")
+        # Modo de funcionamiento dropdown valores
+        for i in range(4):
+                self.ui.comboBox_mode.setItemText(i, _translate("Dialog", list(bmi_config.power_modes.keys())[i]))
 
     def setSignals(self):
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
@@ -83,7 +129,12 @@ class Controller:
                         response = esp32_com.receive_response()
 
                         # si el mensaje es b'Esperando inicio de lectura\r\n'
-                        if response == b'Esperando inicio de lectura\r\n':
+                        if response == b'Esperando inicio de lectura.\r\n':
+
+                            # Se pone en 100 el progressBar
+                            self.worker.progressBarSignal.emit(100)
+                            # Se emite la señal para inicializar las opciones de la IMU
+                            self.worker.initIMU.emit()
 
                             # si la configuración no ha sido seleccionada, se espera
                             bmi_config.ready_event.wait()
@@ -112,9 +163,8 @@ class Controller:
                             self.worker.detectedSensorSignal.emit('BME688')
                             self.worker.progressBarSignal.emit(50)
 
-                        # Si el mensaje es b'Esperando inicio de lectura\r\n'
-                        elif response == b'Esperando inicio de lectura.\r\n':
-                            self.worker.progressBarSignal.emit(100)
+                        elif response == b'Softreset: OK\r\n':
+                             self.worker.progressBarSignal.emit(25)
                             
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
