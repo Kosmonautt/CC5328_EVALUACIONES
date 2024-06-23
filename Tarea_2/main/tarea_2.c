@@ -2785,28 +2785,40 @@ void bme_read_data(int window_size, char powermode) {
 }
 
 void bme_loop_read() {
-    for(;;) {
+    while (1) {
         
-        // // waiting for a BEGIN to initiate the reading, this begin includes the configuration of the reading
-        // char begin_with_config[22];
-        // printf("Esperando inicio de lectura.\n");
-        // while (1) {
-        //     int rLen = serial_read(begin_with_config, 22);
-        //     if (rLen > 0) {
-        //         // copy of the begin_with_config array only with the first 5 characters
-        //         char begin[6];
-        //         strncpy(begin, begin_with_config, 5);
-        //         begin[5] = '\0';
+        // waiting for a BEGIN to initiate the reading, this begin includes the configuration of the reading
+        char begin_with_config[10];
+        printf("Esperando inicio de lectura.\n");
+        while (1) {
+            int rLen = serial_read(begin_with_config, 10);
+            if (rLen > 0) {
+                // copy of the begin_with_config array only with the first 5 characters
+                char begin[6];
+                strncpy(begin, begin_with_config, 5);
+                begin[5] = '\0';
 
-        //         if (strcmp(begin, "BEGIN") == 0) {
-        //             printf("Inicio de lectura\n");
-        //             break;
-        //         }
-        //     }
-        // }
+                if (strcmp(begin, "BEGIN") == 0) {
+                    printf("Inicio de lectura\n");
+                    break;
+                }
+            }
+        }
 
-        char powermode = 'P';
-        int window_size = 50;
+        // this array will hold the 3 chars that represent the numerical values given by the user
+        char number_from_config[4];
+        number_from_config[3] = '\0';
+
+        // this is the power mode that the user wants to use
+        // the power mode comes from the 5th character of the begin_with_config array
+        char powermode = begin_with_config[5];
+
+        // this is the number of readings that the user wants to take
+        // the number comes from the 6th to the 8th character of the begin_with_config array
+        for (int i = 0; i < 3; i++) {
+            number_from_config[i] = begin_with_config[i + 6];
+        }
+        int window_size = atoi(number_from_config);
 
         if (powermode == 'S') {
             bme_sleep_mode();
@@ -2854,8 +2866,9 @@ void app_main(void) {
     else if (bme_get_chipid()) {
         // ------------ BME 688 ------------- //
         bme_softreset();
+        uart_setup();
         bme_get_mode();
-        bmi_get_chipid();
+        bme_get_chipid();
         bme_loop_read();
     } else {
         printf("No se reconoce ningún chip.\n\n");
