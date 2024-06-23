@@ -1838,7 +1838,7 @@ void bmi_loop_lectura() {
 
         // waiting for a BEGIN to initiate the reading, this begin includes the configuration of the reading
         char begin_with_config[22];
-        printf("Esperando inicio de lectura\n");
+        printf("Esperando inicio de lectura.\n");
         while (1) {
             int rLen = serial_read(begin_with_config, 22);
             if (rLen > 0) {
@@ -2789,7 +2789,7 @@ void bme_loop_read() {
         
         // // waiting for a BEGIN to initiate the reading, this begin includes the configuration of the reading
         // char begin_with_config[22];
-        // printf("Esperando inicio de lectura\n");
+        // printf("Esperando inicio de lectura.\n");
         // while (1) {
         //     int rLen = serial_read(begin_with_config, 22);
         //     if (rLen > 0) {

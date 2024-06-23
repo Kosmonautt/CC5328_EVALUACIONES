@@ -11,17 +11,26 @@ BAUD_RATE = 115200  # Debe coincidir con la configuracion de la ESP32
 
 bmi_config = BMI_CONFIG()
 
+class SerialWorker(QtCore.QObject):
+    detectedSensorSignal = QtCore.pyqtSignal(str)
+    progressBarSignal = QtCore.pyqtSignal(int)
+
 class Controller:
     def __init__(self, parent):
         self.ui = Ui_Dialog()
-        self.parent = parent        
+        self.parent = parent
+        self.worker = SerialWorker()
+        self.worker.detectedSensorSignal.connect(self.setDetectedSensor)
+        self.worker.progressBarSignal.connect(self.setProgressBar)     
 
     def setSignals(self):
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
     
     def setDetectedSensor(self, sensor):
         self.ui.label_set_sensor.setText(sensor)
-        self.ui.progressBar.setProperty("value", 100)
+    
+    def setProgressBar(self, value):
+        self.ui.progressBar.setProperty("value", value)
 
     def leerConfiguracion(self):
         conf = dict()
@@ -95,11 +104,17 @@ class Controller:
                         
                         # Si el mensaje es b'Chip BMI270 reconocido.\r\n'
                         elif response == b'Chip BMI270 reconocido.\r\n':
-                            self.setDetectedSensor('BMI270')
+                            self.worker.detectedSensorSignal.emit('BMI270')
+                            self.worker.progressBarSignal.emit(50)
 
                         # Si el mensaje es b'Chip BME688 reconocido.\r\n'
                         elif response == b'Chip BME688 reconocido.\r\n':
-                            self.setDetectedSensor('BME688')
+                            self.worker.detectedSensorSignal.emit('BME688')
+                            self.worker.progressBarSignal.emit(50)
+
+                        # Si el mensaje es b'Esperando inicio de lectura\r\n'
+                        elif response == b'Esperando inicio de lectura.\r\n':
+                            self.worker.progressBarSignal.emit(100)
                             
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
