@@ -2,19 +2,26 @@ import threading
 from embebidos import Ui_Dialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from esp32_com import ESP32_COM
-from sensor_config import BMI_CONFIG
+from sensor_config import BMI_CONFIG, BME_CONFIG
 from serial.serialutil import SerialException
+from enum import Enum
 
 # Se configura el puerto y el BAUD_Rate
 PORT = 'COM3'  # Esto depende del sistema operativo
 BAUD_RATE = 115200  # Debe coincidir con la configuracion de la ESP32
 
 bmi_config = BMI_CONFIG()
+bme_config = BME_CONFIG()
+
+class Sensor(Enum):
+    BMI270 = 1
+    BME688 = 2
 
 class SerialWorker(QtCore.QObject):
-    detectedSensorSignal = QtCore.pyqtSignal(str)
+    detectedSensorSignal = QtCore.pyqtSignal(Sensor)
     progressBarSignal = QtCore.pyqtSignal(int)
-    initIMU = QtCore.pyqtSignal()
+    initBMI270 = QtCore.pyqtSignal()
+    initBME688 = QtCore.pyqtSignal()
 
 class Controller:
     def __init__(self, parent):
@@ -23,10 +30,12 @@ class Controller:
         self.worker = SerialWorker()
         self.worker.detectedSensorSignal.connect(self.setDetectedSensor)
         self.worker.progressBarSignal.connect(self.setProgressBar)
-        self.worker.initIMU.connect(self.initIMU)
+        self.worker.initBMI270.connect(self.initBMI270)
+        self.worker.initBME688.connect(self.initBME688)
         self.uiReady = False
+        self.chosen_sensor = None
     
-    def initIMU(self):
+    def initBMI270(self):
         if self.uiReady:
             return
 
@@ -68,12 +77,31 @@ class Controller:
         # Modo de funcionamiento dropdown valores
         for i in range(4):
                 self.ui.comboBox_mode.setItemText(i, _translate("Dialog", list(bmi_config.power_modes.keys())[i]))
+    
+    def initBME688(self):
+        if self.uiReady:
+            return
+
+        self.uiReady = True
+
+        _translate = QtCore.QCoreApplication.translate
+        
+        # Para el modo de operacion
+        for i in range(3):
+                self.ui.comboBox_mode.addItem("")
+        # Modo de funcionamiento dropdown valores
+        for i in range(3):
+                self.ui.comboBox_mode.setItemText(i, _translate("Dialog", list(bme_config.power_modes.keys())[i]))
 
     def setSignals(self):
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
     
     def setDetectedSensor(self, sensor):
-        self.ui.label_set_sensor.setText(sensor)
+        self.chosen_sensor = sensor
+        if sensor == Sensor.BMI270:
+            self.ui.label_set_sensor.setText('BMI270')
+        elif sensor == Sensor.BME688:
+            self.ui.label_set_sensor.setText('BME688')
     
     def setProgressBar(self, value):
         self.ui.progressBar.setProperty("value", value)
@@ -153,13 +181,14 @@ class Controller:
                         
                         # Si el mensaje es b'Chip BMI270 reconocido.\r\n'
                         elif response == b'Chip BMI270 reconocido.\r\n':
-                            self.worker.detectedSensorSignal.emit('BMI270')
-                            self.worker.initIMU.emit()
+                            self.worker.detectedSensorSignal.emit(Sensor.BMI270)
+                            self.worker.initBMI270.emit()
                             self.worker.progressBarSignal.emit(50)
 
                         # Si el mensaje es b'Chip BME688 reconocido.\r\n'
                         elif response == b'Chip BME688 reconocido.\r\n':
-                            self.worker.detectedSensorSignal.emit('BME688')
+                            self.worker.detectedSensorSignal.emit(Sensor.BME688)
+                            self.worker.initBME688.emit()
                             self.worker.progressBarSignal.emit(50)
 
                         elif response == b'Softreset: OK\r\n':
