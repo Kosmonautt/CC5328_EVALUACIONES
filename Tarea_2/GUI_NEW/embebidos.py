@@ -9,7 +9,6 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from bmi_config import BMI_CONFIG
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):

@@ -2,7 +2,7 @@ import threading
 from embebidos import Ui_Dialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from esp32_com import ESP32_COM
-from bmi_config import BMI_CONFIG
+from sensor_config import BMI_CONFIG
 from serial.serialutil import SerialException
 
 # Se configura el puerto y el BAUD_Rate
@@ -133,8 +133,6 @@ class Controller:
 
                             # Se pone en 100 el progressBar
                             self.worker.progressBarSignal.emit(100)
-                            # Se emite la señal para inicializar las opciones de la IMU
-                            self.worker.initIMU.emit()
 
                             # si la configuración no ha sido seleccionada, se espera
                             bmi_config.ready_event.wait()
@@ -156,6 +154,7 @@ class Controller:
                         # Si el mensaje es b'Chip BMI270 reconocido.\r\n'
                         elif response == b'Chip BMI270 reconocido.\r\n':
                             self.worker.detectedSensorSignal.emit('BMI270')
+                            self.worker.initIMU.emit()
                             self.worker.progressBarSignal.emit(50)
 
                         # Si el mensaje es b'Chip BME688 reconocido.\r\n'
