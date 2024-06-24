@@ -69,6 +69,18 @@ class Ui_Dialog(object):
 "")
         self.label_mode.setObjectName("label_mode")
 
+        self.label_window_size = QtWidgets.QLabel(Dialog)
+        self.label_window_size.setGeometry(QtCore.QRect(390, 270, 181, 31))
+        self.label_window_size.setStyleSheet("color: rgb(0, 0, 0);\n"
+"\n"
+"")
+        
+        self.spinBox_window_size = QtWidgets.QSpinBox(Dialog)
+        self.spinBox_window_size.setGeometry(QtCore.QRect(390, 300, 101, 31))
+        self.spinBox_window_size.setObjectName("spinBox_window_size")
+        self.spinBox_window_size.setMinimum(1)
+        self.spinBox_window_size.setMaximum(500)
+
         self.label_32 = QtWidgets.QLabel(Dialog)
         self.label_32.setGeometry(QtCore.QRect(170, 100, 121, 21))
         self.label_32.setStyleSheet("color: rgb(0, 0, 0);\n"
@@ -176,6 +188,7 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "Configuracion \n"
 " Sensor"))
         self.label_mode.setText(_translate("Dialog", "Modo de Funcionamiento"))
+        self.label_window_size.setText(_translate("Dialog", "Tamaño de ventana"))
         self.label_32.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Acelerómetro</span></p></body></html>"))
         self.label_33.setText(_translate("Dialog", "<html><head/><body><p><span style=\" text-decoration: underline;\">Giroscopio</span></p></body></html>"))
         self.label_gyr_range.setText(_translate("Dialog", "Rango"))
