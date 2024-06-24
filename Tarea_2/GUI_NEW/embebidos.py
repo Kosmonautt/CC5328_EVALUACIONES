@@ -78,7 +78,7 @@ class Ui_Dialog(object):
         self.spinBox_window_size = QtWidgets.QSpinBox(Dialog)
         self.spinBox_window_size.setGeometry(QtCore.QRect(390, 300, 101, 31))
         self.spinBox_window_size.setObjectName("spinBox_window_size")
-        self.spinBox_window_size.setMinimum(1)
+        self.spinBox_window_size.setMinimum(5)
         self.spinBox_window_size.setMaximum(500)
 
         self.label_32 = QtWidgets.QLabel(Dialog)
@@ -131,6 +131,14 @@ class Ui_Dialog(object):
         self.button_start_read.setGeometry(QtCore.QRect(550, 300, 100, 40))
         self.button_start_read.setObjectName("button_start_read")
 
+        self.button_next_plot = QtWidgets.QPushButton(Dialog)
+        self.button_next_plot.setGeometry(QtCore.QRect(640, 360, 100, 30))
+        self.button_next_plot.setObjectName("button_next_plot")
+
+        self.button_previous_plot = QtWidgets.QPushButton(Dialog)
+        self.button_previous_plot.setGeometry(QtCore.QRect(40, 360, 100, 30))
+        self.button_previous_plot.setObjectName("button_previous_plot")
+
         # Rango de acelerometro dropdown
         self.comboBox_acc_range = QtWidgets.QComboBox(Dialog)
         self.comboBox_acc_range.setGeometry(QtCore.QRect(210, 130, 101, 31))
@@ -165,6 +173,8 @@ class Ui_Dialog(object):
         self.button_configure.setText(_translate("Dialog", "Iniciar configuración"))
         self.button_start_read.setText(_translate("Dialog", "Iniciar captación \n"
 " de datos"))
+        self.button_next_plot.setText(_translate("Dialog", "Siguiente"))
+        self.button_previous_plot.setText(_translate("Dialog", "Anterior"))
         
 if __name__ == "__main__":
     import sys

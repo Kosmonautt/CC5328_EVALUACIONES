@@ -746,6 +746,9 @@ class BME_CONFIG:
             "Paralelo": "P",
         }
 
+        self.plots_info = {
+        }
+
         self.ready_event = threading.Event()
 
         self.chosen_mode = None

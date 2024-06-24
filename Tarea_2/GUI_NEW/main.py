@@ -39,6 +39,8 @@ class Controller:
         self.worker.setPlotSignal.connect(self.setPlot)
         self.uiReady = False
         self.chosen_sensor = None
+        self.plotIndex = 0
+        self.numberOfPlots = None
     
     def initBMI270(self):
         if self.uiReady:
@@ -100,6 +102,17 @@ class Controller:
 
     def setSignals(self):
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
+        self.ui.button_next_plot.clicked.connect(self.siguientePlot)
+        self.ui.button_previous_plot.clicked.connect(self.anteriorPlot)
+    
+    def siguientePlot(self):
+        if self.plotIndex < self.numberOfPlots - 1:
+            self.plotIndex += 1
+            self.worker.setPlotSignal.emit(self.plotIndex)
+    def anteriorPlot(self):
+        if self.plotIndex > 0:
+            self.plotIndex -= 1
+            self.worker.setPlotSignal.emit(self.plotIndex)
     
     def setPlot(self, index):
         # se consigue el elemento index del diccionario plots_info
@@ -255,19 +268,22 @@ class Controller:
                             self.worker.detectedSensorSignal.emit(Sensor.BMI270)
                             self.worker.initBMI270.emit()
                             self.worker.progressBarSignal.emit(50)
+                            self.numberOfPlots = len(bmi_config.plots_info)
 
                         # Si el mensaje es b'Chip BME688 reconocido.\r\n'
                         elif response == b'Chip BME688 reconocido.\r\n':
                             self.worker.detectedSensorSignal.emit(Sensor.BME688)
                             self.worker.initBME688.emit()
                             self.worker.progressBarSignal.emit(50)
+                            self.numberOfPlots = len(bme_config.plots_info)
 
                         elif response == b'Softreset: OK\r\n':
                              self.worker.progressBarSignal.emit(25)
                             
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
-                            self.worker.setPlotSignal.emit(0)
+                            self.plotIndex = 0
+                            self.worker.setPlotSignal.emit(self.plotIndex)
 
                         else:
                             if self.chosen_sensor == Sensor.BMI270:
