@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(774, 836)
+        Dialog.resize(774, 900)
 
         # Sensor activo label
         self.label_sensor = QtWidgets.QLabel(Dialog)
@@ -112,18 +112,18 @@ class Ui_Dialog(object):
         self.comboBox_gyr_range.setGeometry(QtCore.QRect(210, 250, 104, 31))
         self.comboBox_gyr_range.setObjectName("comboBox_gyr_range")
 
+        self.labelPlot = QtWidgets.QLabel(Dialog)
+        self.labelPlot.setGeometry(QtCore.QRect(290, 430, 150, 20))
+        self.labelPlot.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.labelPlot.setFrameShape(QtWidgets.QFrame.Box)
+        self.labelPlot.setAlignment(QtCore.Qt.AlignCenter)
+        self.labelPlot.setObjectName("labelPlot")
+        self.Plot = QtWidgets.QGraphicsView(Dialog)
+        self.Plot.setGeometry(QtCore.QRect(40, 460, 700, 420))
+        self.Plot.setFrameShape(QtWidgets.QFrame.Box)
+        self.Plot.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.Plot.setObjectName("Plot")
 
-        self.labbelPlot1 = QtWidgets.QLabel(Dialog)
-        self.labbelPlot1.setGeometry(QtCore.QRect(290, 430, 150, 20))
-        self.labbelPlot1.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.labbelPlot1.setFrameShape(QtWidgets.QFrame.Box)
-        self.labbelPlot1.setAlignment(QtCore.Qt.AlignCenter)
-        self.labbelPlot1.setObjectName("labbelPlot1")
-        self.Plot1 = QtWidgets.QGraphicsView(Dialog)
-        self.Plot1.setGeometry(QtCore.QRect(40, 460, 700, 350))
-        self.Plot1.setFrameShape(QtWidgets.QFrame.Box)
-        self.Plot1.setFrameShadow(QtWidgets.QFrame.Plain)
-        self.Plot1.setObjectName("Plot1")
         self.button_configure = QtWidgets.QPushButton(Dialog)
         self.button_configure.setGeometry(QtCore.QRect(550, 160, 141, 31))
         self.button_configure.setObjectName("button_configure")
@@ -161,7 +161,7 @@ class Ui_Dialog(object):
         self.label_gyr_range.setText(_translate("Dialog", "Rango"))
         self.label_gyr_ODR.setText(_translate("Dialog", "Frecuencia de \n"
 " muestreo"))
-        self.labbelPlot1.setText(_translate("Dialog", "Datos 1: <Datos>"))
+        self.labelPlot.setText(_translate("Dialog", "Datos 1: <Datos>"))
         self.button_configure.setText(_translate("Dialog", "Iniciar configuración"))
         self.button_start_read.setText(_translate("Dialog", "Iniciar captación \n"
 " de datos"))

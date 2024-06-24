@@ -1,6 +1,9 @@
 import threading
 from embebidos import Ui_Dialog
 from PyQt5 import QtCore, QtGui, QtWidgets
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt5.QtWidgets import QGraphicsScene
 from esp32_com import ESP32_COM
 from sensor_config import BMI_CONFIG, BME_CONFIG
 from serial.serialutil import SerialException
@@ -22,6 +25,7 @@ class SerialWorker(QtCore.QObject):
     progressBarSignal = QtCore.pyqtSignal(int)
     initBMI270 = QtCore.pyqtSignal()
     initBME688 = QtCore.pyqtSignal()
+    setPlotSignal = QtCore.pyqtSignal(str)
 
 class Controller:
     def __init__(self, parent):
@@ -32,6 +36,7 @@ class Controller:
         self.worker.progressBarSignal.connect(self.setProgressBar)
         self.worker.initBMI270.connect(self.initBMI270)
         self.worker.initBME688.connect(self.initBME688)
+        self.worker.setPlotSignal.connect(self.setPlot)
         self.uiReady = False
         self.chosen_sensor = None
     
@@ -95,6 +100,25 @@ class Controller:
 
     def setSignals(self):
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
+    
+    def setPlot(self, key):
+        self.ui.labelPlot.setText(key)
+
+        # Se crea una figura
+        figure = Figure()
+        # Se crea un canvas para la figura
+        canvas = FigureCanvas(figure)
+
+        # Optional: Add a subplot to the figure and plot something
+        ax = figure.add_subplot(111)
+        ax.plot([0, 1], [0, 1])  # Example plot
+
+        # Se crea una escena
+        scene = QGraphicsScene()
+        scene.addWidget(canvas)
+
+        # Se añade la escena al plot
+        self.ui.Plot.setScene(scene)
     
     def setDetectedSensor(self, sensor):
         self.chosen_sensor = sensor
@@ -227,7 +251,7 @@ class Controller:
                             
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
-                            # print(bmi_config.acc_data_g)
+                            self.worker.setPlotSignal.emit('Acelerometro')
                             pass
 
                         else:
