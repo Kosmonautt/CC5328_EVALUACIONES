@@ -113,13 +113,13 @@ class Ui_Dialog(object):
         self.comboBox_gyr_range.setObjectName("comboBox_gyr_range")
 
         self.labelPlot = QtWidgets.QLabel(Dialog)
-        self.labelPlot.setGeometry(QtCore.QRect(290, 430, 150, 20))
+        self.labelPlot.setGeometry(QtCore.QRect(290, 370, 150, 20))
         self.labelPlot.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.labelPlot.setFrameShape(QtWidgets.QFrame.Box)
         self.labelPlot.setAlignment(QtCore.Qt.AlignCenter)
         self.labelPlot.setObjectName("labelPlot")
         self.Plot = QtWidgets.QGraphicsView(Dialog)
-        self.Plot.setGeometry(QtCore.QRect(40, 460, 700, 420))
+        self.Plot.setGeometry(QtCore.QRect(40, 400, 700, 480))
         self.Plot.setFrameShape(QtWidgets.QFrame.Box)
         self.Plot.setFrameShadow(QtWidgets.QFrame.Plain)
         self.Plot.setObjectName("Plot")
@@ -128,7 +128,7 @@ class Ui_Dialog(object):
         self.button_configure.setGeometry(QtCore.QRect(550, 160, 141, 31))
         self.button_configure.setObjectName("button_configure")
         self.button_start_read = QtWidgets.QPushButton(Dialog)
-        self.button_start_read.setGeometry(QtCore.QRect(320, 370, 101, 41))
+        self.button_start_read.setGeometry(QtCore.QRect(550, 300, 100, 40))
         self.button_start_read.setObjectName("button_start_read")
 
         # Rango de acelerometro dropdown
