@@ -130,7 +130,7 @@ class Controller:
         
         elif self.chosen_sensor == Sensor.BME688:
             conf['Mode'] = self.ui.comboBox_mode.currentText()
-            conf['SampleSize'] = 50
+            conf['SampleSize'] = self.ui.spinBox_window_size.value()
 
             # Se configura la BME688
             bme_config.set_mode(conf['Mode'])
@@ -227,10 +227,14 @@ class Controller:
                             
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
-                            print(bmi_config.acc_data_g)
+                            # print(bmi_config.acc_data_g)
+                            pass
 
                         else:
-                            bmi_config.parse_line(response)
+                            if self.chosen_sensor == Sensor.BMI270:
+                                bmi_config.parse_line(response)
+                            elif self.chosen_sensor == Sensor.BME688:
+                                bme_config.parse_line(response)
 
                     except KeyboardInterrupt:
                         print('Finalizando comunicacion')

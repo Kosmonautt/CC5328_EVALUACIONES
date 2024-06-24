@@ -210,8 +210,11 @@ class BMI_CONFIG:
     def parse_line(self, line):
         # se saca \r\n del final
         line = line[:-2]
-        # se convierte a string
-        line = line.decode('utf-8')
+        try:
+            # se convierte a string
+            line = line.decode('utf-8')
+        except:
+            return
         
         # si existe '[Acc m/s2]' en la linea
         if '[Acc m/s2]' in line:
@@ -343,6 +346,9 @@ class BME_CONFIG:
     def clear(self):
         self.chosen_mode = None
         self.sample_size = None
+    
+    def parse_line(self, line):
+        pass
     
     
         
