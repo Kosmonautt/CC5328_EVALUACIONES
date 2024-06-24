@@ -25,7 +25,7 @@ class SerialWorker(QtCore.QObject):
     progressBarSignal = QtCore.pyqtSignal(int)
     initBMI270 = QtCore.pyqtSignal()
     initBME688 = QtCore.pyqtSignal()
-    setPlotSignal = QtCore.pyqtSignal(str)
+    setPlotSignal = QtCore.pyqtSignal(int)
 
 class Controller:
     def __init__(self, parent):
@@ -101,17 +101,33 @@ class Controller:
     def setSignals(self):
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
     
-    def setPlot(self, key):
-        self.ui.labelPlot.setText(key)
+    def setPlot(self, index):
+        # se consigue el elemento index del diccionario plots_info
+        if self.chosen_sensor == Sensor.BMI270:
+            key = list(bmi_config.plots_info.keys())[index]
+        elif self.chosen_sensor == Sensor.BME688:
+            pass
+        
+        dicc = bmi_config.plots_info[key]
+
+        self.ui.labelPlot.setText(dicc['title'])
 
         # Se crea una figura
         figure = Figure()
         # Se crea un canvas para la figura
         canvas = FigureCanvas(figure)
 
+        # se consiguen los datos del grafico	
+        y = dicc['data'][dicc['index']]
+        # se consigue el largo de los datos
+        x = range(1, len(y) + 1)
+
         # Optional: Add a subplot to the figure and plot something
         ax = figure.add_subplot(111)
-        ax.plot([0, 1], [0, 1])  # Example plot
+        ax.plot(x, y, dicc['color'])
+        ax.set_title(dicc['title'])
+        ax.set_xlabel(dicc['xlabel'])
+        ax.set_ylabel(dicc['ylabel'])
 
         # Se crea una escena
         scene = QGraphicsScene()
@@ -251,8 +267,7 @@ class Controller:
                             
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
-                            self.worker.setPlotSignal.emit('Acelerometro')
-                            pass
+                            self.worker.setPlotSignal.emit(0)
 
                         else:
                             if self.chosen_sensor == Sensor.BMI270:

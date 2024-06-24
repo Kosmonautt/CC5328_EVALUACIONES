@@ -63,11 +63,11 @@ class BMI_CONFIG:
         self.sample_size = None
 
         # arreglo para guardar los arreglos de datos de acc en m/s^2
-        self.acc_data_m_s2 = []
+        self.acc_data_m_s2 =  [[] for _ in range(17)]
         # arreglo para guardar los arreglos de datos de acc en g
-        self.acc_data_g = []
+        self.acc_data_g =  [[] for _ in range(17)]
         # arreglo para guardar los arreglos de datos de gyro en rad/s
-        self.gyro_data_rad_s = []
+        self.gyro_data_rad_s = [[] for _ in range(17)]
 
         # diccionario con los índices de los arreglos de datos, para acc en m/s^2, g y rad/s, con el identificador de la medida
         # como llave y el índice del arreglo como valor, para los arreglos de window_size
@@ -87,6 +87,441 @@ class BMI_CONFIG:
             'RMSx': 9,
             'RMSy': 10,
             'RMSz': 11
+        }
+
+        self.plots_info = {
+            'Acc_x (m/s^2)': {
+                'title': 'Aceleración en x [m/s^2]',
+                'data': self.acc_data_m_s2,
+                'index': 0,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'Aceleración [m/s^2]'
+            },
+            'Acc_y (m/s^2)': {
+                'title': 'Aceleración en y [m/s^2]',
+                'data': self.acc_data_m_s2,
+                'index': 1,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'Aceleración [m/s^2]'
+            },
+            'Acc_z (m/s^2)': {
+                'title': 'Aceleración en z [m/s^2]',
+                'data': self.acc_data_m_s2,
+                'index': 2,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'Aceleración [m/s^2]'
+            },
+            'FFTx_RE (m/s^2)': {
+                'title': 'FFT en eje x Real [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 3,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTx_IM (m/s^2)': {
+                'title': 'FFT en eje x Imaginario [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 4,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTy_RE (m/s^2)': {
+                'title': 'FFT en eje y Real [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 5,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTy_IM (m/s^2)': {
+                'title': 'FFT en eje y Imaginario [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 6,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTz_RE (m/s^2)': {
+                'title': 'FFT en eje z Real [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 7,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTz_IM (m/s^2)': {
+                'title': 'FFT en eje z Imaginario [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 8,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'RMSx (m/s^2)': {
+                'title': 'RMS en eje x [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 9,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            'RMSy (m/s^2)': {
+                'title': 'RMS en eje y [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 10,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            'RMSz (m/s^2)': {
+                'title': 'RMS en eje z [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 11,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSx (m/s^2)': {
+                'title': '5 Peaks de RMS en eje x [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 12,
+                'color': 'orange',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSy (m/s^2)': {
+                'title': '5 Peaks de RMS en eje y [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 13,
+                'color': 'orange',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSz (m/s^2)': {
+                'title': '5 Peaks de RMS en eje z [U.A.]',
+                'data': self.acc_data_m_s2,
+                'index': 14,
+                'color': 'orange',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_acc_x (m/s^2)': {
+                'title': '5 Peaks de Aceleración en eje x [m/s^2]',
+                'data': self.acc_data_m_s2,
+                'index': 15,
+                'color': 'orange',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Aceleración [m/s^2]'
+            },
+            '5peaks_acc_y (m/s^2)': {
+                'title': '5 Peaks de Aceleración en eje y [m/s^2]',
+                'data': self.acc_data_m_s2,
+                'index': 16,
+                'color': 'orange',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Aceleración [m/s^2]'
+            },
+            '5peaks_acc_z (m/s^2)': {
+                'title': '5 Peaks de Aceleración en eje z [m/s^2]',
+                'data': self.acc_data_m_s2,
+                'index': 17,
+                'color': 'orange',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Aceleración [m/s^2]'
+            },
+            'Acc_x (g)': {
+                'title': 'Aceleración en x [g]',
+                'data': self.acc_data_g,
+                'index': 0,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'Aceleración [g]'
+            },
+            'Acc_y (g)': {
+                'title': 'Aceleración en y [g]',
+                'data': self.acc_data_g,
+                'index': 1,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'Aceleración [g]'
+            },
+            'Acc_z (g)': {
+                'title': 'Aceleración en z [g]',
+                'data': self.acc_data_g,
+                'index': 2,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'Aceleración [g]'
+            },
+            'FFTx_RE (g)': {
+                'title': 'FFT en eje x Real [U.A.]',
+                'data': self.acc_data_g,
+                'index': 3,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTx_IM (g)': {
+                'title': 'FFT en eje x Imaginario [U.A.]',
+                'data': self.acc_data_g,
+                'index': 4,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTy_RE (g)': {
+                'title': 'FFT en eje y Real [U.A.]',
+                'data': self.acc_data_g,
+                'index': 5,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTy_IM (g)': {
+                'title': 'FFT en eje y Imaginario [U.A.]',
+                'data': self.acc_data_g,
+                'index': 6,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTz_RE (g)': {
+                'title': 'FFT en eje z Real [U.A.]',
+                'data': self.acc_data_g,
+                'index': 7,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTz_IM (g)': {
+                'title': 'FFT en eje z Imaginario [U.A.]',
+                'data': self.acc_data_g,
+                'index': 8,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'RMSx (g)': {
+                'title': 'RMS en eje x [U.A.]',
+                'data': self.acc_data_g,
+                'index': 9,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            'RMSy (g)': {
+                'title': 'RMS en eje y [U.A.]',
+                'data': self.acc_data_g,
+                'index': 10,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            'RMSz (g)': {
+                'title': 'RMS en eje z [U.A.]',
+                'data': self.acc_data_g,
+                'index': 11,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSx (g)': {
+                'title': '5 Peaks de RMS en eje x [U.A.]',
+                'data': self.acc_data_g,
+                'index': 12,
+                'color': 'red',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSy (g)': {
+                'title': '5 Peaks de RMS en eje y [U.A.]',
+                'data': self.acc_data_g,
+                'index': 13,
+                'color': 'red',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSz (g)': {
+                'title': '5 Peaks de RMS en eje z [U.A.]',
+                'data': self.acc_data_g,
+                'index': 14,
+                'color': 'red',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_acc_x (g)': {
+                'title': '5 Peaks de Aceleración en eje x [g]',
+                'data': self.acc_data_g,
+                'index': 15,
+                'color': 'red',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Aceleración [g]'
+            },
+            '5peaks_acc_y (g)': {
+                'title': '5 Peaks de Aceleración en eje y [g]',
+                'data': self.acc_data_g,
+                'index': 16,
+                'color': 'red',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Aceleración [g]'
+            },
+            '5peaks_acc_z (g)': {
+                'title': '5 Peaks de Aceleración en eje z [g]',
+                'data': self.acc_data_g,
+                'index': 17,
+                'color': 'red',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Aceleración [g]'
+            },
+            'Gyro_x (rad/s)': {
+                'title': 'Velocidad angular en eje x [rad/s]',
+                'data': self.gyro_data_rad_s,
+                'index': 0,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'Giroscopio [rad/s]'
+            },
+            'Gyro_y (rad/s)': {
+                'title': 'Velocidad angular en eje y [rad/s]',
+                'data': self.gyro_data_rad_s,
+                'index': 1,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'Giroscopio [rad/s]'
+            },
+            'Gyro_z (rad/s)': {
+                'title': 'Velocidad angular en eje z [rad/s]',
+                'data': self.gyro_data_rad_s,
+                'index': 2,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'Giroscopio [rad/s]'
+            },
+            'FFTx_RE (rad/s)': {
+                'title': 'FFT en eje x Real [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 3,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTx_IM (rad/s)': {
+                'title': 'FFT en eje x Imaginario [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 4,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTy_RE (rad/s)': {
+                'title': 'FFT en eje y Real [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 5,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTy_IM (rad/s)': {
+                'title': 'FFT en eje y Imaginario [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 6,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTz_RE (rad/s)': {
+                'title': 'FFT en eje z Real [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 7,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'FFTz_IM (rad/s)': {
+                'title': 'FFT en eje z Imaginario [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 8,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'FFT [U.A.]'
+            },
+            'RMSx (rad/s)': {
+                'title': 'RMS en eje x [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 9,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            'RMSy (rad/s)': {
+                'title': 'RMS en eje y [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 10,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            'RMSz (rad/s)': {
+                'title': 'RMS en eje z [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 11,
+                'color': 'navy',
+                'xlabel': 'Muestra',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSx (rad/s)': {
+                'title': '5 Peaks de RMS en eje x [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 12,
+                'color': 'navy',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSy (rad/s)': {
+                'title': '5 Peaks de RMS en eje y [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 13,
+                'color': 'navy',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_RMSz (rad/s)': {
+                'title': '5 Peaks de RMS en eje z [U.A.]',
+                'data': self.gyro_data_rad_s,
+                'index': 14,
+                'color': 'navy',
+                'xlabel': '5 Peaks',
+                'ylabel': 'RMS [U.A.]'
+            },
+            '5peaks_gyr_x (rad/s)': {
+                'title': '5 Peaks de Giroscopio en eje x [rad/s]',
+                'data': self.gyro_data_rad_s,
+                'index': 15,
+                'color': 'navy',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Giroscopio [rad/s]'
+            },
+            '5peaks_gyr_y (rad/s)': {
+                'title': '5 Peaks de Giroscopio en eje y [rad/s]',
+                'data': self.gyro_data_rad_s,
+                'index': 16,
+                'color': 'navy',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Giroscopio [rad/s]'
+            },
+            '5peaks_gyr_z (rad/s)': {
+                'title': '5 Peaks de Giroscopio en eje z [rad/s]',
+                'data': self.gyro_data_rad_s,
+                'index': 17,
+                'color': 'navy',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Giroscopio [rad/s]'
+            }
         }
 
         # diccionario con los índices de los arreglos de datos, para acc en m/s^2, g y rad/s, con el identificador de la medida
