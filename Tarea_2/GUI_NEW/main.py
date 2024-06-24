@@ -102,6 +102,7 @@ class Controller:
 
     def setSignals(self):
         self.ui.button_configure.clicked.connect(self.leerConfiguracion)
+        self.ui.button_start_read.clicked.connect(self.beginRead)
         self.ui.button_next_plot.clicked.connect(self.siguientePlot)
         self.ui.button_previous_plot.clicked.connect(self.anteriorPlot)
     
@@ -177,9 +178,6 @@ class Controller:
             bmi_config.set_odr_gyro(conf['GyroODR'])
             bmi_config.set_range_gyro(conf['GyroRange'])
             bmi_config.set_sample_size(conf['SampleSize'])
-
-            # Se revisa si la configuración está lista
-            bmi_config.is_ready_changed()
         
         elif self.chosen_sensor == Sensor.BME688:
             conf['Mode'] = self.ui.comboBox_mode.currentText()
@@ -188,7 +186,12 @@ class Controller:
             # Se configura la BME688
             bme_config.set_mode(conf['Mode'])
             bme_config.set_sample_size(conf['SampleSize'])
-
+    
+    def beginRead(self):
+        if self.chosen_sensor == Sensor.BMI270:
+            # Se revisa si la configuración está lista
+            bmi_config.is_ready_changed()
+        elif self.chosen_sensor == Sensor.BME688:
             # Se revisa si la configuración está lista
             bme_config.is_ready_changed()
 
