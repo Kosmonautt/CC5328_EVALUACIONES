@@ -62,6 +62,78 @@ class BMI_CONFIG:
         self.chosen_range_gyro = None
         self.sample_size = None
 
+        # arreglo para guardar los arreglos de datos de acc en m/s^2
+        self.acc_data_m_s2 = []
+        # arreglo para guardar los arreglos de datos de acc en g
+        self.acc_data_g = []
+        # arreglo para guardar los arreglos de datos de gyro en rad/s
+        self.gyro_data_rad_s = []
+
+        # diccionario con los índices de los arreglos de datos, para acc en m/s^2, g y rad/s, con el identificador de la medida
+        # como llave y el índice del arreglo como valor, para los arreglos de window_size
+        self.window_size_index= {
+            'acc_x': 0,
+            'acc_y': 1,
+            'acc_z': 2,
+            'gyr_x': 0,
+            'gyr_y': 1,
+            'gyr_z': 2,
+            'FFTx_RE': 3,
+            'FFTx_IM': 4,
+            'FFTy_RE': 5,
+            'FFTy_IM': 6,
+            'FFTz_RE': 7,
+            'FFTz_IM': 8,
+            'RMSx': 9,
+            'RMSy': 10,
+            'RMSz': 11
+        }
+
+        # diccionario con los índices de los arreglos de datos, para acc en m/s^2, g y rad/s, con el identificador de la medida
+        # como llave y el índice del arreglo como valor, para los arreglos de 5
+        self.five_peaks_index= {
+            'RMSx': 12,
+            'RMSy': 13,
+            'RMSz': 14,
+            'acc_x': 15,
+            'acc_y': 16,
+            'acc_z': 17,
+            'gyr_x': 15,
+            'gyr_y': 16,
+            'gyr_z': 17
+        }
+
+    # función para inicializar los arreglos de datos
+    def initialize_data(self, window_size):
+        # window_size se pasa a int
+        window_size = int(window_size)
+
+        # se borran los datos anteriores
+        self.acc_data_m_s2.clear()
+        self.acc_data_g.clear()
+        self.gyro_data_rad_s.clear()
+        
+        # se añaden los arreglos de datos
+        # se añaden arreglos que guardaran la informacion de las medidas
+        # 0 -> x, 1 -> y, 2 -> z
+        # 3 -> FFTxReal, 4 -> FFTxImag, 5 -> FFTyReal, 6 -> FFTyImag, 7 -> FFTzReal, 8 -> FFTzImag
+        # 9 -> RMSx, 10 -> RMSy, 11 -> RMSz
+        # 12 -> RMSx_5_peaks, 13 -> RMSy_5_peaks, 14 -> RMSz_5_peaks
+        # 15 -> x_5_peaks, 16 -> y_5_peaks, 17 -> z_5_peaks
+        # los arreglos del 0 al 11 son de window_size elementos
+        # del 12 al 17 son de 5 elementos
+        for i in range(18):
+            if i < 12:
+                self.acc_data_m_s2.append([0]*window_size)
+                self.acc_data_g.append([0]*window_size)
+                self.gyro_data_rad_s.append([0]*window_size)
+            else:
+                self.acc_data_m_s2.append([0]*5)
+                self.acc_data_g.append([0]*5)
+                self.gyro_data_rad_s.append([0]*5)
+
+    print('Arreglos de datos inicializados!')  
+
     def set_mode(self, mode):
         # Se cambia el modo de operación
         self.chosen_mode = self.power_modes[mode]
@@ -133,6 +205,100 @@ class BMI_CONFIG:
         self.chosen_odr_gyro = None
         self.chosen_range_gyro = None
         self.sample_size = None
+
+    # función para parsear una linea de datos
+    def parse_line(self, line):
+        # se saca \r\n del final
+        line = line[:-2]
+        # se convierte a string
+        line = line.decode('utf-8')
+        
+        # si existe '[Acc m/s2]' en la linea
+        if '[Acc m/s2]' in line:
+            # se divide la linea en los datos por un espacio en blanco
+            line = line.split(' ')
+            # se consigue si es 'Lectura', 'Dato' o 'Top'
+            data_type = line[2]
+            # se consigue el número de muestra
+            sample_number = int(line[3][:-1])
+            # se consigue el identificador de la medida
+            measure = line[4].split(':')[0]
+            # se consigue el valor de la medida
+            value = float(line[5])
+
+            if data_type == 'Lectura' or data_type == 'Dato':
+                # se consigue el índice del arreglo de datos
+                index_array = self.window_size_index[measure]
+                # se consigue el arreglo de datos
+                array = self.acc_data_m_s2[index_array]
+                # se añade el valor al arreglo de datos
+                array[sample_number - 1] = value
+
+            elif data_type == 'Top':
+                # se consigue el índice del arreglo de datos
+                index_array = self.five_peaks_index[measure]
+                # se consigue el arreglo de datos
+                array = self.acc_data_m_s2[index_array]
+                # se añade el valor al arreglo de datos
+                array[sample_number - 1] = value
+
+        # si existe '[Acc g]' en la linea
+        elif '[Acc g]' in line:
+            # se divide la linea en los datos por un espacio en blanco
+            line = line.split(' ')
+            # se consigue si es 'Lectura', 'Dato' o 'Top'
+            data_type = line[2]
+            # se consigue el número de muestra
+            sample_number = int(line[3][:-1])
+            # se consigue el identificador de la medida
+            measure = line[4].split(':')[0]
+            # se consigue el valor de la medida
+            value = float(line[5])
+
+            if data_type == 'Lectura' or data_type == 'Dato':
+                # se consigue el índice del arreglo de datos
+                index_array = self.window_size_index[measure]
+                # se consigue el arreglo de datos
+                array = self.acc_data_g[index_array]
+                # se añade el valor al arreglo de datos
+                array[sample_number - 1] = value
+
+            elif data_type == 'Top':
+                # se consigue el índice del arreglo de datos
+                index_array = self.five_peaks_index[measure]
+                # se consigue el arreglo de datos
+                array = self.acc_data_g[index_array]
+                # se añade el valor al arreglo de datos
+                array[sample_number - 1] = value
+
+        # si existe '[Ang_Vel rad/s]' en la linea
+        elif '[Ang_Vel rad/s]' in line:
+            # se divide la linea en los datos por un espacio en blanco
+            line = line.split(' ')
+            # se consigue si es 'Lectura', 'Dato' o 'Top'
+            data_type = line[2]
+            # se consigue el número de muestra
+            sample_number = int(line[3][:-1])
+            # se consigue el identificador de la medida
+            measure = line[4].split(':')[0]
+            # se consigue el valor de la medida
+            value = float(line[5])
+
+            if data_type == 'Lectura' or data_type == 'Dato':
+                # se consigue el índice del arreglo de datos
+                index_array = self.window_size_index[measure]
+                # se consigue el arreglo de datos
+                array = self.gyro_data_rad_s[index_array]
+                # se añade el valor al arreglo de datos
+                array[sample_number - 1] = value
+
+            elif data_type == 'Top':
+                # se consigue el índice del arreglo de datos
+                index_array = self.five_peaks_index[measure]
+                # se consigue el arreglo de datos
+                array = self.gyro_data_rad_s[index_array]
+                # se añade el valor al arreglo de datos
+                array[sample_number - 1] = value
 
 class BME_CONFIG:
     def __init__(self):
