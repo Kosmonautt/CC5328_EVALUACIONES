@@ -115,7 +115,7 @@ class Controller:
             conf['AccRange'] = self.ui.comboBox_acc_range.currentText()
             conf['GyroODR'] = self.ui.comboBox_gyr_odr.currentText()
             conf['GyroRange'] = self.ui.comboBox_gyr_range.currentText()
-            conf['SampleSize'] = 50
+            conf['SampleSize'] = self.ui.spinBox_window_size.value()
 
             # Se configura la BMI270
             bmi_config.set_mode(conf['Mode'])
@@ -138,9 +138,6 @@ class Controller:
 
             # Se revisa si la configuración está lista
             bme_config.is_ready_changed()
-
-        print (conf)
-        return conf
 
 
     def criticalError(self):
@@ -180,6 +177,8 @@ class Controller:
                                 bmi_config.ready_event.wait()
 
                                 print('Configuracion lista')
+
+                                bmi_config.initialize_data(bmi_config.sample_size)
 
                                 # se codifica la configuración de la BMI270
                                 begin_message = esp32_com.encode_message(bmi_config.to_string())
@@ -228,7 +227,10 @@ class Controller:
                             
                         ## si el mensaje es b'Procesamiento finalizado\n\n'
                         elif response == b'Procesamiento finalizado\r\n':
-                            pass
+                            print(bmi_config.acc_data_g)
+
+                        else:
+                            bmi_config.parse_line(response)
 
                     except KeyboardInterrupt:
                         print('Finalizando comunicacion')
