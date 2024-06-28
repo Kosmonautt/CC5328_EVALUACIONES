@@ -138,14 +138,16 @@ class Controller:
         self.ui.label_data_read.setText("Datos leidos: {}".format(value))
     
     def setPlot(self, index):
+        dicc = None
         # se consigue el elemento index del diccionario plots_info
         if self.chosen_sensor == Sensor.BMI270:
             key = list(bmi_config.plots_info.keys())[index]
-        elif self.chosen_sensor == Sensor.BME688:
-            pass
-        
-        dicc = bmi_config.plots_info[key]
+            dicc = bmi_config.plots_info[key]
 
+        elif self.chosen_sensor == Sensor.BME688:
+            key = list(bme_config.plots_info.keys())[index]
+            dicc = bme_config.plots_info[key]
+        
         self.ui.labelPlot.setText(dicc['title'])
 
         # Se crea una figura
@@ -275,6 +277,8 @@ class Controller:
                                 bme_config.ready_event.wait()
 
                                 print('Configuracion lista')
+
+                                bme_config.initialize_data(bme_config.sample_size)
 
                                 # se codifica la configuración de la BME688
                                 begin_message = esp32_com.encode_message(bme_config.to_string())

@@ -567,8 +567,6 @@ class BMI_CONFIG:
                 self.acc_data_g.append([0]*5)
                 self.gyro_data_rad_s.append([0]*5)
 
-    print('Arreglos de datos inicializados!')  
-
     def set_mode(self, mode):
         # Se cambia el modo de operación
         self.chosen_mode = self.power_modes[mode]
@@ -746,13 +744,100 @@ class BME_CONFIG:
             "Paralelo": "P",
         }
 
-        self.plots_info = {
-        }
 
         self.ready_event = threading.Event()
 
         self.chosen_mode = None
         self.sample_size = None
+
+        # arreglo para guardar los arreglos de datos de temp, presión, humedad, gas, 5 peaks de temp, presión, humedad y gas
+        self.data = [[] for _ in range(8)]
+
+        self.plots_info = {
+            'Temperatura (°C)': {
+                'title': 'Temperatura [°C]',
+                'data': self.data,
+                'index': 0,
+                'color': 'red',
+                'xlabel': 'Muestra',
+                'ylabel': 'Temperatura [°C]'
+            },
+            'Presión (pa)': {
+                'title': 'Presión [Pa]',
+                'data': self.data,
+                'index': 1,
+                'color': 'blue',
+                'xlabel': 'Muestra',
+                'ylabel': 'Presión [Pa]'
+            },
+            'Humedad (%)': {
+                'title': 'Humedad [%]',
+                'data': self.data,
+                'index': 2,
+                'color': 'green',
+                'xlabel': 'Muestra',
+                'ylabel': 'Humedad [%]'
+            },
+            'Gas (Ohm)': {
+                'title': 'Gas [Ohm]',
+                'data': self.data,
+                'index': 3,
+                'color': 'orange',
+                'xlabel': 'Muestra',
+                'ylabel': 'Gas [Ohm]'
+            },
+            '5peaks_Temperatura (°C)': {
+                'title': '5 Peaks de Temperatura [°C]',
+                'data': self.data,
+                'index': 4,
+                'color': 'red',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Temperatura [°C]'
+            },
+            '5peaks_Presión (pa)': {
+                'title': '5 Peaks de Presión [Pa]',
+                'data': self.data,
+                'index': 5,
+                'color': 'blue',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Presión [Pa]'
+            },
+            '5peaks_Humedad (%)': {
+                'title': '5 Peaks de Humedad [%]',
+                'data': self.data,
+                'index': 6,
+                'color': 'green',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Humedad [%]'
+            },
+            '5peaks_Gas (Ohm)': {
+                'title': '5 Peaks de Gas [Ohm]',
+                'data': self.data,
+                'index': 7,
+                'color': 'orange',
+                'xlabel': '5 Peaks',
+                'ylabel': 'Gas [Ohm]'
+            }
+        }
+
+    def initialize_data(self, window_size):
+        # window_size se pasa a int
+        window_size = int(window_size)
+
+        # se borran los datos anteriores
+        self.data.clear()
+
+        # se añaden los arreglos de datos
+        # se añaden arreglos que guardaran la informacion de las medidas
+        # 0 -> temp, 1 -> presión, 2 -> humedad, 3 -> gas
+        # 4 -> temp_5_peaks, 5 -> presión_5_peaks, 6 -> humedad_5_peaks, 7 -> gas_5_peaks
+        # los arreglos del 0 al 3 son de window_size elementos
+        # del 4 al 7 son de 5 elementos
+        for i in range(8):
+            if i < 4:
+                self.data.append([0]*window_size)
+            else:
+                self.data.append([0]*5)
 
     def set_mode(self, mode):
         # Se cambia el modo de operación
@@ -786,7 +871,89 @@ class BME_CONFIG:
         self.sample_size = None
     
     def parse_line(self, line):
-        pass
+        # se saca \r\n del final
+        line = line[:-2]
+        try:
+            # se convierte a string
+            line = line.decode('utf-8')
+        except:
+            return
+        
+        # si existe '[Temperatura]' en la linea
+        if '[Temperatura]' in line:
+            # se divide la linea en los datos por un espacio en blanco
+            line = line.split(' ')
+            # se consigue si es 'Lectura', 'Dato' o 'Top'
+            data_type = line[1]
+            # se consigue el número de muestra
+            sample_number = int(line[2][:-1])
+            # se consigue el valor de la medida
+            value = float(line[3])
+
+            if data_type == 'Lectura':
+                # se añade el valor al arreglo de datos
+                self.data[0][sample_number - 1] = value
+            
+            elif data_type == 'Top':
+                # se añade el valor al arreglo de datos
+                self.data[4][sample_number - 1] = value
+        
+        # si existe '[Presi\xc3\xb3n]' en la linea
+        elif '[Presión]' in line:
+            # se divide la linea en los datos por un espacio en blanco
+            line = line.split(' ')
+            # se consigue si es 'Lectura', 'Dato' o 'Top'
+            data_type = line[1]
+            # se consigue el número de muestra
+            sample_number = int(line[2][:-1])
+            # se consigue el valor de la medida
+            value = float(line[3])
+
+            if data_type == 'Lectura':
+                # se añade el valor al arreglo de datos
+                self.data[1][sample_number - 1] = value
+            
+            elif data_type == 'Top':
+                # se añade el valor al arreglo de datos
+                self.data[5][sample_number - 1] = value
+
+        # si existe '[Humedad]' en la linea
+        elif '[Humedad]' in line:
+            # se divide la linea en los datos por un espacio en blanco
+            line = line.split(' ')
+            # se consigue si es 'Lectura', 'Dato' o 'Top'
+            data_type = line[1]
+            # se consigue el número de muestra
+            sample_number = int(line[2][:-1])
+            # se consigue el valor de la medida
+            value = float(line[3])
+
+            if data_type == 'Lectura':
+                # se añade el valor al arreglo de datos
+                self.data[2][sample_number - 1] = value
+            
+            elif data_type == 'Top':
+                # se añade el valor al arreglo de datos
+                self.data[6][sample_number - 1] = value
+        
+        # si existe '[Resistencia]' en la linea
+        elif '[Resistencia]' in line:
+            # se divide la linea en los datos por un espacio en blanco
+            line = line.split(' ')
+            # se consigue si es 'Lectura', 'Dato' o 'Top'
+            data_type = line[1]
+            # se consigue el número de muestra
+            sample_number = int(line[2][:-1])
+            # se consigue el valor de la medida
+            value = float(line[3])
+
+            if data_type == 'Lectura':
+                # se añade el valor al arreglo de datos
+                self.data[3][sample_number - 1] = value
+            
+            elif data_type == 'Top':
+                # se añade el valor al arreglo de datos
+                self.data[7][sample_number - 1] = value
     
     
         
