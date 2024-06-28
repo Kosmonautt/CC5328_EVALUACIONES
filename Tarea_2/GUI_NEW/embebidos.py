@@ -128,8 +128,12 @@ class Ui_Dialog(object):
         self.button_configure.setGeometry(QtCore.QRect(550, 160, 141, 31))
         self.button_configure.setObjectName("button_configure")
         self.button_start_read = QtWidgets.QPushButton(Dialog)
-        self.button_start_read.setGeometry(QtCore.QRect(550, 300, 100, 40))
+        self.button_start_read.setGeometry(QtCore.QRect(515, 295, 100, 40))
         self.button_start_read.setObjectName("button_start_read")
+
+        self.label_data_read = QtWidgets.QLabel(Dialog)
+        self.label_data_read.setGeometry(QtCore.QRect(640, 295, 100, 40))
+        self.label_data_read.setObjectName("label_data_read")
 
         self.button_next_plot = QtWidgets.QPushButton(Dialog)
         self.button_next_plot.setGeometry(QtCore.QRect(640, 360, 100, 30))
@@ -173,6 +177,7 @@ class Ui_Dialog(object):
         self.button_configure.setText(_translate("Dialog", "Iniciar configuración"))
         self.button_start_read.setText(_translate("Dialog", "Iniciar captación \n"
 " de datos"))
+        self.label_data_read.setText(_translate("Dialog", "Datos leidos: 0"))
         self.button_next_plot.setText(_translate("Dialog", "Siguiente"))
         self.button_previous_plot.setText(_translate("Dialog", "Anterior"))
         

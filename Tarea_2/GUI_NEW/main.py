@@ -8,6 +8,7 @@ from esp32_com import ESP32_COM
 from sensor_config import BMI_CONFIG, BME_CONFIG
 from serial.serialutil import SerialException
 from enum import Enum
+import re
 
 # Se configura el puerto y el BAUD_Rate
 PORT = 'COM3'  # Esto depende del sistema operativo
@@ -26,6 +27,7 @@ class SerialWorker(QtCore.QObject):
     initBMI270 = QtCore.pyqtSignal()
     initBME688 = QtCore.pyqtSignal()
     setPlotSignal = QtCore.pyqtSignal(int)
+    setDataRead = QtCore.pyqtSignal(int)
 
 class Controller:
     def __init__(self, parent):
@@ -37,10 +39,26 @@ class Controller:
         self.worker.initBMI270.connect(self.initBMI270)
         self.worker.initBME688.connect(self.initBME688)
         self.worker.setPlotSignal.connect(self.setPlot)
+        self.worker.setDataRead.connect(self.setDataRead)
         self.uiReady = False
         self.chosen_sensor = None
         self.plotIndex = 0
         self.numberOfPlots = None
+
+    def starts_with_lectura(self, line):
+        # se saca \r\n del final
+        line = line[:-2]
+        try:
+            # se convierte a string
+            line = line.decode('utf-8')
+        except:
+            return None
+        
+        match = re.search(r'^Lectura (\d+):', line)
+        if match:
+            return int(match.group(1))
+        else:
+            return None
     
     def initBMI270(self):
         if self.uiReady:
@@ -110,10 +128,14 @@ class Controller:
         if self.plotIndex < self.numberOfPlots - 1:
             self.plotIndex += 1
             self.worker.setPlotSignal.emit(self.plotIndex)
+
     def anteriorPlot(self):
         if self.plotIndex > 0:
             self.plotIndex -= 1
             self.worker.setPlotSignal.emit(self.plotIndex)
+
+    def setDataRead(self, value):
+        self.ui.label_data_read.setText("Datos leidos: {}".format(value))
     
     def setPlot(self, index):
         # se consigue el elemento index del diccionario plots_info
@@ -287,9 +309,13 @@ class Controller:
                         elif response == b'Procesamiento finalizado\r\n':
                             self.plotIndex = 0
                             self.worker.setPlotSignal.emit(self.plotIndex)
+                            self.worker.setDataRead.emit(0)
 
                         else:
-                            if self.chosen_sensor == Sensor.BMI270:
+                            n_lectura = self.starts_with_lectura(response)
+                            if n_lectura:
+                                self.worker.setDataRead.emit(n_lectura)
+                            elif self.chosen_sensor == Sensor.BMI270:
                                 bmi_config.parse_line(response)
                             elif self.chosen_sensor == Sensor.BME688:
                                 bme_config.parse_line(response)
